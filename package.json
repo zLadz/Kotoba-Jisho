@@ -20,6 +20,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
+    "db:generate": "npm run db:generate --workspace=@kotoba/database",
+    "db:migrate": "npm run db:migrate --workspace=@kotoba/database",
     "format:check": "prettier --check .",
     "format:write": "prettier --write ."
   },
