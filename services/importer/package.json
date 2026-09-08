@@ -5,6 +5,15 @@
   "description": "Processo de importação de dados do JMdict para o Kotoba",
   "type": "module",
   "scripts": {
+    "import": "tsx src/index.ts",
     "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@kotoba/database": "0.1.0",
+    "drizzle-orm": "^0.45.2",
+    "fast-xml-parser": "^5.11.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
   }
 }

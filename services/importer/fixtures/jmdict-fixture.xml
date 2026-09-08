@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JMdict SYSTEM "JMdict.dtd">
+<!-- Fixture JMdict para testes do importer Kotoba. Estrutura baseada no DTD oficial. -->
+<JMdict>
+  <header>
+    <author info="Dicionário Elaborado / Elaborated by">Equipe Kotoba</author>
+    <contributor id="1001" info="Equipe Kotoba / Kotoba team">Lucas Diniz</contributor>
+    <comments>Header fictício baseado no JMdict oficial, usado apenas em testes.</comments>
+    <copyright info="(C) Equipe Kotoba / Kotoba team">Este arquivo é uma simulação para fins de teste.</copyright>
+    <jmdictRevision>1.02</jmdictRevision>
+    <fileVersion>2026-09-08</fileVersion>
+  </header>
+  <entry>
+    <ent_seq>1410460</ent_seq>
+    <k_ele>
+      <keb>食べる</keb>
+      <ke_pri>ichi1</ke_pri>
+      <ke_pri>news1</ke_pri>
+    </k_ele>
+    <k_ele>
+      <keb>喰べる</keb>
+      <ke_inf>ateji</ke_inf>
+    </k_ele>
+    <r_ele>
+      <reb>たべる</reb>
+      <re_pri>ichi1</re_pri>
+      <re_pri>news1</re_pri>
+    </r_ele>
+    <r_ele>
+      <reb>はむ</reb>
+      <re_restr>喰べる</re_restr>
+      <re_inf>uk</re_inf>
+    </r_ele>
+    <sense>
+      <pos>&adj-i;</pos>
+      <gloss xml:lang="pt">comestível</gloss>
+      <gloss xml:lang="pt">próprio para comer</gloss>
+      <gloss>edible</gloss>
+    </sense>
+    <sense>
+      <pos>&v1;</pos>
+      <pos>&vt;</pos>
+      <field>&food;</field>
+      <misc>&col;</misc>
+      <stagk>食べる</stagk>
+      <stagr>たべる</stagr>
+      <gloss xml:lang="pt">comer</gloss>
+      <gloss xml:lang="pt">ingerir</gloss>
+      <gloss>to eat</gloss>
+    </sense>
+    <sense>
+      <pos>&v1;</pos>
+      <pos>&vi;</pos>
+      <gloss xml:lang="pt">subsistir</gloss>
+      <gloss xml:lang="pt">viver de</gloss>
+      <gloss>to live on</gloss>
+      <gloss>to subsist on</gloss>
+    </sense>
+  </entry>
+  <entry>
+    <ent_seq>1581480</ent_seq>
+    <k_ele>
+      <keb>日本</keb>
+      <ke_pri>ichi1</ke_pri>
+      <ke_pri>news1</ke_pri>
+    </k_ele>
+    <r_ele>
+      <reb>にっぽん</reb>
+      <re_pri>ichi1</re_pri>
+    </r_ele>
+    <r_ele>
+      <reb>にほん</reb>
+      <re_pri>news1</re_pri>
+    </r_ele>
+    <sense>
+      <pos>&n;</pos>
+      <xref>国</xref>
+      <xref>Japanese</xref>
+      <gloss xml:lang="pt">Japão</gloss>
+      <gloss>Japan</gloss>
+    </sense>
+  </entry>
+  <entry>
+    <ent_seq>1294040</ent_seq>
+    <k_ele>
+      <keb>学生</keb>
+      <ke_pri>ichi1</ke_pri>
+    </k_ele>
+    <r_ele>
+      <reb>がくせい</reb>
+      <re_pri>ichi1</re_pri>
+    </r_ele>
+    <sense>
+      <pos>&n;</pos>
+      <dial>&kansai;</dial>
+      <gloss xml:lang="pt">estudante</gloss>
+      <gloss xml:lang="pt">aluno</gloss>
+      <gloss>student</gloss>
+    </sense>
+  </entry>
+  <entry>
+    <ent_seq>1742690</ent_seq>
+    <k_ele>
+      <keb>珈琲</keb>
+      <ke_inf>ateji</ke_inf>
+      <ke_inf>rK</ke_inf>
+    </k_ele>
+    <r_ele>
+      <reb>コーヒー</reb>
+      <re_nokanji/>
+      <re_pri>ichi1</re_pri>
+    </r_ele>
+    <sense>
+      <pos>&n;</pos>
+      <lsource xml:lang="eng" ls_type="1">coffee</lsource>
+      <gloss xml:lang="pt">café</gloss>
+      <gloss>coffee</gloss>
+      <gloss xml:lang="pt">café &amp; leite</gloss>
+    </sense>
+  </entry>
+</JMdict>
