@@ -2,5 +2,9 @@
   "name": "@kotoba/validation",
   "version": "0.1.0",
   "private": true,
-  "description": "Schemas de validação Zod compartilhados do Kotoba"
+  "description": "Schemas de validação Zod compartilhados do Kotoba",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc"
+  }
 }

@@ -2,5 +2,11 @@
   "name": "@kotoba/config",
   "version": "0.1.0",
   "private": true,
-  "description": "Configurações compartilhadas do Kotoba (ESLint, Prettier, TypeScript)"
+  "description": "Configurações compartilhadas do Kotoba (ESLint, Prettier, TypeScript)",
+  "type": "module",
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/node": "./eslint/node.js",
+    "./prettier": "./prettier/index.js"
+  }
 }

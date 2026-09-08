@@ -1,2 +1,3 @@
 # LadJisho
-Jisho em Português 
+
+Jisho em Português
