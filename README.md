@@ -1,0 +1,2 @@
+# LadJisho
+Jisho em Português 
