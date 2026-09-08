@@ -1,0 +1,6 @@
+{
+  "name": "@kotoba/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Schema, migrations e acesso ao banco de dados Kotoba"
+}

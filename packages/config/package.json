@@ -1,0 +1,6 @@
+{
+  "name": "@kotoba/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configurações compartilhadas do Kotoba (ESLint, Prettier, TypeScript)"
+}

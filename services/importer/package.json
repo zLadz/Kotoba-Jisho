@@ -1,0 +1,6 @@
+{
+  "name": "@kotoba/importer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Processo de importação de dados do JMdict para o Kotoba"
+}

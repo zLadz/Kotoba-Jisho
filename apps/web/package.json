@@ -1,0 +1,6 @@
+{
+  "name": "@kotoba/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicação web Kotoba (Next.js)"
+}
