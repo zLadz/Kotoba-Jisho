@@ -18,6 +18,7 @@
     "fastify": "^5.0.0"
   },
   "devDependencies": {
+    "postgres": "^3.4.9",
     "tsx": "^4.23.0"
   }
 }

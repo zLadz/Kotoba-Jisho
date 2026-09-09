@@ -4,6 +4,10 @@
   "private": true,
   "description": "Processo de importação de dados do JMdict para o Kotoba",
   "type": "module",
+  "exports": {
+    "./parser": "./src/parser.ts",
+    "./storage": "./src/storage.ts"
+  },
   "scripts": {
     "import": "tsx src/index.ts",
     "typecheck": "tsc"

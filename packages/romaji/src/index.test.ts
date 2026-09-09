@@ -42,4 +42,18 @@ describe('kanaToRomaji', () => {
     expect(kanaToRomaji('')).toBe('');
     expect(kanaToRomaji('a')).toBe('');
   });
+
+  it('aplica n e apostrofo antes de vogal e y com ん', () => {
+    expect(hiraganaToRomaji('しんや')).toBe("shin'ya");
+    expect(hiraganaToRomaji('しんにゅう')).toBe('shinnyuu');
+    expect(hiraganaToRomaji('しんねん')).toBe('shinnen');
+  });
+
+  it('documenta comportamento atual para particulas e empréstimos', () => {
+    expect(hiraganaToRomaji('こんにちは')).toBe('konnichiha');
+    expect(katakanaToRomaji('ティー')).toBe('teii');
+    expect(katakanaToRomaji('ファン')).toBe('fuan');
+    expect(katakanaToRomaji('シェフ')).toBe('shiefu');
+    expect(katakanaToRomaji('ヴァン')).toBe('an');
+  });
 });

@@ -5,7 +5,10 @@ export default [
   ...base,
   {
     languageOptions: {
-      globals: globals.node,
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
     },
   },
 ];

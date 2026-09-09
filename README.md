@@ -56,3 +56,19 @@ rota inexistente), `DATABASE_UNAVAILABLE` (503) e `INTERNAL_ERROR` (500).
 
 Variáveis de ambiente: `HOST`, `PORT`, `LOG_LEVEL`, `CORS_ORIGIN` e `DATABASE_URL`
 (ver [`.env.example`](.env.example)).
+
+## Frontend
+
+Aplicação Next.js (App Router) + React + Tailwind CSS em `apps/web`.
+
+```bash
+npm run dev
+```
+
+Subir API e frontend juntos em desenvolvimento: `npm run dev` usa
+[`concurrently`](https://www.npmjs.com/package/concurrently) — API em
+`http://localhost:3000` e frontend em `http://localhost:3001`.
+
+A busca é feita contra `GET /api/v1/search` e o detalhe contra
+`GET /api/v1/entries/:id`. Para apontar o frontend para outra instância da API,
+defina `NEXT_PUBLIC_API_URL` (padrão `http://localhost:3000`).

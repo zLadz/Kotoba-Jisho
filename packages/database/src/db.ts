@@ -6,7 +6,7 @@ import * as schema from './schema.js';
 
 const rootEnvPath = fileURLToPath(new URL('../../../.env', import.meta.url));
 
-if (existsSync(rootEnvPath)) {
+if (existsSync(rootEnvPath) && !process.env.DATABASE_URL) {
   process.loadEnvFile(rootEnvPath);
 }
 
