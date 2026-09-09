@@ -77,6 +77,13 @@ Monolith **modular**: cada domínio é um módulo independente em `src/modules/`
   local (`useState`) — **sem** gerenciamento de estado global (§17).
 - A página de detalhe (`src/app/entry/[id]/page.tsx`) é um server component que consome a
   API de forma direta e usa `notFound()` para entradas inexistentes.
+- A apresentação do detalhe é decidida por lógica pura em
+  `src/lib/entry-presentation.ts` (`presentEntry`): numera apenas os **senses com conteúdo**
+  para o idioma ("Sentido N") e, quando a entrada inteira não tem tradução para o idioma,
+  exibe **uma única** mensagem no nível da entrada (ex.: "Tradução em português ainda não
+  disponível.") — nunca uma mensagem por sense. POS são chips separados
+  (`src/lib/pos.ts`) e kanji aparecem como chips individuais (`src/lib/kanji.ts`), sem
+  concatenar; `source` não é exibido como rótulo na UI principal (§14).
 - `src/lib/api.ts` reutiliza os tipos de `@kotoba/types` e `@kotoba/validation` para falar
   com a API.
 
@@ -146,16 +153,31 @@ As traduções **curadas** do Kotoba (hoje `pt-BR`) vivem na tabela `translation
 camada é **dados próprios**, com o ciclo de vida registrado em `source_imports`
 (`source = kotoba-translations`).
 
-Regra de resolução (`resolveSenseTranslations`):
+Regra de resolução (`translations.ts`):
 
-- **`pt-BR`** (`DEFAULT_LANGUAGE`): apenas a camada Kotoba; sem fallback para o JMdict
-  (acepção sem tradução curada fica vazia, protegendo a etapa de curadoria);
-- **demais idiomas**: camada Kotoba se existir para o idioma; senão, glosses do JMdict
-  filtrados pelo idioma (`source: "jmdict"`), sempre com proveniência explícita no payload
-  (`source`/`sourceVersion`).
+- **`resolveKotobaTranslations`** — retorna apenas a camada Kotoba para o idioma solicitado
+  (`sense.translations` filtrado por `language`). Sem fallback para o JMdict.
+- **`resolveSenseSourceGlosses`** — retorna os glosses JMdict da acepção cujo código 3‑letras
+  corresponda ao idioma (via `jmdictLanguageCodes`), preservando a `language` e `source`
+  originais. Nunca é convertido para "tradução".
+- **`resolveSenseTranslations`** — usada **somente** no resultado de busca (listagem
+  compacta): camada Kotoba se existir para o idioma; senão, glosses JMdict do idioma com
+  `source: "jmdict"` e proveniência explícita.
 
-A busca é **escopada por `lang`**: `isKotobaOwned(lang) || hasKotobaTranslations(lang)`
-determina se o termo pesquisa as traduções da camada Kotoba ou os glosses JMdict do idioma.
+Contrato do endpoint de detalhe (`GET /api/v1/entries/:id`, §9): cada sense é um objeto com
+`partOfSpeech`, `fields`, `misc`, `dialects`, `kanjiRestrictions`, `readingRestrictions`,
+`translations` (apenas Kotoba, ex.: `language: "pt-BR"`, `source: "manual"`) e
+`sourceGlosses` (glosses JMdict de origem do idioma, ex.: `{ text: "to eat", language: "en",
+source: "jmdict" }`). JMdict e camada portuguesa nunca se misturam no mesmo array; a busca é
+**escopada por `lang`**: `isKotobaOwned(lang) || hasKotobaTranslations(lang)` determina se o
+termo pesquisa as traduções da camada Kotoba ou os glosses JMdict do idioma, e `en` nunca
+aparece como fallback automático de `pt-BR`.
+
+Convenção de idioma (§2): `pt-BR` é o identificador **canônico** da camada Kotoba (valor real
+armazenado em `translations.language`). Os glosses do JMdict usam os códigos 3‑letras do
+próprio JMdict (`en`, `pt`, `spa`, `fre`, ...) em `glosses.language`. O mapeamento
+`jmdictLanguageCodes` (`@kotoba/types`) traduz um `lang` solicitado nos códigos válidos do
+JMdict; `pt` e `pt-BR` não são intercambiáveis arbitrariamente.
 
 ### Testes de integração (§23)
 

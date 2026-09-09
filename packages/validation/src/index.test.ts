@@ -141,6 +141,18 @@ describe('response schemas', () => {
               sourceVersion: 'dev-1',
             },
           ],
+          sourceGlosses: [
+            {
+              language: 'pt',
+              text: 'comer',
+              source: 'jmdict',
+            },
+            {
+              language: 'en',
+              text: 'to eat',
+              source: 'jmdict',
+            },
+          ],
         },
       ],
     };

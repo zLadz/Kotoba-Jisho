@@ -11,7 +11,7 @@
     <fileVersion>2026-09-08</fileVersion>
   </header>
   <entry>
-    <ent_seq>1410460</ent_seq>
+    <ent_seq>1358280</ent_seq>
     <k_ele>
       <keb>食べる</keb>
       <ke_pri>ichi1</ke_pri>
@@ -58,7 +58,7 @@
     </sense>
   </entry>
   <entry>
-    <ent_seq>1581480</ent_seq>
+    <ent_seq>1582710</ent_seq>
     <k_ele>
       <keb>日本</keb>
       <ke_pri>ichi1</ke_pri>
@@ -81,7 +81,7 @@
     </sense>
   </entry>
   <entry>
-    <ent_seq>1294040</ent_seq>
+    <ent_seq>1206900</ent_seq>
     <k_ele>
       <keb>学生</keb>
       <ke_pri>ichi1</ke_pri>
@@ -99,7 +99,7 @@
     </sense>
   </entry>
   <entry>
-    <ent_seq>1742690</ent_seq>
+    <ent_seq>1049180</ent_seq>
     <k_ele>
       <keb>珈琲</keb>
       <ke_inf>ateji</ke_inf>
@@ -116,6 +116,21 @@
       <gloss xml:lang="pt">café</gloss>
       <gloss>coffee</gloss>
       <gloss xml:lang="pt">café &amp; leite</gloss>
+    </sense>
+  </entry>
+  <entry>
+    <ent_seq>1410460</ent_seq>
+    <k_ele>
+      <keb>帯同</keb>
+    </k_ele>
+    <r_ele>
+      <reb>たいどう</reb>
+    </r_ele>
+    <sense>
+      <pos>&n;</pos>
+      <pos>&vs;</pos>
+      <pos>&vt;</pos>
+      <gloss>taking (someone) along</gloss>
     </sense>
   </entry>
 </JMdict>

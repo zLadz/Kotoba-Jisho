@@ -17,19 +17,19 @@ export interface SeedEntry {
 
 export const seedEntries: SeedEntry[] = [
   {
-    jmdictSeq: 1410460,
+    jmdictSeq: 1358280,
     kanji: ['食べる'],
     readings: ['たべる'],
     senses: [{ partOfSpeech: ['v1', 'vt'], glosses: ['comer', 'alimentar-se'] }],
   },
   {
-    jmdictSeq: 1577570,
+    jmdictSeq: 1169870,
     kanji: ['飲む'],
     readings: ['のむ'],
     senses: [{ partOfSpeech: ['v5', 'vt'], glosses: ['beber', 'tomar'] }],
   },
   {
-    jmdictSeq: 1215810,
+    jmdictSeq: 1578850,
     kanji: ['行く'],
     readings: ['いく', 'ゆく'],
     senses: [
@@ -38,7 +38,7 @@ export const seedEntries: SeedEntry[] = [
     ],
   },
   {
-    jmdictSeq: 1545870,
+    jmdictSeq: 1259290,
     kanji: ['見る'],
     readings: ['みる'],
     senses: [
@@ -47,13 +47,13 @@ export const seedEntries: SeedEntry[] = [
     ],
   },
   {
-    jmdictSeq: 1581480,
+    jmdictSeq: 1582710,
     kanji: ['日本'],
     readings: ['にほん', 'にっぽん'],
     senses: [{ partOfSpeech: ['n'], glosses: ['Japão'] }],
   },
   {
-    jmdictSeq: 1294040,
+    jmdictSeq: 1206900,
     kanji: ['学生'],
     readings: ['がくせい'],
     senses: [{ partOfSpeech: ['n'], glosses: ['estudante', 'aluno'] }],

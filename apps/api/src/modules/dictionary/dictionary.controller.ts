@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { DictionaryEntry } from '@kotoba/types';
 import { entryParamsSchema, entryResponseSchema, type EntryResponse } from '@kotoba/validation';
 import { dictionaryService } from './dictionary.service.js';
-import { resolveSenseTranslations } from './translations.js';
+import { resolveKotobaTranslations, resolveSenseSourceGlosses } from './translations.js';
 import { errorBody } from '../../shared/errors.js';
 
 export function toEntryResponse(entry: DictionaryEntry, lang: string): EntryResponse {
@@ -29,7 +29,8 @@ export function toEntryResponse(entry: DictionaryEntry, lang: string): EntryResp
       dialects: [...sense.dialects],
       kanjiRestrictions: [...sense.kanjiRestrictions],
       readingRestrictions: [...sense.readingRestrictions],
-      translations: resolveSenseTranslations(sense, lang),
+      translations: resolveKotobaTranslations(sense, lang),
+      sourceGlosses: resolveSenseSourceGlosses(sense, lang),
     })),
   };
 }

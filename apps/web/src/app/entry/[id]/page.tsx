@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { DEFAULT_LANGUAGE } from '../../../lib/language';
 import { getEntry } from '../../../lib/api';
 import { localizePos } from '../../../lib/pos';
+import { presentEntry } from '../../../lib/entry-presentation';
 import { KanjiChars, TranslationList } from '../../../components/entry';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,7 @@ export default async function EntryPage({
   const kanji = entry.kanji[0];
   const primaryReading = entry.readings[0];
   const display = kanji?.text ?? primaryReading?.text ?? '';
+  const presented = presentEntry(entry, language);
 
   return (
     <main className="flex flex-col gap-6">
@@ -83,22 +85,44 @@ export default async function EntryPage({
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
           Traduções ({language})
         </h2>
-        <ul className="flex flex-col gap-4">
-          {entry.senses.map((sense, index) => (
-            <li key={`${sense.partOfSpeech.join('-')}-${index}`} className="flex flex-col gap-1">
-              {sense.partOfSpeech.length > 0 ? (
-                <div className="flex flex-wrap gap-1">
-                  {sense.partOfSpeech.map((pos) => (
-                    <span key={pos} className="rounded bg-sky-50 px-2 py-0.5 text-xs text-sky-700">
-                      {localizePos(pos)}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-              <TranslationList translations={sense.translations} />
-            </li>
-          ))}
-        </ul>
+        {presented.message !== null ? (
+          <p className="text-sm text-slate-400">{presented.message}</p>
+        ) : (
+          <ol className="flex flex-col gap-5">
+            {presented.senses.map((sense) => (
+              <li key={sense.number} className="flex flex-col gap-2">
+                <h3 className="text-sm font-semibold text-slate-700">Sentido {sense.number}</h3>
+                {sense.partOfSpeech.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {sense.partOfSpeech.map((pos) => (
+                      <span
+                        key={pos}
+                        className="rounded bg-sky-50 px-2 py-0.5 text-xs text-sky-700"
+                      >
+                        {localizePos(pos)}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                {sense.fields.length > 0 || sense.misc.length > 0 ? (
+                  <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-slate-400">
+                    {sense.misc.map((item) => (
+                      <span key={`misc-${item}`}>{item}</span>
+                    ))}
+                    {sense.fields.map((item) => (
+                      <span key={`field-${item}`}>{item}</span>
+                    ))}
+                  </div>
+                ) : null}
+                {sense.translations.length > 0 ? (
+                  <TranslationList items={sense.translations} />
+                ) : sense.glosses.length > 0 ? (
+                  <TranslationList items={sense.glosses} />
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </main>
   );

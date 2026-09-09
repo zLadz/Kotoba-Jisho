@@ -3,68 +3,84 @@
   "version": "dev-1",
   "translations": [
     {
-      "jmdictSeq": 1410460,
+      "jmdictSeq": 1358280,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "comer",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる", "喰べる"],
+      "reading": ["たべる"]
     },
     {
-      "jmdictSeq": 1410460,
+      "jmdictSeq": 1358280,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "comestível",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる", "喰べる"],
+      "reading": ["たべる"]
     },
     {
-      "jmdictSeq": 1410460,
-      "sensePosition": 1,
+      "jmdictSeq": 1358280,
+      "sensePosition": 0,
       "language": "pt-BR",
       "text": "alimentar-se",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる", "喰べる"],
+      "reading": ["たべる"]
     },
     {
-      "jmdictSeq": 1410460,
-      "sensePosition": 2,
+      "jmdictSeq": 1358280,
+      "sensePosition": 1,
       "language": "pt-BR",
       "text": "sobreviver",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる", "喰べる"],
+      "reading": ["たべる"]
     },
     {
-      "jmdictSeq": 1581480,
+      "jmdictSeq": 1582710,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "Japão",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["日本"],
+      "reading": ["にほん", "にっぽん"]
     },
     {
-      "jmdictSeq": 1294040,
+      "jmdictSeq": 1206900,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "estudante",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["学生"],
+      "reading": ["がくせい"]
     },
     {
-      "jmdictSeq": 1294040,
+      "jmdictSeq": 1206900,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "aluno",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["学生"],
+      "reading": ["がくせい"]
     },
     {
-      "jmdictSeq": 1742690,
+      "jmdictSeq": 1049180,
       "sensePosition": 0,
       "language": "pt-BR",
       "text": "café",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["珈琲"],
+      "reading": ["コーヒー"]
     },
     {
       "jmdictSeq": 1323080,
@@ -72,7 +88,9 @@
       "language": "pt-BR",
       "text": "veículo",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま", "クルマ"]
     },
     {
       "jmdictSeq": 1323080,
@@ -80,7 +98,9 @@
       "language": "pt-BR",
       "text": "carro",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま", "クルマ"]
     },
     {
       "jmdictSeq": 1323080,
@@ -88,7 +108,9 @@
       "language": "pt-BR",
       "text": "roda",
       "source": "manual",
-      "sourceVersion": "manual-curated-1"
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま", "クルマ"]
     }
   ]
 }

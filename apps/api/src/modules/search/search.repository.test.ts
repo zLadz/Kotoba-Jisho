@@ -92,14 +92,14 @@ describe('repository de busca (tiers)', () => {
     await flushEntryBatch(entries, sourceImportId);
     await completeSourceImport(
       sourceImportId,
-      { processed: 4, inserted: 4, updated: 0, skipped: 0, errors: 0 },
+      { processed: 5, inserted: 5, updated: 0, skipped: 0, errors: 0 },
       Date.now(),
     );
 
     const ids = await db.execute(
-      sql`select jmdict_seq, id from entries where jmdict_seq in (1410460, 1742690)`,
+      sql`select jmdict_seq, id from entries where jmdict_seq in (1358280, 1049180)`,
     );
-    eatId = ids.find((row) => row.jmdict_seq === 1410460)!.id as string;
+    eatId = ids.find((row) => row.jmdict_seq === 1358280)!.id as string;
 
     const senseIds = await db.execute(
       sql`select id from senses where entry_id = ${eatId} order by position limit 1`,

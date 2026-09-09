@@ -81,19 +81,19 @@ describe('armazenamento em lote (importer)', () => {
   });
 
   it('insere um lote e grava provenance e campos normalizados', async () => {
-    await importFixture(storage, parser, 4, sourceImportId);
+    await importFixture(storage, parser, 5, sourceImportId);
 
     const entries = await db.execute(
       sql`select count(*)::int as total from entries where source_import_id = ${sourceImportId}`,
     );
-    expect(entries[0]?.total).toBe(4);
+    expect(entries[0]?.total).toBe(5);
 
     const readings = await db.execute(
       sql`
         select r.normalized_text
         from readings r
         join entries e on e.id = r.entry_id
-        where e.jmdict_seq = 1410460
+        where e.jmdict_seq = 1358280
       `,
     );
     expect(readings.map((row) => row.normalized_text)).toEqual(['たべる', 'はむ']);
@@ -109,17 +109,68 @@ describe('armazenamento em lote (importer)', () => {
     expect(glosses[0]?.source).toBe('jmdict');
   });
 
+  it('mantém gloss único sem atributo e isola 食べる de 帯同 (regressão §8)', async () => {
+    const taberuGlosses = await db.execute(
+      sql`
+        select g.normalized_text
+        from glosses g
+        join senses s on s.id = g.sense_id
+        join entries e on e.id = s.entry_id
+        where e.jmdict_seq = 1358280
+      `,
+    );
+    expect(taberuGlosses.map((row) => row.normalized_text)).toContain('to eat');
+
+    const taidoReadings = await db.execute(
+      sql`
+        select r.normalized_text
+        from readings r
+        join entries e on e.id = r.entry_id
+        where e.jmdict_seq = 1410460
+      `,
+    );
+    expect(taidoReadings.map((row) => row.normalized_text)).toEqual(['たいどう']);
+
+    const taidoGlosses = await db.execute(
+      sql`
+        select g.normalized_text
+        from glosses g
+        join senses s on s.id = g.sense_id
+        join entries e on e.id = s.entry_id
+        where e.jmdict_seq = 1410460
+      `,
+    );
+    expect(taidoGlosses.map((row) => row.normalized_text)).toEqual(['taking (someone) along']);
+
+    const taberuSet = new Set<string>(taberuGlosses.map((row) => row.normalized_text as string));
+    const taidoSet = new Set<string>(taidoGlosses.map((row) => row.normalized_text as string));
+    const intersection = [...taberuSet].filter((value) => taidoSet.has(value));
+    expect(intersection).toEqual([]);
+
+    const taidoComendo = await db.execute(
+      sql`
+        select count(*)::int as total
+        from glosses g
+        join senses s on s.id = g.sense_id
+        join entries e on e.id = s.entry_id
+        where e.jmdict_seq = 1410460
+          and (g.normalized_text like '%comer%' or g.normalized_text like '%comest%')
+      `,
+    );
+    expect(taidoComendo[0]?.total).toBe(0);
+  });
+
   it('reimporta o mesmo lote sem duplicar e conta como atualização', async () => {
-    await importFixture(storage, parser, 4, sourceImportId);
+    await importFixture(storage, parser, 5, sourceImportId);
 
     const entries = await db.execute(sql`select count(*)::int as total from entries`);
-    expect(entries[0]?.total).toBe(4);
+    expect(entries[0]?.total).toBe(5);
 
     const glossCount = await db.execute(sql`select count(*)::int as total from glosses`);
     const prevGlossCount = glossCount[0]?.total ?? 0;
 
     const result = await storage.flushEntryBatch(await parseAll(), sourceImportId);
-    expect(result).toEqual({ inserted: 0, updated: 4 });
+    expect(result).toEqual({ inserted: 0, updated: 5 });
 
     const after = await db.execute(sql`select count(*)::int as total from glosses`);
     expect(after[0]?.total).toBe(prevGlossCount);

@@ -9,8 +9,9 @@ Kotoba é um dicionário Japonês → Português Brasileiro. Pesquise por **kanj
 detalhada de cada palavra, com leituras, romaji, classe gramatical e acepções.
 
 As traduções em pt-BR são uma **camada lexical própria** (tabela `translations`), curada e
-independente das traduções genéricas do JMdict; o frontend e a API leem a camada Kotoba para
-pt-BR com fallback para as traduções oficiais do JMdict nos demais idiomas.
+independente das traduções genéricas do JMdict. O endpoint de detalhe separa
+`translations` (camada Kotoba, `pt-BR`) de `sourceGlosses` (glosses JMdict de origem), sem
+fallback automático de inglês para português.
 
 ## Stack
 
@@ -108,8 +109,10 @@ troubleshooting): [`docs/development.md`](docs/development.md).
 ## API REST
 
 API Fastify versionada em `/api/v1`. O parâmetro `lang` (padrão `pt-BR`) define a camada de
-tradução: para `pt-BR`, as traduções vêm da **camada Kotoba** (`translations`); para os
-demais idiomas, há fallback para as traduções do JMdict (`source: "jmdict"`).
+tradução: para `pt-BR`, `translations` vem da **camada Kotoba** (`source: "manual"`); para os
+demais idiomas, `translations` usa a camada Kotoba do idioma se existir e, no detalhe da
+entrada, os glosses JMdict de origem ficam em `sourceGlosses` (nunca como fallback automático
+para a seção pt-BR).
 
 | Método | Rota                                     | Descrição                                                                                                                                                      |
 | ------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |

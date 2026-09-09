@@ -98,11 +98,7 @@ function toReading(raw: unknown, position: number): JmdictReading {
 
 function toSense(raw: unknown, position: number): JmdictSense {
   const node = asRecord(raw);
-  const glossaRaw = node.gloss;
-  const glosses =
-    typeof glossaRaw === 'string' || glossaRaw == null
-      ? []
-      : asArray<unknown>(glossaRaw).map(toGloss);
+  const glosses = asArray<unknown>(node.gloss).map(toGloss);
   return {
     position,
     partOfSpeech: asArray<string>(node.pos as string[]).map((v) =>

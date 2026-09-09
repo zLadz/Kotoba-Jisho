@@ -38,9 +38,9 @@ class ChecksumTransform extends Transform {
 }
 
 async function sha256File(path: string): Promise<string> {
-  const checksum = new ChecksumTransform();
-  await pipeline(createReadStream(path), checksum);
-  return checksum.digest();
+  const hash = createHash('sha256');
+  await pipeline(createReadStream(path), hash);
+  return hash.digest('hex');
 }
 
 async function fetchToFile(url: string, dest: string): Promise<DownloadedJmdict> {

@@ -1,20 +1,10 @@
 import { extractKanjiChars } from '../lib/kanji';
 
-export function TranslationList({
-  translations,
-}: {
-  translations: Array<{ language: string; text: string; source: string }>;
-}): React.JSX.Element {
-  if (translations.length === 0) {
-    return <p className="text-sm text-slate-400">Nenhuma tradução para este idioma.</p>;
-  }
+export function TranslationList({ items }: { items: Array<{ text: string }> }): React.JSX.Element {
   return (
-    <ul className="flex flex-col gap-1">
-      {translations.map((translation) => (
-        <li key={`${translation.language}-${translation.text}-${translation.source}`}>
-          <span className="mr-2">{translation.text}</span>
-          <span className="text-xs uppercase text-slate-400">{translation.source}</span>
-        </li>
+    <ul className="flex list-disc flex-col gap-1 pl-5">
+      {items.map((item, index) => (
+        <li key={`${item.text}-${index}`}>{item.text}</li>
       ))}
     </ul>
   );

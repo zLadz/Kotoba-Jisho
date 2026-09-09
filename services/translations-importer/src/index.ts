@@ -6,10 +6,12 @@ import {
   failTranslationImport,
   flushTranslationBatch,
   markRunning,
+  replaceTranslationRows,
   startTranslationImport,
   updateTranslationProgress,
   type TranslationImportProgress,
   type TranslationRow,
+  type TranslationSourceKey,
 } from './storage.js';
 
 const DEFAULT_BATCH_SIZE = 2500;
@@ -82,19 +84,32 @@ async function main(): Promise<void> {
   let sourceImportId: string | undefined;
 
   try {
-    const handle = await startTranslationImport({
-      source,
-      version,
-      checksum: checksumOf(content),
-    });
+    const checksum = checksumOf(content);
+    const handle = await startTranslationImport({ source, version, checksum });
     sourceImportId = handle.id;
 
+    const rerunWithReplace = handle.status === 'completed' && handle.checksum !== checksum;
     if (handle.status === 'completed') {
-      logger.info('importação já concluída anteriormente; nada a fazer', {
+      if (!rerunWithReplace) {
+        logger.info('importação já concluída com o mesmo checksum; nada a fazer', {
+          source,
+          version,
+        });
+        process.exit(0);
+      }
+      logger.info('checksum alterado desde a importação anterior; substituindo dados', {
         source,
         version,
       });
-      process.exit(0);
+      const pairs: TranslationSourceKey[] = [
+        ...new Map(
+          parsed.translations.map((row) => [
+            `${row.source}|${row.sourceVersion}`,
+            { source: row.source, sourceVersion: row.sourceVersion },
+          ]),
+        ).values(),
+      ];
+      await replaceTranslationRows(pairs);
     }
 
     await markRunning(sourceImportId);
@@ -106,6 +121,8 @@ async function main(): Promise<void> {
       }
       const result = await flushTranslationBatch(buffer);
       progress.inserted += result.inserted;
+      progress.skipped += result.skipped;
+      progress.errors += result.errors;
       buffer = [];
       await updateTranslationProgress(sourceImportId!, {
         processed: progress.processed,
@@ -116,6 +133,8 @@ async function main(): Promise<void> {
       logger.info('lote aplicado', {
         batch: progress.processed,
         inserted: result.inserted,
+        skipped: result.skipped,
+        errors: result.errors,
         elapsedSeconds: Math.round((Date.now() - startedAtMs) / 1000),
       });
     };
@@ -139,6 +158,7 @@ async function main(): Promise<void> {
       translations: progress.processed,
       inserted: progress.inserted,
       skipped: progress.skipped,
+      errors: progress.errors,
       elapsedSeconds: Math.round(elapsedMs / 1000),
     });
   } catch (error) {

@@ -75,19 +75,19 @@ describe('integração', () => {
     );
 
     const senseBySeq = new Map<number, string>();
-    for (const seq of [1410460, 1581480, 1294040, 1742690]) {
+    for (const seq of [1358280, 1582710, 1206900, 1049180, 1410460]) {
       const rows = await db.execute(
         sql`select s.id from senses s join entries e on e.id = s.entry_id where e.jmdict_seq = ${seq} order by s.position limit 1`,
       );
       senseBySeq.set(seq, rows[0]!.id as string);
     }
     const kotobaTranslations: Array<{ senseId: string; text: string }> = [
-      { senseId: senseBySeq.get(1410460)!, text: 'comer' },
-      { senseId: senseBySeq.get(1410460)!, text: 'comestível' },
-      { senseId: senseBySeq.get(1581480)!, text: 'Japão' },
-      { senseId: senseBySeq.get(1294040)!, text: 'estudante' },
-      { senseId: senseBySeq.get(1294040)!, text: 'aluno' },
-      { senseId: senseBySeq.get(1742690)!, text: 'café' },
+      { senseId: senseBySeq.get(1358280)!, text: 'comer' },
+      { senseId: senseBySeq.get(1358280)!, text: 'comestível' },
+      { senseId: senseBySeq.get(1582710)!, text: 'Japão' },
+      { senseId: senseBySeq.get(1206900)!, text: 'estudante' },
+      { senseId: senseBySeq.get(1206900)!, text: 'aluno' },
+      { senseId: senseBySeq.get(1049180)!, text: 'café' },
     ];
     for (let position = 0; position < kotobaTranslations.length; position += 1) {
       const item = kotobaTranslations[position]!;
@@ -119,13 +119,13 @@ describe('integração', () => {
 
   it('importa entradas do JMdict', async () => {
     const total = await db.execute(sql`select count(*)::int as total from entries`);
-    expect(total[0]?.total).toBe(4);
+    expect(total[0]?.total).toBe(5);
 
     const readings = await db.execute(sql`
       select r.text, r.romaji
       from readings r
       join entries e on e.id = r.entry_id
-      where e.jmdict_seq = 1410460
+      where e.jmdict_seq = 1358280
       order by r.position
     `);
     expect(readings).toEqual([
@@ -146,7 +146,7 @@ describe('integração', () => {
       results: Array<{
         kanji: string[];
         romaji: string[];
-        translations: Array<{ text: string; source: string }>;
+        translations: Array<{ text: string; source: string; language: string }>;
       }>;
     }>();
     expect(body?.query).toBe('taberu');
@@ -158,6 +158,9 @@ describe('integração', () => {
       source: 'manual',
       sourceVersion: 'dev-1',
     });
+    // Teste 1: o idioma padrão/resultante é pt-BR, nunca en.
+    expect(body?.results[0]?.translations.every((t) => t.language === 'pt-BR')).toBe(true);
+    expect(body?.results[0]?.translations.some((t) => t.language === 'en')).toBe(false);
   });
 
   it('busca por romaji e por português (padrão pt-BR usa a camada Kotoba)', async () => {
@@ -254,7 +257,7 @@ describe('integração', () => {
       createdAt?: unknown;
     }>();
     expect(body?.id).toBe(id);
-    expect(body?.jmdictSeq).toBe(1410460);
+    expect(body?.jmdictSeq).toBe(1358280);
     expect(body?.kanji[0]?.text).toBe('食べる');
     expect(body?.readings[0]?.romaji).toBe('taberu');
     expect(
@@ -270,23 +273,43 @@ describe('integração', () => {
     const id = search?.json<{ results: Array<{ id: string }> }>().results[0]?.id;
 
     const ptBr = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=pt-BR` });
-    const ptBrBody = ptBr?.json<{ senses: Array<{ translations: Array<{ source: string }> }> }>();
+    const ptBrBody = ptBr?.json<{
+      senses: Array<{
+        translations: Array<{ text: string; source: string; language: string }>;
+        sourceGlosses: Array<{ text: string; source: string; language: string }>;
+      }>;
+    }>();
+    expect(ptBrBody?.senses[0]?.translations.length ?? 0).toBeGreaterThan(0);
     expect(ptBrBody?.senses[0]?.translations.every((t) => t.source === 'manual')).toBe(true);
+    expect(ptBrBody?.senses[0]?.translations.every((t) => t.language === 'pt-BR')).toBe(true);
+    // Teste 5: glosses en não viram fallback PT-BR.
+    expect(
+      ptBrBody?.senses[0]?.sourceGlosses.every((g) => g.language === 'pt' || g.language === 'por'),
+    ).toBe(true);
+    expect(
+      ptBrBody?.senses[0]?.translations.some((t) => t.text === 'to live on (e.g. a salary)'),
+    ).toBe(false);
 
     const ptJmdict = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=pt` });
     const ptBody = ptJmdict?.json<{
-      senses: Array<{ translations: Array<{ text: string; source: string }> }>;
+      senses: Array<{
+        translations: unknown[];
+        sourceGlosses: Array<{ text: string; source: string; language: string }>;
+      }>;
     }>();
-    expect(ptBody?.senses[0]?.translations).toContainEqual({
+    expect(ptBody?.senses[0]?.translations).toEqual([]);
+    expect(ptBody?.senses[0]?.sourceGlosses).toContainEqual({
       language: 'pt',
       text: 'comestível',
       source: 'jmdict',
-      sourceVersion: '',
     });
 
     const fr = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=fr` });
-    const frBody = fr?.json<{ senses: Array<{ translations: unknown[] }> }>();
+    const frBody = fr?.json<{
+      senses: Array<{ translations: unknown[]; sourceGlosses: unknown[] }>;
+    }>();
     expect(frBody?.senses[0]?.translations).toEqual([]);
+    expect(frBody?.senses[0]?.sourceGlosses).toEqual([]);
   });
 
   it('executa o fluxo end-to-end: seed → banco → API → busca → resultado', async () => {
@@ -305,6 +328,75 @@ describe('integração', () => {
     expect(detail?.statusCode).toBe(200);
     const detailBody = detail?.json<{ readings: Array<{ text: string; romaji: string }> }>();
     expect(detailBody?.readings[0]?.romaji).toBe('gakusei');
+  });
+
+  describe('regressão §7b/§8: 食べる e 帯同 não se contaminam', () => {
+    let taberuId: string;
+    let taidoId: string;
+
+    beforeAll(async () => {
+      const rows = await db.execute(sql`
+        select e.id, e.jmdict_seq from entries e
+        where e.jmdict_seq in (1358280, 1410460)
+      `);
+      const bySeq = new Map<number, string>();
+      for (const row of rows) {
+        bySeq.set(row.jmdict_seq as number, row.id as string);
+      }
+      taberuId = bySeq.get(1358280)!;
+      taidoId = bySeq.get(1410460)!;
+    });
+
+    it('busca "comer" em pt-BR retorna 食べる e nunca 帯同', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=comer&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string }> }>();
+      const ids = body?.results.map((result) => result.id) ?? [];
+      expect(ids).toContain(taberuId);
+      expect(ids).not.toContain(taidoId);
+    });
+
+    it('entrada 帯同 não tem traduções de 食べる e glosses são disjuntos (§8)', async () => {
+      const taidoDetail = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/entries/${taidoId}?lang=pt-BR`,
+      });
+      expect(taidoDetail?.statusCode).toBe(200);
+      const taidoBody = taidoDetail?.json<{
+        kanji: Array<{ text: string }>;
+        senses: Array<{ translations: Array<{ text: string }> }>;
+      }>();
+      expect(taidoBody?.kanji[0]?.text).toBe('帯同');
+      const taidoTranslations =
+        taidoBody?.senses.flatMap((s) => s.translations.map((t) => t.text)) ?? [];
+      expect(taidoTranslations).toEqual([]);
+
+      const taidoEn = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/entries/${taidoId}?lang=en`,
+      });
+      const taidoEnBody = taidoEn?.json<{
+        senses: Array<{ sourceGlosses: Array<{ text: string }> }>;
+      }>();
+      const taidoGlosses =
+        taidoEnBody?.senses.flatMap((s) => s.sourceGlosses.map((g) => g.text)) ?? [];
+      expect(taidoGlosses).toContain('taking (someone) along');
+
+      const taberuEn = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/entries/${taberuId}?lang=en`,
+      });
+      const taberuEnBody = taberuEn?.json<{
+        senses: Array<{ sourceGlosses: Array<{ text: string }> }>;
+      }>();
+      const taberuGlosses =
+        taberuEnBody?.senses.flatMap((s) => s.sourceGlosses.map((g) => g.text)) ?? [];
+      const intersection = taberuGlosses.filter((gloss) => taidoGlosses.includes(gloss));
+      expect(intersection).toEqual([]);
+    });
   });
 
   describe('aceitação: entrada com múltiplas acepções e camada pt-BR (§26)', () => {
@@ -332,7 +424,10 @@ describe('integração', () => {
         </sense>
       </entry>`;
 
-      const [kuruma] = extractEntries(kurumaXml).map((raw) => parseEntry(raw));
+      const kuruma = extractEntries(kurumaXml).map((raw) => parseEntry(raw))[0];
+      if (kuruma === undefined) {
+        throw new Error('Fixture 車 sem entrada');
+      }
       await flushEntryBatch([kuruma], seedSourceImportId);
 
       const senseRows = await db.execute(sql`
@@ -390,19 +485,33 @@ describe('integração', () => {
       expect(body?.senses[0]?.translations.map((t) => t.text)).toEqual(['carro', 'veículo']);
       expect(body?.senses[0]?.translations.every((t) => t.source === 'manual')).toBe(true);
       expect(body?.senses[1]?.translations.map((t) => t.text)).toEqual(['roda']);
+      // Teste 4: traduções de um sense não vazam para outro.
+      expect(body?.senses[0]?.translations.map((t) => t.text)).not.toContain('roda');
+      expect(body?.senses[1]?.translations.map((t) => t.text)).not.toContain('carro');
+      // Teste 6: POS é metadado gramatical, não texto de tradução.
+      const posTexts = body?.senses.flatMap((s) => s.partOfSpeech) ?? [];
+      const translationText =
+        body?.senses.flatMap((s) => s.translations.map((t) => t.text)).join(' ') ?? '';
+      expect(posTexts).toContain('n');
+      expect(translationText).not.toContain('n');
+      expect(translationText).not.toContain('v1');
     });
 
-    it('lang=en resolve para glosses JMdict com source jmdict', async () => {
+    it('lang=en expõe glosses JMdict em sourceGlosses, sem misturar em translations (§9)', async () => {
       const response = await app?.inject({
         method: 'GET',
         url: `/api/v1/entries/${vehicleId}?lang=en`,
       });
       expect(response?.statusCode).toBe(200);
       const body = response?.json<{
-        senses: Array<{ translations: Array<{ text: string; source: string }> }>;
+        senses: Array<{
+          translations: unknown[];
+          sourceGlosses: Array<{ text: string; language: string; source: string }>;
+        }>;
       }>();
-      expect(body?.senses[0]?.translations.map((t) => t.text)).toEqual(['car', 'vehicle']);
-      expect(body?.senses[0]?.translations.every((t) => t.source === 'jmdict')).toBe(true);
+      expect(body?.senses[0]?.translations).toEqual([]);
+      expect(body?.senses[0]?.sourceGlosses.map((g) => g.text)).toEqual(['car', 'vehicle']);
+      expect(body?.senses[0]?.sourceGlosses.every((g) => g.source === 'jmdict')).toBe(true);
     });
   });
 });

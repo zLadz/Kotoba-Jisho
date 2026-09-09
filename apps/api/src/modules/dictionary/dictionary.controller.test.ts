@@ -69,25 +69,31 @@ describe('toEntryResponse', () => {
     });
   });
 
-  it('pt-BR usa somente a camada Kotoba e não cai para glosses (§13)', () => {
+  it('pt-BR usa somente a camada Kotoba e glosses JMdict de origem ficam em sourceGlosses (§13)', () => {
     const dto = toEntryResponse(fixture, 'pt-BR');
     expect(dto.senses[0]?.translations).toHaveLength(1);
     expect(dto.senses[0]?.translations[0]?.source).toBe('manual');
-  });
-
-  it('idioma não-Kotoba resolve para glosses JMdict com source jmdict', () => {
-    const dto = toEntryResponse(fixture, 'en');
-    expect(dto.senses[0]?.translations).toContainEqual({
-      language: 'en',
-      text: 'edible',
+    expect(dto.senses[0]?.sourceGlosses).toContainEqual({
+      language: 'pt',
+      text: 'comestível',
       source: 'jmdict',
-      sourceVersion: '',
     });
   });
 
-  it('idioma sem dado algum retorna traduções vazias', () => {
+  it('idioma não-Kotoba não mistura glosses JMdict em translations (§5/§9)', () => {
+    const dto = toEntryResponse(fixture, 'en');
+    expect(dto.senses[0]?.translations).toEqual([]);
+    expect(dto.senses[0]?.sourceGlosses).toContainEqual({
+      language: 'en',
+      text: 'edible',
+      source: 'jmdict',
+    });
+  });
+
+  it('idioma sem dado algum retorna traduções e sourceGlosses vazios', () => {
     const dto = toEntryResponse(fixture, 'fr');
     expect(dto.senses[0]?.translations).toEqual([]);
+    expect(dto.senses[0]?.sourceGlosses).toEqual([]);
   });
 
   it('não expõe createdAt/updatedAt', () => {

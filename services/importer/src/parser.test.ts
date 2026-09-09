@@ -44,7 +44,7 @@ describe('parseHeaderBlock', () => {
 describe('parseEntry', () => {
   it('parseia 食べる com kanji, leituras e acepções', () => {
     const entry = parseEntry(entryAt(fixture, 0));
-    expect(entry.sequence).toBe(1410460);
+    expect(entry.sequence).toBe(1358280);
     expect(entry.kanji.map((k) => k.text)).toEqual(['食べる', '喰べる']);
     expect(entry.kanji[0]?.priorities).toEqual(['ichi1', 'news1']);
     expect(entry.kanji[1]?.infos).toEqual(['ateji']);
@@ -78,12 +78,30 @@ describe('parseEntry', () => {
 
   it('marca re_nokanji e decodifica entidades predefinidas de gloss', () => {
     const entry = parseEntry(entryAt(fixture, 3));
-    expect(entry.sequence).toBe(1742690);
+    expect(entry.sequence).toBe(1049180);
     expect(entry.readings[0]?.noKanji).toBe(true);
     expect(entry.readings[0]?.text).toBe('コーヒー');
     const glosses = entry.senses[0]?.glosses ?? [];
     expect(glosses.map((g) => g.language)).toEqual(['pt', 'en', 'pt']);
     expect(glosses[2]?.text).toBe('café & leite');
+  });
+
+  it('mantém um gloss único sem atributo (regressão §7a)', () => {
+    const entry = parseEntry(
+      '<entry><ent_seq>3</ent_seq><k_ele><keb>食べる</keb></k_ele><r_ele><reb>たべる</reb></r_ele><sense><pos>v1</pos><pos>vt</pos><gloss>to eat</gloss></sense></entry>',
+    );
+    expect(validateEntry(entry).valid).toBe(true);
+    const glosses = entry.senses[0]?.glosses ?? [];
+    expect(glosses).toEqual([{ language: 'en', text: 'to eat' }]);
+  });
+
+  it('parseia 帯同 (fixture) com gloss único sem atributo preservado (regressão §8)', () => {
+    const entry = parseEntry(entryAt(fixture, 4));
+    expect(entry.sequence).toBe(1410460);
+    expect(entry.kanji.map((k) => k.text)).toEqual(['帯同']);
+    expect(entry.readings.map((r) => r.text)).toEqual(['たいどう']);
+    const glosses = entry.senses[0]?.glosses ?? [];
+    expect(glosses).toEqual([{ language: 'en', text: 'taking (someone) along' }]);
   });
 
   it('mantém componentes únicos como arrays', () => {

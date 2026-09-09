@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, or } from 'drizzle-orm';
 import { db, schema } from '@kotoba/database';
 import { normalizeGloss } from '@kotoba/normalize';
 
@@ -9,8 +9,15 @@ export interface TranslationRow {
   text: string;
   source: string;
   sourceVersion: string;
+  kanji?: string[];
+  reading?: string[];
   confidence?: number;
   position?: number;
+}
+
+export interface TranslationSourceKey {
+  source: string;
+  sourceVersion: string;
 }
 
 export interface TranslationImportInput {
@@ -28,11 +35,14 @@ export interface TranslationImportProgress {
 
 export interface TranslationBatchResult {
   inserted: number;
+  skipped: number;
+  errors: number;
 }
 
 export interface TranslationImportHandle {
   id: string;
   status: string;
+  checksum: string | null;
 }
 
 export async function startTranslationImport(
@@ -42,14 +52,22 @@ export async function startTranslationImport(
     .insert(schema.sourceImports)
     .values(input)
     .onConflictDoNothing()
-    .returning({ id: schema.sourceImports.id, status: schema.sourceImports.status });
+    .returning({
+      id: schema.sourceImports.id,
+      status: schema.sourceImports.status,
+      checksum: schema.sourceImports.checksum,
+    });
 
   if (created[0]) {
     return created[0];
   }
 
   const existing = await db
-    .select({ id: schema.sourceImports.id, status: schema.sourceImports.status })
+    .select({
+      id: schema.sourceImports.id,
+      status: schema.sourceImports.status,
+      checksum: schema.sourceImports.checksum,
+    })
     .from(schema.sourceImports)
     .where(eq(schema.sourceImports.source, input.source))
     .limit(1);
@@ -148,11 +166,24 @@ async function insertChunked<T extends object>(
   }
 }
 
+export async function replaceTranslationRows(pairs: TranslationSourceKey[]): Promise<void> {
+  const conditions = pairs.map((pair) =>
+    and(
+      eq(schema.translations.source, pair.source),
+      eq(schema.translations.sourceVersion, pair.sourceVersion),
+    ),
+  );
+  if (conditions.length === 0) {
+    return;
+  }
+  await db.delete(schema.translations).where(or(...conditions));
+}
+
 export async function flushTranslationBatch(
   rows: TranslationRow[],
 ): Promise<TranslationBatchResult> {
   if (rows.length === 0) {
-    return { inserted: 0 };
+    return { inserted: 0, skipped: 0, errors: 0 };
   }
 
   const jmdictSeqs = [...new Set(rows.map((row) => row.jmdictSeq))];
@@ -167,6 +198,35 @@ export async function flushTranslationBatch(
       entryIdBySeq.set(row.jmdictSeq, row.id);
     }
 
+    const entryIds = entryRows.map((entry) => entry.id);
+    const [kanjiSurfaceRows, readingSurfaceRows] =
+      entryIds.length > 0
+        ? await Promise.all([
+            tx
+              .select({ entryId: schema.kanjiForms.entryId, text: schema.kanjiForms.text })
+              .from(schema.kanjiForms)
+              .where(inArray(schema.kanjiForms.entryId, entryIds)),
+            tx
+              .select({ entryId: schema.readings.entryId, text: schema.readings.text })
+              .from(schema.readings)
+              .where(inArray(schema.readings.entryId, entryIds)),
+          ])
+        : [[], []];
+
+    const entrySurfaces = new Map<string, Set<string>>();
+    for (const row of kanjiSurfaceRows) {
+      if (!entrySurfaces.has(row.entryId)) {
+        entrySurfaces.set(row.entryId, new Set());
+      }
+      entrySurfaces.get(row.entryId)?.add(row.text);
+    }
+    for (const row of readingSurfaceRows) {
+      if (!entrySurfaces.has(row.entryId)) {
+        entrySurfaces.set(row.entryId, new Set());
+      }
+      entrySurfaces.get(row.entryId)?.add(row.text);
+    }
+
     const senseRows = await tx
       .select({
         id: schema.senses.id,
@@ -174,12 +234,7 @@ export async function flushTranslationBatch(
         position: schema.senses.position,
       })
       .from(schema.senses)
-      .where(
-        inArray(
-          schema.senses.entryId,
-          entryRows.map((e) => e.id),
-        ),
-      );
+      .where(inArray(schema.senses.entryId, entryIds));
 
     const senseIdByEntryAndPosition = new Map<string, string>();
     for (const row of senseRows) {
@@ -192,25 +247,43 @@ export async function flushTranslationBatch(
       return senseIdByEntryAndPosition.get(`${entryId}:${position}`);
     };
 
-    const translationRows = rows
-      .map((row, index) => {
-        const resolvedSenseId = senseId(row.jmdictSeq, row.sensePosition);
-        if (!resolvedSenseId) return null;
-        return {
-          senseId: resolvedSenseId,
-          position: row.position ?? index,
-          language: row.language,
-          text: row.text,
-          normalizedText: normalizeGloss(row.text),
-          source: row.source,
-          sourceVersion: row.sourceVersion,
-          confidence: row.confidence ?? null,
-        };
-      })
-      .filter((row): row is NonNullable<typeof row> => row !== null);
+    let skipped = 0;
+    let errors = 0;
+    const resolvedRows: Array<{ row: TranslationRow; index: number; senseId: string }> = [];
+
+    for (const [index, row] of rows.entries()) {
+      const entryId = entryIdBySeq.get(row.jmdictSeq);
+      if (!entryId) {
+        skipped += 1;
+        continue;
+      }
+      const resolvedSenseId = senseId(row.jmdictSeq, row.sensePosition);
+      if (!resolvedSenseId) {
+        skipped += 1;
+        continue;
+      }
+      const declared = [...(row.kanji ?? []), ...(row.reading ?? [])];
+      const surfaces = entrySurfaces.get(entryId) ?? new Set<string>();
+      if (declared.length === 0 || !declared.some((surface) => surfaces.has(surface))) {
+        errors += 1;
+        continue;
+      }
+      resolvedRows.push({ row, index, senseId: resolvedSenseId });
+    }
+
+    const translationRows = resolvedRows.map(({ row, index, senseId: resolvedSenseId }) => ({
+      senseId: resolvedSenseId,
+      position: row.position ?? index,
+      language: row.language,
+      text: row.text,
+      normalizedText: normalizeGloss(row.text),
+      source: row.source,
+      sourceVersion: row.sourceVersion,
+      confidence: row.confidence ?? null,
+    }));
 
     if (translationRows.length === 0) {
-      return { inserted: 0 };
+      return { inserted: 0, skipped, errors };
     }
 
     const senseIds = [...new Set(translationRows.map((row) => row.senseId))];
@@ -247,6 +320,6 @@ export async function flushTranslationBatch(
       await insertChunked(tx, schema.translations, pending);
     }
 
-    return { inserted: pending.length };
+    return { inserted: pending.length, skipped, errors };
   });
 }

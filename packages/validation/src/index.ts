@@ -81,6 +81,7 @@ const senseSchema = z.object({
   kanjiRestrictions: z.array(z.string()),
   readingRestrictions: z.array(z.string()),
   translations: z.array(kotobaTranslationSchema),
+  sourceGlosses: z.array(glossSchema),
 });
 
 export const entryResponseSchema = z.object({
