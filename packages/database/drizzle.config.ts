@@ -1,7 +1,12 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'drizzle-kit';
 
-process.loadEnvFile(fileURLToPath(new URL('../../.env', import.meta.url)));
+const rootEnvPath = fileURLToPath(new URL('../../.env', import.meta.url));
+
+if (existsSync(rootEnvPath)) {
+  process.loadEnvFile(rootEnvPath);
+}
 
 const connectionString = process.env.DATABASE_URL;
 
