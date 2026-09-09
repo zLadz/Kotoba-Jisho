@@ -51,6 +51,7 @@ export const readings = pgTable(
     restrictions: text('restrictions').array(),
     infos: text('infos').array(),
     priorities: text('priorities').array(),
+    romaji: text('romaji').notNull().default(''),
   },
   (table) => [index('readings_entry_id_idx').on(table.entryId)],
 );

@@ -8,6 +8,13 @@
       "when": 1788905036927,
       "tag": "0000_clever_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788911791834,
+      "tag": "0001_chemical_paibok",
+      "breakpoints": true
     }
   ]
 }

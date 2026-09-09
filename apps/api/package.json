@@ -5,6 +5,19 @@
   "description": "API REST Kotoba (Fastify)",
   "type": "module",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
     "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.0",
+    "@kotoba/database": "0.1.0",
+    "@kotoba/romaji": "0.1.0",
+    "@kotoba/types": "0.1.0",
+    "@kotoba/validation": "0.1.0",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
   }
 }

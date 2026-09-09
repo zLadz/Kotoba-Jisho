@@ -1,0 +1,1 @@
+ALTER TABLE "readings" ADD COLUMN "romaji" text DEFAULT '' NOT NULL;

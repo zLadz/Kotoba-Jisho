@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db, schema } from '@kotoba/database';
+import { kanaToRomaji } from '@kotoba/romaji';
 import type { JmdictEntry } from './types.js';
 
 export async function importEntry(entry: JmdictEntry): Promise<void> {
@@ -35,6 +36,7 @@ export async function importEntry(entry: JmdictEntry): Promise<void> {
         restrictions: reading.restrictions,
         infos: reading.infos,
         priorities: reading.priorities,
+        romaji: kanaToRomaji(reading.text),
       });
     }
 

@@ -1,8 +1,8 @@
 {
-  "name": "@kotoba/types",
+  "name": "@kotoba/romaji",
   "version": "0.1.0",
   "private": true,
-  "description": "Tipos TypeScript compartilhados do Kotoba",
+  "description": "Conversão de kana japonesa para romaji (campo derivado)",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"

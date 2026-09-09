@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@kotoba/database": "0.1.0",
+    "@kotoba/romaji": "0.1.0",
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.1"
   },

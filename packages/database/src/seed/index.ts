@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { kanaToRomaji } from '@kotoba/romaji';
 import { db } from '../db.js';
 import { entries, glosses, kanjiForms, readings, senses } from '../schema.js';
 import { seedEntries, type SeedEntry } from './data.js';
@@ -21,7 +22,9 @@ async function seedEntry(entry: SeedEntry): Promise<void> {
     }
 
     for (const [position, text] of entry.readings.entries()) {
-      await tx.insert(readings).values({ entryId: createdEntry.id, position, text });
+      await tx
+        .insert(readings)
+        .values({ entryId: createdEntry.id, position, text, romaji: kanaToRomaji(text) });
     }
 
     for (const [position, sense] of entry.senses.entries()) {

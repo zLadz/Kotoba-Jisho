@@ -4,7 +4,13 @@
   "private": true,
   "description": "Schemas de validação Zod compartilhados do Kotoba",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "typecheck": "tsc"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
   }
 }
