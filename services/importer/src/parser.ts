@@ -140,11 +140,19 @@ export function parseHeaderBlock(xml: string): JmdictHeader {
     .filter(Boolean);
   const fileVersion = firstString(header.fileVersion) || undefined;
   const comments = firstString(header.comments) || undefined;
+  const revisionMatch = comments?.match(/Rev\s+([\d.]+)/);
+  const derivedRevision = revisionMatch?.[1];
   const today = new Date().toISOString().slice(0, 10);
-  const version = fileVersion ?? (revisions[0] ? `${revisions[0]}+${today}` : today);
+  const version =
+    fileVersion ??
+    (revisions[0]
+      ? `${revisions[0]}+${today}`
+      : derivedRevision
+        ? `${derivedRevision}+${today}`
+        : today);
   return {
     version,
-    revision: revisions.length > 0 ? revisions.join(',') : undefined,
+    revision: revisions.length > 0 ? revisions.join(',') : derivedRevision,
     fileVersion,
     comments,
   };

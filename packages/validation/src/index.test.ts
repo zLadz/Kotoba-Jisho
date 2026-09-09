@@ -9,11 +9,11 @@ import {
 } from './index.js';
 
 describe('searchQuerySchema', () => {
-  it('aceita query e aplica limite padrão', () => {
+  it('aceita query e aplica limites padrão', () => {
     const parsed = searchQuerySchema.safeParse({ q: 'taberu' });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data).toEqual({ q: 'taberu', limit: 20 });
+      expect(parsed.data).toEqual({ q: 'taberu', limit: 20, offset: 0 });
     }
   });
 
@@ -21,7 +21,15 @@ describe('searchQuerySchema', () => {
     const parsed = searchQuerySchema.safeParse({ q: '  comer  ', limit: '5' });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data).toEqual({ q: 'comer', limit: 5 });
+      expect(parsed.data).toEqual({ q: 'comer', limit: 5, offset: 0 });
+    }
+  });
+
+  it('converte offset string', () => {
+    const parsed = searchQuerySchema.safeParse({ q: 'taberu', offset: '10' });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data).toEqual({ q: 'taberu', limit: 20, offset: 10 });
     }
   });
 
@@ -30,11 +38,13 @@ describe('searchQuerySchema', () => {
     expect(searchQuerySchema.safeParse({ q: '   ' }).success).toBe(false);
   });
 
-  it('rejeita limit inválido', () => {
+  it('rejeita limit e offset inválidos', () => {
     expect(searchQuerySchema.safeParse({ q: 'a', limit: 0 }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ q: 'a', limit: 51 }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ q: 'a', limit: 'abc' }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ q: 'a', limit: 1.5 }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ q: 'a', offset: -1 }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ q: 'a', offset: 1.5 }).success).toBe(false);
   });
 });
 

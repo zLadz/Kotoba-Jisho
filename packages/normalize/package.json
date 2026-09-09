@@ -1,0 +1,13 @@
+{
+  "name": "@kotoba/normalize",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Normalização de texto para busca e importação (leituras em kana e glosses)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc"
+  }
+}

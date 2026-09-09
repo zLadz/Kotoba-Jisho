@@ -92,6 +92,38 @@ describe('parseEntry', () => {
     expect(entry.readings).toHaveLength(2);
     expect(entry.senses[0]?.glosses.map((g) => g.text)).toEqual(['Japão', 'Japan']);
   });
+
+  it('não lança para XML vazio e retorna arrays vazios', () => {
+    const entry = parseEntry('');
+    expect(entry.kanji).toEqual([]);
+    expect(entry.readings).toEqual([]);
+    expect(entry.senses).toEqual([]);
+    expect(validateEntry(entry).valid).toBe(false);
+  });
+
+  it('não lança para documento sem entrada', () => {
+    const entry = parseEntry('<JMdict><header></header></JMdict>');
+    expect(entry.kanji).toEqual([]);
+    expect(entry.readings).toEqual([]);
+    expect(entry.senses).toEqual([]);
+  });
+
+  it('entrada sem acepções é considerada inválida pela validação', () => {
+    const entry = parseEntry('<entry><ent_seq>1</ent_seq><r_ele><reb>あ</reb></r_ele></entry>');
+    expect(entry.readings).toHaveLength(1);
+    expect(entry.senses).toEqual([]);
+    const { valid, warnings } = validateEntry(entry);
+    expect(valid).toBe(false);
+    expect(warnings).toContain('entrada sem sense (acepção é obrigatória)');
+  });
+
+  it('decodifica entidades predefinidas dentro de textos compostos', () => {
+    const entry = parseEntry(
+      '<entry><ent_seq>2</ent_seq><r_ele><reb>ねこ</reb></r_ele><sense><gloss xml:lang="pt">gato &amp; gata &lt;&quot;doméstico&quot;&gt;</gloss></sense></entry>',
+    );
+    expect(validateEntry(entry).valid).toBe(true);
+    expect(entry.senses[0]?.glosses[0]?.text).toBe('gato & gata <"doméstico">');
+  });
 });
 
 describe('validateEntry', () => {
@@ -106,5 +138,23 @@ describe('validateEntry', () => {
     const { valid, warnings } = validateEntry(entry);
     expect(valid).toBe(false);
     expect(warnings).toContain('entrada sem r_ele (leitura é obrigatória)');
+  });
+
+  it('rejeita sequência não positiva', () => {
+    const entry = parseEntry(entryAt(fixture, 1));
+    entry.sequence = 0;
+    const { valid, warnings } = validateEntry(entry);
+    expect(valid).toBe(false);
+    expect(warnings).toContain('ent_seq deve ser um número inteiro positivo');
+  });
+
+  it('marca gloss em branco como warning sem invalidar a entrada', () => {
+    const entry = parseEntry(entryAt(fixture, 1));
+    if (entry.senses[0]?.glosses[0]) {
+      entry.senses[0].glosses[0].text = '   ';
+    }
+    const { valid, warnings } = validateEntry(entry);
+    expect(valid).toBe(true);
+    expect(warnings).toContain('gloss sem texto (sense 1, gloss 1)');
   });
 });

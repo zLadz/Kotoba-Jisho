@@ -47,17 +47,29 @@ describe('integração', () => {
     await migrate(db, { migrationsFolder: MIGRATIONS_DIR });
 
     const { parseEntry } = await import('@kotoba/importer/parser');
-    const { importEntry, registerSourceImport } = await import('@kotoba/importer/storage');
+    const { completeSourceImport, flushEntryBatch, markRunning, startSourceImport } =
+      await import('@kotoba/importer/storage');
 
     const xml = await readFile(FIXTURE_FILE, 'utf8');
-    for (const raw of extractEntries(xml)) {
-      await importEntry(parseEntry(raw));
-    }
-    await registerSourceImport({
+    const entries = extractEntries(xml).map((raw) => parseEntry(raw));
+    const sourceImportId = await startSourceImport({
       source: 'JMdict',
       version: '2026-09-08',
       checksum: 'fixture-de-teste',
     });
+    await markRunning(sourceImportId);
+    await flushEntryBatch(entries, sourceImportId);
+    await completeSourceImport(
+      sourceImportId,
+      {
+        processed: entries.length,
+        inserted: entries.length,
+        updated: 0,
+        skipped: 0,
+        errors: 0,
+      },
+      Date.now(),
+    );
 
     const { buildApp } = await import('../app.js');
     app = buildApp({ loggerLevel: 'silent' });
@@ -135,6 +147,44 @@ describe('integração', () => {
     const byGloss = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comrr' });
     const byGlossBody = byGloss?.json<{ results: Array<{ kanji: string[] }> }>();
     expect(byGlossBody?.results[0]?.kanji).toContain('食べる');
+  });
+
+  it('busca por variantes kana via tier token (katakana/half-width)', async () => {
+    for (const q of ['タベル', 'ﾀﾍﾞﾙ']) {
+      const response = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/search?q=${encodeURIComponent(q)}`,
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ kanji: string[] }> }>();
+      expect(body?.results[0]?.kanji).toContain('食べる');
+    }
+  });
+
+  it('busca gloss sem acento pelo tier token', async () => {
+    const response = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comestivel' });
+    expect(response?.statusCode).toBe(200);
+    const body = response?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(body?.results[0]?.kanji).toContain('食べる');
+  });
+
+  it('pagina resultados com offset e valida offset inválido', async () => {
+    const all = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=50&offset=0' });
+    const allBody = all?.json<{ results: Array<{ id: string }> }>();
+    expect(allBody?.results.length ?? 0).toBeGreaterThanOrEqual(2);
+
+    const page1 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=1&offset=0' });
+    const page2 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=1&offset=1' });
+    expect(page1?.statusCode).toBe(200);
+    expect(page2?.statusCode).toBe(200);
+    const first = page1?.json<{ results: Array<{ id: string }> }>();
+    const second = page2?.json<{ results: Array<{ id: string }> }>();
+    expect(first?.results).toHaveLength(1);
+    expect(second?.results).toHaveLength(1);
+    expect(first?.results[0]?.id).not.toBe(second?.results[0]?.id);
+
+    const invalid = await app?.inject({ method: 'GET', url: '/api/v1/search?q=taberu&offset=-1' });
+    expect(invalid?.statusCode).toBe(400);
   });
 
   it('expõe endpoint de entrada', async () => {

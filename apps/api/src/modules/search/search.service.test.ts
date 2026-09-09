@@ -123,6 +123,20 @@ describe('SearchService.search', () => {
     expect(results.map((result) => result.id)).toEqual(['a', 'c']);
   });
 
+  it('aplica offset de paginação depois do ranking (§13)', async () => {
+    const service = withMatches([
+      ['a', 'exactReading'],
+      ['b', 'prefixReading'],
+      ['c', 'prefixReading'],
+    ]);
+    const page2 = await service.search('busca', 1, 1);
+    expect(page2.map((result) => result.id)).toEqual(['c']);
+
+    const both = await service.search('busca', 10, 0);
+    expect(both.map((result) => result.id)).toEqual(['a', 'c', 'b']);
+    expect(await service.search('busca', 10, 3)).toEqual([]);
+  });
+
   it('desempate por prioridade e depois jmdict_seq', async () => {
     const priority = new SearchService({
       searchRepository: {

@@ -40,6 +40,14 @@ O importer preserva no banco os identificadores e metadados relevantes do JMdict
 | `gloss` + `xml:lang`                                    | `glosses.(text / language)`                                      |
 | Ordem dos elementos                                     | colunas `position` em cada tabela                                |
 
+Além dos campos originais, o importer grava **campos derivados** (nunca fonte de verdade,
+sempre regenerados do `text` original):
+
+- `readings.romaji` — romaji obtido de `readings.text` via `@kotoba/romaji`;
+- `readings.normalized_text` / `glosses.normalized_text` — normalização NFKC com conversão
+  de katakana→hiragana e remoção de acentos via `@kotoba/normalize`, usada nos tiers de
+  busca token/normalizado.
+
 ### Dados ainda não importados (evolução futura)
 
 Os seguintes elementos do JMdict não são armazenados nesta versão do importer, sem perda para

@@ -7,14 +7,20 @@ const SCORES: Record<SearchMatch, number> = {
   exactKanji: 3200,
   exactRomaji: 3000,
   exactGloss: 2000,
+  tokenReading: 3800,
+  tokenGloss: 1900,
   prefixReading: 1800,
   prefixKanji: 1600,
   prefixRomaji: 1400,
   prefixGloss: 1000,
+  tokenPrefixReading: 1700,
+  tokenPrefixGloss: 950,
   fuzzyReading: 900,
   fuzzyKanji: 800,
   fuzzyRomaji: 700,
   fuzzyGloss: 500,
+  tokenFuzzyReading: 850,
+  tokenFuzzyGloss: 480,
 };
 
 const PRIORITY_TAGS = ['news1', 'ichi1'];
@@ -47,7 +53,7 @@ interface SearchDependencies {
 export class SearchService {
   constructor(private readonly dependencies: SearchDependencies) {}
 
-  async search(query: string, limit = 20): Promise<SearchResult[]> {
+  async search(query: string, limit = 20, offset = 0): Promise<SearchResult[]> {
     const normalized = query.trim().toLowerCase();
     if (normalized.length === 0) {
       return [];
@@ -84,7 +90,7 @@ export class SearchService {
         }
         return left.jmdictSeq - right.jmdictSeq;
       })
-      .slice(0, limit)
+      .slice(offset, offset + limit)
       .map(([entryId]) => {
         const entry = entriesById.get(entryId);
         if (entry === undefined) {

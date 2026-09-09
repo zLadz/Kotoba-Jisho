@@ -26,6 +26,7 @@
     "db:migrate": "npm run db:migrate --workspace=@kotoba/database",
     "db:seed": "npm run db:seed --workspace=@kotoba/database",
     "import:jmdict": "npm run import --workspace=@kotoba/importer --",
+    "benchmark:search": "npm run benchmark:search --workspace=@kotoba/api",
     "format:check": "prettier --check .",
     "format:write": "prettier --write ."
   },

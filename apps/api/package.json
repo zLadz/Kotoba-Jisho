@@ -7,11 +7,13 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
+    "benchmark:search": "tsx src/benchmark/search.benchmark.ts",
     "typecheck": "tsc"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",
     "@kotoba/database": "0.1.0",
+    "@kotoba/normalize": "0.1.0",
     "@kotoba/romaji": "0.1.0",
     "@kotoba/types": "0.1.0",
     "@kotoba/validation": "0.1.0",

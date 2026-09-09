@@ -6,7 +6,8 @@
   "type": "module",
   "exports": {
     "./parser": "./src/parser.ts",
-    "./storage": "./src/storage.ts"
+    "./storage": "./src/storage.ts",
+    "./types": "./src/types.ts"
   },
   "scripts": {
     "import": "tsx src/index.ts",
@@ -14,6 +15,7 @@
   },
   "dependencies": {
     "@kotoba/database": "0.1.0",
+    "@kotoba/normalize": "0.1.0",
     "@kotoba/romaji": "0.1.0",
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.11.1"

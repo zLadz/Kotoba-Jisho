@@ -9,13 +9,25 @@ import {
 } from './download.js';
 import { logger } from './logger.js';
 import { parseEntry, parseHeaderBlock } from './parser.js';
-import { importEntry, registerSourceImport } from './storage.js';
+import {
+  completeSourceImport,
+  failSourceImport,
+  flushEntryBatch,
+  markRunning,
+  startSourceImport,
+  updateImportProgress,
+} from './storage.js';
 import { validateEntry } from './validate.js';
 import type { JmdictEntry, JmdictHeader } from './types.js';
 
+const DEFAULT_BATCH_SIZE = 1000;
+
 interface ImportStats {
-  startedAt: number;
-  entries: number;
+  rawEntries: number;
+  processed: number;
+  inserted: number;
+  updated: number;
+  skipped: number;
   kanji: number;
   readings: number;
   senses: number;
@@ -26,24 +38,42 @@ interface ImportStats {
 
 interface ImportArguments {
   filePath?: string;
+  batchSize: number;
 }
 
 function readArgs(argv: string[]): ImportArguments {
+  let batchSize = DEFAULT_BATCH_SIZE;
+
   const fileIndex = argv.indexOf('--file');
-  if (fileIndex < 0) {
-    return {};
+  const filePath = fileIndex < 0 ? undefined : argv[fileIndex + 1];
+
+  const batchIndex = argv.indexOf('--batch-size');
+  if (batchIndex >= 0) {
+    const raw = argv[batchIndex + 1];
+    if (!raw || raw.startsWith('--')) {
+      throw new Error('--batch-size requer um número inteiro positivo');
+    }
+    const parsed = Number(raw);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+      throw new Error('--batch-size deve ser um número inteiro positivo');
+    }
+    batchSize = parsed;
   }
-  const filePath = argv[fileIndex + 1];
-  if (!filePath || filePath.startsWith('--')) {
+
+  if (fileIndex >= 0 && (!filePath || filePath.startsWith('--'))) {
     throw new Error('--file requer um caminho de arquivo XML');
   }
-  return { filePath };
+
+  return { filePath, batchSize };
 }
 
 function newStats(): ImportStats {
   return {
-    startedAt: Date.now(),
-    entries: 0,
+    rawEntries: 0,
+    processed: 0,
+    inserted: 0,
+    updated: 0,
+    skipped: 0,
     kanji: 0,
     readings: 0,
     senses: 0,
@@ -53,48 +83,39 @@ function newStats(): ImportStats {
   };
 }
 
-async function processEntry(raw: string, stats: ImportStats): Promise<void> {
+function processRaw(raw: string, stats: ImportStats): JmdictEntry | null {
   let entry: JmdictEntry;
   try {
     entry = parseEntry(raw);
   } catch (error) {
     stats.invalid += 1;
+    stats.skipped += 1;
     logger.warn('entrada ignorada: falha no parse', {
       error: error instanceof Error ? error.message : String(error),
     });
-    return;
+    return null;
   }
 
   const { valid, warnings } = validateEntry(entry);
   if (!valid) {
     stats.invalid += 1;
+    stats.skipped += 1;
     stats.warnings += warnings.length;
     logger.warn('entrada ignorada: validação', { sequence: entry.sequence, warnings });
-    return;
+    return null;
   }
 
-  await importEntry(entry);
-  stats.entries += 1;
+  stats.processed += 1;
   stats.kanji += entry.kanji.length;
   stats.readings += entry.readings.length;
   stats.senses += entry.senses.length;
   stats.glosses += entry.senses.reduce((sum, sense) => sum + sense.glosses.length, 0);
   stats.warnings += warnings.length;
-
-  if (stats.entries % 1000 === 0) {
-    logger.info('progresso', {
-      entries: stats.entries,
-      readings: stats.readings,
-      senses: stats.senses,
-      glosses: stats.glosses,
-      warnings: stats.warnings,
-      elapsedSeconds: Math.round((Date.now() - stats.startedAt) / 1000),
-    });
-  }
+  return entry;
 }
 
 async function main(): Promise<void> {
-  const { filePath } = readArgs(process.argv.slice(2));
+  const { filePath, batchSize } = readArgs(process.argv.slice(2));
 
   let xmlPath: string;
   let checksum: string;
@@ -116,78 +137,166 @@ async function main(): Promise<void> {
     });
   }
 
+  const startedAtMs = Date.now();
   const stats = newStats();
+  let sourceImportId: string | undefined;
   let header: JmdictHeader | undefined;
   let headerBlock: string[] = [];
   let entryLines: string[] = [];
   let inEntry = false;
+  let buffer: JmdictEntry[] = [];
+
+  const flush = async (): Promise<void> => {
+    if (buffer.length === 0) {
+      return;
+    }
+    if (!sourceImportId) {
+      throw new Error('source_import ainda não registrado');
+    }
+    const result = await flushEntryBatch(buffer, sourceImportId);
+    stats.inserted += result.inserted;
+    stats.updated += result.updated;
+    buffer = [];
+    await updateImportProgress(sourceImportId, {
+      processed: stats.processed,
+      inserted: stats.inserted,
+      updated: stats.updated,
+      skipped: stats.skipped,
+      errors: stats.invalid,
+    });
+    logger.info('lote importado', {
+      batch: stats.processed,
+      inserted: result.inserted,
+      updated: result.updated,
+      elapsedSeconds: Math.round((Date.now() - startedAtMs) / 1000),
+      rssMB: Math.round(process.memoryUsage().rss / 1024 / 1024),
+    });
+  };
 
   const source = createReadStream(xmlPath);
   const isGzip = xmlPath.toLowerCase().endsWith('.gz');
   const input = isGzip ? source.pipe(createGunzip()) : source;
   const readline = createInterface({ input, crlfDelay: Infinity });
 
-  for await (const line of readline) {
-    if (!header) {
-      headerBlock.push(line);
-      if (line.includes('</header>')) {
-        header = parseHeaderBlock(headerBlock.join('\n'));
-        headerBlock = [];
-        logger.info('header', {
-          version: header.version,
-          revision: header.revision,
-          fileVersion: header.fileVersion,
-          comments: header.comments,
-        });
-      }
-      continue;
-    }
+  const finalizeHeader = async (raw: string): Promise<JmdictHeader> => {
+    const parsed = parseHeaderBlock(raw);
+    sourceImportId = await startSourceImport({
+      source: JMDICT_SOURCE_NAME,
+      version: parsed.version,
+      checksum,
+    });
+    await markRunning(sourceImportId);
+    logger.info('header', {
+      version: parsed.version,
+      revision: parsed.revision,
+      fileVersion: parsed.fileVersion,
+      comments: parsed.comments,
+    });
+    return parsed;
+  };
 
-    if (line.includes('<entry>')) {
-      entryLines = [line];
-      inEntry = true;
-      continue;
+  try {
+    for await (const line of readline) {
+      if (!header) {
+        headerBlock.push(line);
+        const closesHeader = line.includes('</header>');
+        const opensDocument = line.includes('<JMdict');
+        if (closesHeader || opensDocument) {
+          header = await finalizeHeader(headerBlock.join('\n'));
+          headerBlock = [];
+        }
+        continue;
+      }
+
+      if (line.includes('<entry>')) {
+        entryLines = [line];
+        inEntry = true;
+        continue;
+      }
+
+      if (inEntry) {
+        entryLines.push(line);
+        if (line.includes('</entry>')) {
+          inEntry = false;
+          stats.rawEntries += 1;
+          const entry = processRaw(entryLines.join('\n'), stats);
+          if (entry) {
+            buffer.push(entry);
+            if (buffer.length >= batchSize) {
+              await flush();
+            }
+          }
+          entryLines = [];
+        }
+      }
     }
 
     if (inEntry) {
-      entryLines.push(line);
-      if (line.includes('</entry>')) {
-        inEntry = false;
-        await processEntry(entryLines.join('\n'), stats);
-        entryLines = [];
+      logger.warn('arquivo termina com uma entrada incompleta');
+    }
+
+    if (!header) {
+      header = await finalizeHeader(headerBlock.join('\n'));
+      logger.warn('documento sem raiz JMdict; versão derivada dos comentários', {
+        version: header.version,
+      });
+    }
+
+    await flush();
+
+    if (!sourceImportId) {
+      throw new Error('source_import não registrado');
+    }
+    const finalProgress = {
+      processed: stats.processed,
+      inserted: stats.inserted,
+      updated: stats.updated,
+      skipped: stats.skipped,
+      errors: stats.invalid,
+    };
+    await completeSourceImport(sourceImportId, finalProgress, startedAtMs);
+  } catch (error) {
+    if (sourceImportId) {
+      try {
+        await failSourceImport(
+          sourceImportId,
+          error instanceof Error ? error.message : String(error),
+          {
+            processed: stats.processed,
+            inserted: stats.inserted,
+            updated: stats.updated,
+            skipped: stats.skipped,
+            errors: stats.invalid,
+          },
+          startedAtMs,
+        );
+      } catch {
+        // ignora falha secundária ao registrar o erro
       }
     }
+    throw error;
   }
 
-  if (inEntry) {
-    logger.warn('arquivo termina com uma entrada incompleta');
-  }
-
-  if (!header) {
-    header = parseHeaderBlock(headerBlock.join('\n'));
-    logger.warn('header não encontrado; usando versão derivada', {
-      version: header.version,
-    });
-  }
-
-  const inserted = await registerSourceImport({
-    source: JMDICT_SOURCE_NAME,
-    version: header.version,
-    checksum,
-  });
-
+  const elapsedMs = Date.now() - startedAtMs;
   logger.info('importação concluída', {
     source: JMDICT_SOURCE_NAME,
     version: header.version,
-    entries: stats.entries,
+    checksum,
+    rawEntries: stats.rawEntries,
+    entries: stats.processed,
+    inserted: stats.inserted,
+    updated: stats.updated,
+    skipped: stats.skipped,
+    invalid: stats.invalid,
     kanji: stats.kanji,
     readings: stats.readings,
     senses: stats.senses,
     glosses: stats.glosses,
     warnings: stats.warnings,
-    invalid: stats.invalid,
-    inserted,
-    elapsedSeconds: Math.round((Date.now() - stats.startedAt) / 1000),
+    elapsedSeconds: Math.round(elapsedMs / 1000),
+    entriesPerSecond: elapsedMs > 0 ? Math.round((stats.processed * 1000) / elapsedMs) : 0,
+    rssMB: Math.round(process.memoryUsage().rss / 1024 / 1024),
+    batchSize,
   });
 
   process.exit(0);

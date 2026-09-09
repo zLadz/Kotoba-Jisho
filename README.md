@@ -4,7 +4,8 @@
 > Portuguese, built with TypeScript, Node.js, Fastify, Next.js and PostgreSQL.**
 
 Kotoba é um dicionário Japonês → Português Brasileiro. Pesquise por **kanji** (食べる),
-**kana** (たべる), **romaji** (taberu) ou **tradução** (comer) e abra a página detalhada de
+**kana** (たべる), **katakana** (コーヒー, 食べる digitado em kana largo ou half-width),
+**romaji** (taberu) ou **tradução** (comer, com ou sem acento) e abra a página detalhada de
 cada palavra, com leituras, romaji, classe gramatical e acepções.
 
 ## Stack
@@ -29,17 +30,19 @@ apps/
   web/        Next.js — busca (client) e detalhe (server component)
 packages/
   database/   Schema Drizzle, migrations e seed
+  normalize/  Normalização NFKC + kana (katakana→hiragana) + remoção de acentos
   romaji/     Conversão kana → romaji (campo derivado)
   types/      Contratos de domínio
   validation/ Schemas Zod dos contratos da API
   config/     Configurações compartilhadas
 services/
-  importer/   CLI de importação do JMdict
+  importer/   CLI de importação do JMdict (batch transacional e idempotente)
 docs/
 ```
 
 Decisões-chave: romaji é um **campo derivado** (nunca fonte de verdade), busca e ranking
-vivem no `SearchService` sobre SQL PostgreSQL (exata → prefixo → fuzzy com `pg_trgm`),
+vivem no `SearchService` sobre SQL PostgreSQL (exata → token/normalizado → prefixo → fuzzy
+com `pg_trgm`, com `normalized_text` para tolerar katakana/hiragana, half-width e acentos),
 dados multilíngue sem colunas fixas por idioma e o modelo preparado para adicionar IA/
 recursos no futuro.
 Detalhes em [`docs/architecture.md`](docs/architecture.md).
@@ -81,28 +84,29 @@ troubleshooting): [`docs/development.md`](docs/development.md).
 
 ## Comandos
 
-| Comando                 | Descrição                                 |
-| ----------------------- | ----------------------------------------- |
-| `npm run dev`           | API (`:3000`) + frontend (`:3001`) juntos |
-| `npm run build`         | Build de produção (Next.js)               |
-| `npm run typecheck`     | TypeScript em todos os workspaces         |
-| `npm run lint`          | ESLint                                    |
-| `npm test`              | Vitest (unitários + integração)           |
-| `npm run format:check`  | Prettier (check)                          |
-| `npm run db:generate`   | Gera migrations a partir do schema        |
-| `npm run db:migrate`    | Aplica as migrations                      |
-| `npm run db:seed`       | Insere o dataset de desenvolvimento       |
-| `npm run import:jmdict` | Importa o JMdict (ver abaixo)             |
+| Comando                    | Descrição                                 |
+| -------------------------- | ----------------------------------------- |
+| `npm run dev`              | API (`:3000`) + frontend (`:3001`) juntos |
+| `npm run build`            | Build de produção (Next.js)               |
+| `npm run typecheck`        | TypeScript em todos os workspaces         |
+| `npm run lint`             | ESLint                                    |
+| `npm test`                 | Vitest (unitários + integração)           |
+| `npm run format:check`     | Prettier (check)                          |
+| `npm run db:generate`      | Gera migrations a partir do schema        |
+| `npm run db:migrate`       | Aplica as migrations                      |
+| `npm run db:seed`          | Insere o dataset de desenvolvimento       |
+| `npm run import:jmdict`    | Importa o JMdict (ver abaixo)             |
+| `npm run benchmark:search` | Benchmark de latência da busca            |
 
 ## API REST
 
 API Fastify versionada em `/api/v1`.
 
-| Método | Rota                       | Descrição                                                                                        |
-| ------ | -------------------------- | ------------------------------------------------------------------------------------------------ |
-| `GET`  | `/api/v1/health`           | Health check (verifica a conexão com o banco)                                                    |
-| `GET`  | `/api/v1/search?q=&limit=` | Busca por japonês, kana, romaji ou tradução (`q` obrigatório; `limit` opcional, 1–50, padrão 20) |
-| `GET`  | `/api/v1/entries/:id`      | Detalhe de uma entrada por `id` (UUID interno)                                                   |
+| Método | Rota                               | Descrição                                                                                                                     |
+| ------ | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/v1/health`                   | Health check (verifica a conexão com o banco)                                                                                 |
+| `GET`  | `/api/v1/search?q=&limit=&offset=` | Busca por japonês, kana, romaji ou tradução (`q` obrigatório; `limit` opcional, 1–50, padrão 20; `offset` opcional, padrão 0) |
+| `GET`  | `/api/v1/entries/:id`              | Detalhe de uma entrada por `id` (UUID interno)                                                                                |
 
 ### Exemplo
 
@@ -158,8 +162,11 @@ npm run import:jmdict -- --file caminho/para/JMdict.xml.gz
 npm run import:jmdict
 ```
 
-O importer valida entradas, preserva os identificadores/metadados do JMdict e registra
-versão, checksum e data em `source_imports`.
+O importer faz streaming do JMdict, valida cada entrada, importa em **lotes transacionais**
+(rollback em falha), é **idempotente** (reimportações substituem os dados da mesma
+`source+version` sem duplicar) e registra versão, checksum, status, contadores e duração em
+`source_imports`. O dataset completo tem ~219 mil entradas (ver
+[`docs/data-sources.md`](docs/data-sources.md)).
 
 ## Fontes de dados e licenças
 

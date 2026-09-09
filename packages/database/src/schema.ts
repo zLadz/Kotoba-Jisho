@@ -10,18 +10,46 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+export const sourceImports = pgTable(
+  'source_imports',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    source: text('source').notNull(),
+    version: text('version').notNull(),
+    checksum: text('checksum').notNull(),
+    status: text('status').notNull().default('pending'),
+    importedAt: timestamp('imported_at', { withTimezone: true }).notNull().defaultNow(),
+    startedAt: timestamp('started_at', { withTimezone: true }),
+    finishedAt: timestamp('finished_at', { withTimezone: true }),
+    entriesProcessed: integer('entries_processed').notNull().default(0),
+    entriesInserted: integer('entries_inserted').notNull().default(0),
+    entriesUpdated: integer('entries_updated').notNull().default(0),
+    entriesSkipped: integer('entries_skipped').notNull().default(0),
+    errors: integer('errors').notNull().default(0),
+    errorMessage: text('error_message'),
+    durationMs: integer('duration_ms').notNull().default(0),
+  },
+  (table) => [uniqueIndex('source_imports_source_version_unique').on(table.source, table.version)],
+);
+
 export const entries = pgTable(
   'entries',
   {
     id: uuid('id').defaultRandom().primaryKey(),
     jmdictSeq: integer('jmdict_seq').notNull(),
+    sourceImportId: uuid('source_import_id').references(() => sourceImports.id, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
   },
-  (table) => [uniqueIndex('entries_jmdict_seq_unique').on(table.jmdictSeq)],
+  (table) => [
+    uniqueIndex('entries_jmdict_seq_unique').on(table.jmdictSeq),
+    index('entries_source_import_id_idx').on(table.sourceImportId),
+  ],
 );
 
 export const kanjiForms = pgTable(
@@ -56,11 +84,17 @@ export const readings = pgTable(
     infos: text('infos').array(),
     priorities: text('priorities').array(),
     romaji: text('romaji').notNull().default(''),
+    normalizedText: text('normalized_text').notNull().default(''),
   },
   (table) => [
     index('readings_entry_id_idx').on(table.entryId),
     index('readings_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
     index('readings_romaji_trgm_idx').using('gin', sql`${table.romaji} gin_trgm_ops`),
+    index('readings_normalized_text_idx').on(table.normalizedText),
+    index('readings_normalized_text_trgm_idx').using(
+      'gin',
+      sql`${table.normalizedText} gin_trgm_ops`,
+    ),
   ],
 );
 
@@ -92,21 +126,21 @@ export const glosses = pgTable(
     position: integer('position').notNull().default(0),
     language: text('language').notNull().default('en'),
     text: text('text').notNull(),
+    normalizedText: text('normalized_text').notNull().default(''),
+    source: text('source').notNull().default('jmdict'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index('glosses_sense_id_idx').on(table.senseId),
     index('glosses_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
+    index('glosses_normalized_text_idx').on(table.normalizedText),
+    index('glosses_normalized_text_trgm_idx').using(
+      'gin',
+      sql`${table.normalizedText} gin_trgm_ops`,
+    ),
   ],
-);
-
-export const sourceImports = pgTable(
-  'source_imports',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    source: text('source').notNull(),
-    version: text('version').notNull(),
-    checksum: text('checksum').notNull(),
-    importedAt: timestamp('imported_at', { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [uniqueIndex('source_imports_source_version_unique').on(table.source, table.version)],
 );

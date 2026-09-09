@@ -13,6 +13,6 @@ export async function searchEntries(
     return;
   }
 
-  const results = await searchService.search(parsed.data.q, parsed.data.limit);
+  const results = await searchService.search(parsed.data.q, parsed.data.limit, parsed.data.offset);
   reply.send(searchResponseSchema.parse({ query: parsed.data.q, results }));
 }

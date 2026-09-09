@@ -54,6 +54,7 @@ prioridade).
 | `npm run db:migrate`                  | Aplica migrations pendentes                      |
 | `npm run db:seed`                     | Semear o dataset de desenvolvimento              |
 | `npm run import:jmdict`               | Importa o JMdict (ver abaixo)                    |
+| `npm run benchmark:search`            | Benchmark de latência da busca por tier          |
 
 ## Migrations
 
@@ -83,16 +84,31 @@ npm run import:jmdict -- --file caminho/para/JMdict.xml.gz
 
 # 2) Download automático da versão oficial (pode demorar, arquivo grande)
 npm run import:jmdict
+
+# tamanho de lote customizado (padrão 1000 entradas por transação)
+npm run import:jmdict -- --batch-size 2000
 ```
 
 O importer:
 
 - faz streaming (readline + gunzip), sem carregar o arquivo inteiro em memória;
-- valida cada entrada e registra falhas/avisos no log;
-- preserva identificadores e metadados do JMdict (ver `docs/data-sources.md`) e registra
-  versão, checksum e data em `source_imports`.
+- valida cada entrada e registra falhas/avisos no log; entradas inválidas são contadas e
+  ignoradas, sem abortar a importação;
+- importa em **lotes transacionais** — um lote com erro faz rollback atômico e a execução
+  termina com status `failed` em `source_imports`;
+- é **idempotente**: reimportar a mesma `source+version` substitui as entradas existentes
+  (UPDATE/exclusão de crianças) sem duplicar;
+- grava em `source_imports` a proveniência (versão derivada do cabeçalho, checksum SHA-256,
+  `imported_at`), o ciclo de vida (`status` pending/running/completed/failed), contadores
+  (processed/inserted/updated/skipped/errors) e `duration_ms`; o resumo final sai no log com
+  entradas/s e RSS;
+- deriva `romaji` (`@kotoba/romaji`) e `normalized_text` (`@kotoba/normalize`, NFKC +
+  katakana→hiragana + sem acentos) para cada leitura/tradução.
 
 Nesta versão não são importados `lsource`, `xref`/`ant` e `s_inf` (evolução futura).
+
+Para substituir o dataset inteiro já importado, o importer detecta a nova versão e mantém o
+histórico em `source_imports` (uma linha por `source+version`).
 
 ## Testes
 
@@ -100,15 +116,23 @@ Nesta versão não são importados `lsource`, `xref`/`ant` e `s_inf` (evolução
 npm test
 ```
 
-- **Unitários**: parser do JMdict, romaji, validações, ranking, busca, DTOs, services.
+- **Unitários**: parser do JMdict (incluindo entradas inválidas/malformadas), validação,
+  romaji, normalização, validações (schemas), ranking, busca, DTOs, services.
 - **Integração** (`apps/api/src/integration/integration.test.ts`): exige o PostgreSQL em
   `localhost:5432`. O teste cria um banco isolado `kotoba_test` (derivado de
   `DATABASE_URL`), aplica as migrations, importa o fixture e exercita busca e detalhe
   através da aplicação real — incluindo o fluxo end-to-end seed → banco → API → busca →
-  resultado.
+  resultado, paginação com `offset` e busca por variantes kana.
+- **Repositório de busca** (`apps/api/src/modules/search/search.repository.test.ts`): contra
+  o mesmo `kotoba_test`, cobre os 18 tiers (exata/token/prefixo/fuzzy × leitura/kanji/
+  romaji/gloss, nos textos brutos e normalizados).
+- **Banco** (`services/importer/src/storage.test.ts`): idempotência de reimportação,
+  rollback atômico, ciclo de vida de `source_imports`, constraints (§15 — unicidades e FKs)
+  e presença dos índices de busca.
 
 > Se o banco não estiver disponível, os testes de integração falham (esperado). Suba o
-> container com `docker compose up -d` antes de rodar `npm test`.
+> container com `docker compose up -d` antes de rodar `npm test`. Os arquivos de
+> integração rodam em série (`fileParallelism: false`), cada um recriando `kotoba_test`.
 
 ## CI
 
