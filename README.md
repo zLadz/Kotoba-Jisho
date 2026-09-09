@@ -39,8 +39,9 @@ docs/
 ```
 
 Decisões-chave: romaji é um **campo derivado** (nunca fonte de verdade), busca e ranking
-vivem no `SearchService` sobre SQL PostgreSQL, dados multilíngue sem colunas fixas por
-idioma e o modelo preparado para adicionar IA/recursos no futuro.
+vivem no `SearchService` sobre SQL PostgreSQL (exata → prefixo → fuzzy com `pg_trgm`),
+dados multilíngue sem colunas fixas por idioma e o modelo preparado para adicionar IA/
+recursos no futuro.
 Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Como executar localmente

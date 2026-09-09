@@ -11,6 +11,10 @@ const SCORES: Record<SearchMatch, number> = {
   prefixKanji: 1600,
   prefixRomaji: 1400,
   prefixGloss: 1000,
+  fuzzyReading: 900,
+  fuzzyKanji: 800,
+  fuzzyRomaji: 700,
+  fuzzyGloss: 500,
 };
 
 const PRIORITY_TAGS = ['news1', 'ichi1'];

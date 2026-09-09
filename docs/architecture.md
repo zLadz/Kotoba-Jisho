@@ -81,8 +81,9 @@ O JMdict não carrega romaji. O Kotoba **não** trata romaji como lexical:
 
 ### Busca e ranking no PostgreSQL (§11–§13)
 
-- `search.repository` executa 8 consultas (exata/prefixo em leitura, kanji, romaji e
-  tradução) e devolve candidatos por entrada.
+- `search.repository` executa 12 consultas em 3 camadas — exata, prefixo e **fuzzy**
+  (`pg_trgm`, operador `%`) sobre leitura, kanji, romaji e tradução — aceleradas por
+  índices GIN (`gin_trgm_ops`, migration `0002`) e devolve candidatos por entrada.
 - `SearchService.search` agrega a melhor pontuação por entrada (ranking encapsulado),
   desempatando por prioridade (`ichi1`/`news1`) e `jmdict_seq`, e aplica o limite.
 - A camada de busca é isolada: um mecanismo dedicado (ex.: OpenSearch) pode substituir o

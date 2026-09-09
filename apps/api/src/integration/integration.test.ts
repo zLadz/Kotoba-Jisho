@@ -127,6 +127,16 @@ describe('integração', () => {
     expect(portugueseBody?.results[0]?.kanji).toContain('学生');
   });
 
+  it('busca fuzzy tolera erros de digitação (§12)', async () => {
+    const byRomaji = await app?.inject({ method: 'GET', url: '/api/v1/search?q=taberru' });
+    const byRomajiBody = byRomaji?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(byRomajiBody?.results[0]?.kanji).toContain('食べる');
+
+    const byGloss = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comrr' });
+    const byGlossBody = byGloss?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(byGlossBody?.results[0]?.kanji).toContain('食べる');
+  });
+
   it('expõe endpoint de entrada', async () => {
     const search = await app?.inject({ method: 'GET', url: '/api/v1/search?q=taberu' });
     const id = search?.json<{ results: Array<{ id: string }> }>().results[0]?.id;

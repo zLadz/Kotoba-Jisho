@@ -103,6 +103,16 @@ describe('SearchService.search', () => {
     expect(results.map((result) => result.id)).toEqual(['c', 'a']);
   });
 
+  it('fuzzy fica abaixo de prefixo no ranking (§12/§13)', async () => {
+    const service = withMatches([
+      ['a', 'fuzzyReading'],
+      ['b', 'prefixGloss'],
+      ['c', 'fuzzyRomaji'],
+    ]);
+    const results = await service.search('busca');
+    expect(results.map((result) => result.id)).toEqual(['b', 'a', 'c']);
+  });
+
   it('aplica o limite de resultados', async () => {
     const service = withMatches([
       ['a', 'exactReading'],

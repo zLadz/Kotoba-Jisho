@@ -1,4 +1,4 @@
-import { eq, ilike } from 'drizzle-orm';
+import { eq, ilike, sql } from 'drizzle-orm';
 import { db, schema } from '@kotoba/database';
 
 export type SearchMatch =
@@ -9,7 +9,11 @@ export type SearchMatch =
   | 'prefixReading'
   | 'prefixKanji'
   | 'prefixRomaji'
-  | 'prefixGloss';
+  | 'prefixGloss'
+  | 'fuzzyReading'
+  | 'fuzzyKanji'
+  | 'fuzzyRomaji'
+  | 'fuzzyGloss';
 
 export interface EntryMatch {
   entryId: string;
@@ -33,6 +37,10 @@ export async function searchEntries(query: string): Promise<EntryMatch[]> {
     prefixKanjiRows,
     prefixRomajiRows,
     prefixGlossRows,
+    fuzzyReadingRows,
+    fuzzyKanjiRows,
+    fuzzyRomajiRows,
+    fuzzyGlossRows,
   ] = await Promise.all([
     db
       .select({ entryId: schema.readings.entryId })
@@ -68,6 +76,23 @@ export async function searchEntries(query: string): Promise<EntryMatch[]> {
       .from(schema.glosses)
       .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
       .where(ilike(schema.glosses.text, contains)),
+    db
+      .select({ entryId: schema.readings.entryId })
+      .from(schema.readings)
+      .where(sql`${schema.readings.text} % ${query}`),
+    db
+      .select({ entryId: schema.kanjiForms.entryId })
+      .from(schema.kanjiForms)
+      .where(sql`${schema.kanjiForms.text} % ${query}`),
+    db
+      .select({ entryId: schema.readings.entryId })
+      .from(schema.readings)
+      .where(sql`${schema.readings.romaji} % ${query}`),
+    db
+      .select({ entryId: schema.senses.entryId })
+      .from(schema.glosses)
+      .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
+      .where(sql`${schema.glosses.text} % ${query}`),
   ]);
 
   const matches: EntryMatch[] = [
@@ -79,6 +104,10 @@ export async function searchEntries(query: string): Promise<EntryMatch[]> {
     ...prefixKanjiRows.map((row) => ({ entryId: row.entryId, match: 'prefixKanji' as const })),
     ...prefixRomajiRows.map((row) => ({ entryId: row.entryId, match: 'prefixRomaji' as const })),
     ...prefixGlossRows.map((row) => ({ entryId: row.entryId, match: 'prefixGloss' as const })),
+    ...fuzzyReadingRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyReading' as const })),
+    ...fuzzyKanjiRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyKanji' as const })),
+    ...fuzzyRomajiRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyRomaji' as const })),
+    ...fuzzyGlossRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyGloss' as const })),
   ];
   return matches;
 }

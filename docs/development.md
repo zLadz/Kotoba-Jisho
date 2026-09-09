@@ -62,6 +62,10 @@ O schema vive em `packages/database/src/schema.ts`.
 - Após alterar o schema, gere uma migration: `npm run db:generate`.
 - Aplique: `npm run db:migrate`.
 - Migrations ficam versionadas em `packages/database/migrations`.
+- Para **busca fuzzy**, a extensão PostgreSQL `pg_trgm` e os índices GIN estão na
+  migration `0002`. Em ambientes não Docker (ou com usuário sem permissão), `db:migrate`
+  cuida da extensão — `pg_trgm` é uma extensão _trusted_ e pode ser criada pelo dono do
+  banco.
 
 ## Seeds
 
@@ -111,6 +115,21 @@ npm test
 `.github/workflows/ci.yml` roda em push para `main` e em pull requests:
 PostgreSQL service → `install` → `db:migrate` → `db:seed` → `typecheck` → `lint` →
 `test` → `build`.
+
+## Docker (imagem da API)
+
+O backend também possui uma imagem Docker (`apps/api/Dockerfile`, node:24-alpine —
+build com `npm ci` no monorepo). Para criar e rodar conectado ao PostgreSQL local:
+
+```bash
+docker build -f apps/api/Dockerfile -t kotoba-api .
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL=postgresql://kotoba:kotoba_dev_password@host.docker.internal:5432/kotoba \
+  kotoba-api
+```
+
+O `docker compose` (somente PostgreSQL) continua sendo o ambiente padrão para
+desenvolvimento; a imagem é uma opção para executar a API fora do processo local.
 
 ## Problemas comuns
 

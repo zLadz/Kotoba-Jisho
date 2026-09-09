@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
   index,
@@ -35,7 +36,10 @@ export const kanjiForms = pgTable(
     infos: text('infos').array(),
     priorities: text('priorities').array(),
   },
-  (table) => [index('kanji_forms_entry_id_idx').on(table.entryId)],
+  (table) => [
+    index('kanji_forms_entry_id_idx').on(table.entryId),
+    index('kanji_forms_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
+  ],
 );
 
 export const readings = pgTable(
@@ -53,7 +57,11 @@ export const readings = pgTable(
     priorities: text('priorities').array(),
     romaji: text('romaji').notNull().default(''),
   },
-  (table) => [index('readings_entry_id_idx').on(table.entryId)],
+  (table) => [
+    index('readings_entry_id_idx').on(table.entryId),
+    index('readings_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
+    index('readings_romaji_trgm_idx').using('gin', sql`${table.romaji} gin_trgm_ops`),
+  ],
 );
 
 export const senses = pgTable(
@@ -85,7 +93,10 @@ export const glosses = pgTable(
     language: text('language').notNull().default('en'),
     text: text('text').notNull(),
   },
-  (table) => [index('glosses_sense_id_idx').on(table.senseId)],
+  (table) => [
+    index('glosses_sense_id_idx').on(table.senseId),
+    index('glosses_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
+  ],
 );
 
 export const sourceImports = pgTable(
