@@ -39,8 +39,16 @@ const fixture: DictionaryEntry = {
       kanjiRestrictions: [],
       readingRestrictions: [],
       glosses: [
-        { language: 'pt', text: 'comestível' },
-        { language: 'en', text: 'edible' },
+        { language: 'pt', text: 'comestível', source: 'jmdict' },
+        { language: 'en', text: 'edible', source: 'jmdict' },
+      ],
+      translations: [
+        {
+          language: 'pt-BR',
+          text: 'comestível',
+          source: 'manual',
+          sourceVersion: 'dev-1',
+        },
       ],
     },
   ],
@@ -48,22 +56,48 @@ const fixture: DictionaryEntry = {
 
 describe('toEntryResponse', () => {
   it('projeta o domínio para o DTO de resposta', () => {
-    const dto = toEntryResponse(fixture);
+    const dto = toEntryResponse(fixture, 'pt-BR');
     expect(dto.id).toBe(fixture.id);
     expect(dto.jmdictSeq).toBe(1410460);
     expect(dto.kanji[1]?.infos).toEqual(['ateji']);
     expect(dto.readings[1]?.restrictions).toEqual(['喰べる']);
-    expect(dto.senses[0]?.glosses).toContainEqual({ language: 'pt', text: 'comestível' });
+    expect(dto.senses[0]?.translations).toContainEqual({
+      language: 'pt-BR',
+      text: 'comestível',
+      source: 'manual',
+      sourceVersion: 'dev-1',
+    });
+  });
+
+  it('pt-BR usa somente a camada Kotoba e não cai para glosses (§13)', () => {
+    const dto = toEntryResponse(fixture, 'pt-BR');
+    expect(dto.senses[0]?.translations).toHaveLength(1);
+    expect(dto.senses[0]?.translations[0]?.source).toBe('manual');
+  });
+
+  it('idioma não-Kotoba resolve para glosses JMdict com source jmdict', () => {
+    const dto = toEntryResponse(fixture, 'en');
+    expect(dto.senses[0]?.translations).toContainEqual({
+      language: 'en',
+      text: 'edible',
+      source: 'jmdict',
+      sourceVersion: '',
+    });
+  });
+
+  it('idioma sem dado algum retorna traduções vazias', () => {
+    const dto = toEntryResponse(fixture, 'fr');
+    expect(dto.senses[0]?.translations).toEqual([]);
   });
 
   it('não expõe createdAt/updatedAt', () => {
-    const dto = toEntryResponse(fixture);
+    const dto = toEntryResponse(fixture, 'pt-BR');
     expect('createdAt' in dto).toBe(false);
     expect('updatedAt' in dto).toBe(false);
   });
 
   it('produz contrato válido pelo schema zod', () => {
-    const dto = toEntryResponse(fixture);
+    const dto = toEntryResponse(fixture, 'pt-BR');
     expect(entryResponseSchema.safeParse(dto).success).toBe(true);
   });
 });

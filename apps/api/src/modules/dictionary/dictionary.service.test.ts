@@ -24,9 +24,10 @@ const fixtureEntry: RepositoryEntry = {
       kanjiRestrictions: [],
       readingRestrictions: [],
       glosses: [
-        { language: 'pt', text: 'comestível' },
-        { language: 'en', text: 'edible' },
+        { language: 'pt', text: 'comestível', source: 'jmdict' },
+        { language: 'en', text: 'edible', source: 'jmdict' },
       ],
+      translations: [],
     },
     {
       partOfSpeech: ['v1', 'vt'],
@@ -36,8 +37,16 @@ const fixtureEntry: RepositoryEntry = {
       kanjiRestrictions: ['食べる'],
       readingRestrictions: ['たべる'],
       glosses: [
-        { language: 'pt', text: 'comer' },
-        { language: 'en', text: 'to eat' },
+        { language: 'pt', text: 'comer', source: 'jmdict' },
+        { language: 'en', text: 'to eat', source: 'jmdict' },
+      ],
+      translations: [
+        {
+          language: 'pt-BR',
+          text: 'comer',
+          source: 'manual',
+          sourceVersion: 'dev-1',
+        },
       ],
     },
   ],
@@ -63,6 +72,17 @@ describe('toDomainEntry', () => {
     const domain = toDomainEntry(fixtureEntry);
     domain.readings[0]?.infos.push('marcado');
     expect(fixtureEntry.readings[0]?.infos).toEqual([]);
+  });
+
+  it('preserva as traduções da camada Kotoba', () => {
+    const domain = toDomainEntry(fixtureEntry);
+    expect(domain.senses[1]?.translations[0]).toEqual({
+      language: 'pt-BR',
+      text: 'comer',
+      source: 'manual',
+      sourceVersion: 'dev-1',
+      confidence: undefined,
+    });
   });
 });
 

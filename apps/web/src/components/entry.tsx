@@ -1,34 +1,19 @@
 import { extractKanjiChars } from '../lib/kanji';
 
-export function GlossList({
-  glosses,
+export function TranslationList({
+  translations,
 }: {
-  glosses: Array<{ language: string; text: string }>;
+  translations: Array<{ language: string; text: string; source: string }>;
 }): React.JSX.Element {
-  const byLanguage = glosses.reduce<Record<string, string[]>>((acc, gloss) => {
-    acc[gloss.language] = [...(acc[gloss.language] ?? []), gloss.text];
-    return acc;
-  }, {});
-  const languages = Object.keys(byLanguage).sort((left, right) => {
-    if (left === 'pt' || left === 'pt-BR') {
-      return -1;
-    }
-    if (right === 'pt' || right === 'pt-BR') {
-      return 1;
-    }
-    return left.localeCompare(right);
-  });
-
+  if (translations.length === 0) {
+    return <p className="text-sm text-slate-400">Nenhuma tradução para este idioma.</p>;
+  }
   return (
-    <ul className="flex flex-col gap-2">
-      {languages.map((language) => (
-        <li key={language}>
-          {byLanguage[language]?.map((text) => (
-            <span key={text} className="mr-2">
-              {text}
-            </span>
-          ))}
-          <span className="text-xs uppercase text-slate-400">{language}</span>
+    <ul className="flex flex-col gap-1">
+      {translations.map((translation) => (
+        <li key={`${translation.language}-${translation.text}-${translation.source}`}>
+          <span className="mr-2">{translation.text}</span>
+          <span className="text-xs uppercase text-slate-400">{translation.source}</span>
         </li>
       ))}
     </ul>

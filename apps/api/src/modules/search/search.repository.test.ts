@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { sql } from 'drizzle-orm';
+import { normalizeGloss } from '@kotoba/normalize';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const DEFAULT_DATABASE_URL = 'postgresql://kotoba:kotoba_dev_password@localhost:5432/kotoba';
@@ -28,7 +29,7 @@ function extractEntries(xml: string): string[] {
   return blocks;
 }
 
-const ALL_MATCH_TYPES = [
+const GENERAL_TIERS = [
   'exactGloss',
   'exactKanji',
   'exactReading',
@@ -47,6 +48,15 @@ const ALL_MATCH_TYPES = [
   'tokenPrefixGloss',
   'tokenPrefixReading',
   'tokenReading',
+].sort();
+
+const TRANSLATION_TIERS = [
+  'exactTranslation',
+  'fuzzyTranslation',
+  'prefixTranslation',
+  'tokenFuzzyTranslation',
+  'tokenPrefixTranslation',
+  'tokenTranslation',
 ].sort();
 
 describe('repository de busca (tiers)', () => {
@@ -91,6 +101,16 @@ describe('repository de busca (tiers)', () => {
     );
     eatId = ids.find((row) => row.jmdict_seq === 1410460)!.id as string;
 
+    const senseIds = await db.execute(
+      sql`select id from senses where entry_id = ${eatId} order by position limit 1`,
+    );
+    const senseId = senseIds[0]!.id as string;
+    await db.execute(
+      sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version) values
+            (${senseId}, 0, 'pt-BR', 'comer', ${normalizeGloss('comer')}, 'manual', 'dev-1'),
+            (${senseId}, 1, 'pt-BR', 'comestível', ${normalizeGloss('comestível')}, 'manual', 'dev-1')`,
+    );
+
     ({ searchEntries } = await import('./search.repository.js'));
   }, 60_000);
 
@@ -102,21 +122,32 @@ describe('repository de busca (tiers)', () => {
     }
   });
 
-  it('cobre todos os 18 tiers de busca', async () => {
+  it('cobre todos os tiers gerais (leitura/kanji/romaji/gloss JMdict)', async () => {
     const queries = ['たべる', '食べる', 'taberu', 'comer', 'comestivel'];
     const seen = new Set<string>();
     for (const query of queries) {
-      const matches = await searchEntries(query);
+      const matches = await searchEntries(query, 'pt');
       for (const match of matches) {
         seen.add(match.match);
       }
     }
-    expect([...seen].sort()).toEqual(ALL_MATCH_TYPES);
+    expect([...seen].sort()).toEqual(GENERAL_TIERS);
+  });
+
+  it('cobre os tiers de tradução da camada Kotoba', async () => {
+    const seen = new Set<string>();
+    for (const query of ['comer', 'comestivel', 'com']) {
+      const matches = await searchEntries(query, 'pt-BR');
+      for (const match of matches) {
+        seen.add(match.match);
+      }
+    }
+    expect([...seen].sort()).toEqual(TRANSLATION_TIERS);
   });
 
   it('katakana e half-width casam pelo tier token normalizado', async () => {
     for (const query of ['タベル', 'ﾀﾍﾞﾙ']) {
-      const matches = await searchEntries(query);
+      const matches = await searchEntries(query, 'pt-BR');
       expect(
         matches.some((match) => match.entryId === eatId && match.match === 'tokenReading'),
       ).toBe(true);
@@ -126,8 +157,18 @@ describe('repository de busca (tiers)', () => {
     }
   });
 
-  it('busca por gloss sem acento usa normalized_text', async () => {
-    const matches = await searchEntries('comestivel');
+  it('busca de tradução sem acento usa normalized_text (camada Kotoba)', async () => {
+    const matches = await searchEntries('comestivel', 'pt-BR');
+    expect(
+      matches.some((match) => match.entryId === eatId && match.match === 'tokenTranslation'),
+    ).toBe(true);
+    expect(
+      matches.some((match) => match.entryId === eatId && match.match === 'exactTranslation'),
+    ).toBe(false);
+  });
+
+  it('gloss JMdict sem acento usa normalized_text (idioma não-Kotoba)', async () => {
+    const matches = await searchEntries('comestivel', 'pt');
     expect(matches.some((match) => match.entryId === eatId && match.match === 'tokenGloss')).toBe(
       true,
     );
@@ -152,11 +193,18 @@ describe('repository de busca (tiers)', () => {
       ['タベル', 'tokenReading'],
     ];
     for (const [query, match] of pairs) {
-      const matches = await searchEntries(query);
+      const matches = await searchEntries(query, 'pt');
       expect(
         matches.some((entry) => entry.match === match && entry.entryId === eatId),
         `${query} deve retornar ${match} para a entrada esperada`,
       ).toBe(true);
     }
+  });
+
+  it('tradução Kotoba casa para a entrada esperada', async () => {
+    const matches = await searchEntries('comer', 'pt-BR');
+    expect(
+      matches.some((entry) => entry.match === 'exactTranslation' && entry.entryId === eatId),
+    ).toBe(true);
   });
 });

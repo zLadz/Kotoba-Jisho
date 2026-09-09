@@ -41,8 +41,16 @@ function makeEntry(id: string, jmdictSeq: number): DictionaryEntry {
         kanjiRestrictions: [],
         readingRestrictions: [],
         glosses: [
-          { language: 'pt', text: 'comer' },
-          { language: 'en', text: 'to eat' },
+          { language: 'pt', text: 'comer', source: 'jmdict' },
+          { language: 'en', text: 'to eat', source: 'jmdict' },
+        ],
+        translations: [
+          {
+            language: 'pt-BR',
+            text: 'comer',
+            source: 'manual',
+            sourceVersion: 'dev-1',
+          },
         ],
       },
     ],
@@ -69,12 +77,32 @@ function withMatches(matches: Array<[string, SearchMatch]>): SearchService {
 const fixtureEntriesList = Object.values(fixtureEntries);
 
 describe('toSearchResult', () => {
-  it('mapeia a entrada para o formato de resultado de busca', () => {
-    const result: SearchResult = toSearchResult(fixtureEntries.c ?? makeEntry('', 1));
+  it('resolve traduções do idioma solicitado (pt-BR usa a camada Kotoba)', () => {
+    const result: SearchResult = toSearchResult(fixtureEntries.c ?? makeEntry('', 1), 'pt-BR');
     expect(result.kanji).toEqual([]);
     expect(result.readings).toEqual(['たべる', 'はむ']);
     expect(result.romaji).toEqual(['taberu', 'hamu']);
-    expect(result.glosses).toContainEqual({ language: 'pt', text: 'comer' });
+    expect(result.translations).toContainEqual({
+      language: 'pt-BR',
+      text: 'comer',
+      source: 'manual',
+      sourceVersion: 'dev-1',
+    });
+  });
+
+  it('idiomas não-Kotoba caem para os glosses JMdict (§13)', () => {
+    const result: SearchResult = toSearchResult(fixtureEntries.c ?? makeEntry('', 1), 'en');
+    expect(result.translations).toContainEqual({
+      language: 'en',
+      text: 'to eat',
+      source: 'jmdict',
+      sourceVersion: '',
+    });
+  });
+
+  it('sem dado para o idioma retorna traduções vazias', () => {
+    const result: SearchResult = toSearchResult(fixtureEntries.c ?? makeEntry('', 1), 'fr');
+    expect(result.translations).toEqual([]);
   });
 });
 
@@ -121,6 +149,25 @@ describe('SearchService.search', () => {
     ]);
     const results = await service.search('busca', 2);
     expect(results.map((result) => result.id)).toEqual(['a', 'c']);
+  });
+
+  it('tradução Kotoba fica acima de gloss JMdict no ranking (§15)', async () => {
+    const service = withMatches([
+      ['a', 'exactGloss'],
+      ['b', 'fuzzyGloss'],
+      ['c', 'exactTranslation'],
+    ]);
+    const results = await service.search('busca');
+    expect(results.map((result) => result.id)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('prefixo de tradução fica acima de prefixo de gloss', async () => {
+    const service = withMatches([
+      ['a', 'prefixGloss'],
+      ['b', 'prefixTranslation'],
+    ]);
+    const results = await service.search('busca');
+    expect(results.map((result) => result.id)).toEqual(['b', 'a']);
   });
 
   it('aplica offset de paginação depois do ranking (§13)', async () => {

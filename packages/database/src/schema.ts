@@ -4,6 +4,7 @@ import {
   index,
   integer,
   pgTable,
+  real,
   text,
   timestamp,
   uniqueIndex,
@@ -141,6 +142,43 @@ export const glosses = pgTable(
     index('glosses_normalized_text_trgm_idx').using(
       'gin',
       sql`${table.normalizedText} gin_trgm_ops`,
+    ),
+  ],
+);
+
+export const translations = pgTable(
+  'translations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    senseId: uuid('sense_id')
+      .notNull()
+      .references(() => senses.id, { onDelete: 'cascade' }),
+    position: integer('position').notNull().default(0),
+    language: text('language').notNull(),
+    text: text('text').notNull(),
+    normalizedText: text('normalized_text').notNull().default(''),
+    source: text('source').notNull(),
+    sourceVersion: text('source_version').notNull().default(''),
+    confidence: real('confidence'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    index('translations_sense_id_idx').on(table.senseId),
+    index('translations_normalized_text_idx').on(table.normalizedText),
+    index('translations_normalized_text_trgm_idx').using(
+      'gin',
+      sql`${table.normalizedText} gin_trgm_ops`,
+    ),
+    uniqueIndex('translations_sense_language_text_source_unique').on(
+      table.senseId,
+      table.language,
+      table.text,
+      table.source,
+      table.sourceVersion,
     ),
   ],
 );

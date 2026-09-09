@@ -54,6 +54,7 @@ prioridade).
 | `npm run db:migrate`                  | Aplica migrations pendentes                      |
 | `npm run db:seed`                     | Semear o dataset de desenvolvimento              |
 | `npm run import:jmdict`               | Importa o JMdict (ver abaixo)                    |
+| `npm run import:translations`         | Importa as traduções pt-BR da camada Kotoba      |
 | `npm run benchmark:search`            | Benchmark de latência da busca por tier          |
 
 ## Migrations
@@ -67,12 +68,17 @@ O schema vive em `packages/database/src/schema.ts`.
   migration `0002`. Em ambientes não Docker (ou com usuário sem permissão), `db:migrate`
   cuida da extensão — `pg_trgm` é uma extensão _trusted_ e pode ser criada pelo dono do
   banco.
+- A migration `0004` adiciona a tabela `translations` (camada Kotoba) com a unicidade de
+  proveniência em `translations_sense_language_text_source_unique`.
 
 ## Seeds
 
 `npm run db:seed` insere o dataset curado em `packages/database/src/seed/data.ts`
 (subconjunto do JMdict com traduções pt-BR), usado como base de desenvolvimento e pelo
 fluxo end-to-end dos testes de integração.
+
+As traduções curadas da camada Kotoba são importadas à parte (ver abaixo), da mesma forma
+que em produção desde os primeiros dias.
 
 ## Importar o JMdict
 
@@ -110,6 +116,25 @@ Nesta versão não são importados `lsource`, `xref`/`ant` e `s_inf` (evolução
 Para substituir o dataset inteiro já importado, o importer detecta a nova versão e mantém o
 histórico em `source_imports` (uma linha por `source+version`).
 
+## Importar as traduções pt-BR (camada Kotoba)
+
+```bash
+npm run import:translations -- --file services/translations-importer/fixtures/pt-br-sample.json
+```
+
+O `translations-importer` lê um JSON de traduções (`{ source, version, translations[] }`).
+Cada tradução referencia a acepção pelas chaves estáveis do JMdict (`jmdictSeq` +
+`sensePosition`), já importada pelo `importer` — o mapeamento resolve internamente para o
+`sense_id` mostrado nas `senses`.
+
+- `source`/`version` identificam o ciclo de vida em `source_imports` (ex.:
+  `kotoba-translations@dev-1`), com checksum SHA-256 e contadores;
+- a importação é **idempotente**: `flushTranslationBatch` detecta linhas já existentes pela
+  unicidade de proveniência e apenas ignora duplicatas, permitindo reexecutar o mesmo
+  arquivo sem duplicar nem falhar;
+- o exemplo do desenvolvimento (`fixtures/pt-br-sample.json`) cobre algumas entradas
+  (食べる, 学生, 日本, 珈琲, 車) com múltiplas acepções por palavra.
+
 ## Testes
 
 ```bash
@@ -122,13 +147,18 @@ npm test
   `localhost:5432`. O teste cria um banco isolado `kotoba_test` (derivado de
   `DATABASE_URL`), aplica as migrations, importa o fixture e exercita busca e detalhe
   através da aplicação real — incluindo o fluxo end-to-end seed → banco → API → busca →
-  resultado, paginação com `offset` e busca por variantes kana.
+  resultado, paginação com `offset`, busca por variantes kana e o cenário de aceitação de
+  múltiplas acepções em `pt-BR` (§26: entrada 車 com veículo/roda, traduções por acepção,
+  POS localizado e busca topo).
 - **Repositório de busca** (`apps/api/src/modules/search/search.repository.test.ts`): contra
-  o mesmo `kotoba_test`, cobre os 18 tiers (exata/token/prefixo/fuzzy × leitura/kanji/
-  romaji/gloss, nos textos brutos e normalizados).
+  o mesmo `kotoba_test`, cobre os tiers (exata/token/prefixo/fuzzy × leitura/kanji/romaji/
+  tradução Kotoba/gloss JMdict, nos textos brutos e normalizados).
 - **Banco** (`services/importer/src/storage.test.ts`): idempotência de reimportação,
   rollback atômico, ciclo de vida de `source_imports`, constraints (§15 — unicidades e FKs)
   e presença dos índices de busca.
+- **Traduções** (`services/translations-importer/src/storage.test.ts`): mapeamento
+  `jmdict_seq + sensePosition`, proveniência, comportamento idempotente do
+  `flushTranslationBatch` e registro em `source_imports`.
 
 > Se o banco não estiver disponível, os testes de integração falham (esperado). Suba o
 > container com `docker compose up -d` antes de rodar `npm test`. Os arquivos de

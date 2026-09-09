@@ -1,5 +1,6 @@
 import type { DictionaryEntry, SearchResult } from '@kotoba/types';
 import { dictionaryService } from '../dictionary/dictionary.service.js';
+import { resolveSenseTranslations } from '../dictionary/translations.js';
 import { searchRepository, type SearchMatch, type SearchRepository } from './search.repository.js';
 
 const SCORES: Record<SearchMatch, number> = {
@@ -7,33 +8,37 @@ const SCORES: Record<SearchMatch, number> = {
   exactKanji: 3200,
   exactRomaji: 3000,
   exactGloss: 2000,
+  exactTranslation: 5000,
   tokenReading: 3800,
   tokenGloss: 1900,
+  tokenTranslation: 4800,
   prefixReading: 1800,
   prefixKanji: 1600,
   prefixRomaji: 1400,
   prefixGloss: 1000,
+  prefixTranslation: 2500,
   tokenPrefixReading: 1700,
   tokenPrefixGloss: 950,
+  tokenPrefixTranslation: 2400,
   fuzzyReading: 900,
   fuzzyKanji: 800,
   fuzzyRomaji: 700,
   fuzzyGloss: 500,
+  fuzzyTranslation: 1100,
   tokenFuzzyReading: 850,
   tokenFuzzyGloss: 480,
+  tokenFuzzyTranslation: 1050,
 };
 
 const PRIORITY_TAGS = ['news1', 'ichi1'];
 
-export function toSearchResult(entry: DictionaryEntry): SearchResult {
+export function toSearchResult(entry: DictionaryEntry, lang: string): SearchResult {
   return {
     id: entry.id,
     kanji: entry.kanji.map((form) => form.text),
     readings: entry.readings.map((reading) => reading.text),
     romaji: entry.readings.map((reading) => reading.romaji),
-    glosses: entry.senses.flatMap((sense) =>
-      sense.glosses.map((gloss) => ({ language: gloss.language, text: gloss.text })),
-    ),
+    translations: entry.senses.flatMap((sense) => resolveSenseTranslations(sense, lang)),
   };
 }
 
@@ -53,13 +58,13 @@ interface SearchDependencies {
 export class SearchService {
   constructor(private readonly dependencies: SearchDependencies) {}
 
-  async search(query: string, limit = 20, offset = 0): Promise<SearchResult[]> {
+  async search(query: string, limit = 20, offset = 0, lang = 'pt-BR'): Promise<SearchResult[]> {
     const normalized = query.trim().toLowerCase();
     if (normalized.length === 0) {
       return [];
     }
 
-    const matches = await this.dependencies.searchRepository.search(normalized);
+    const matches = await this.dependencies.searchRepository.search(normalized, lang);
     const bestScore = new Map<string, number>();
     for (const match of matches) {
       const score = SCORES[match.match];
@@ -96,7 +101,7 @@ export class SearchService {
         if (entry === undefined) {
           throw new Error(`Entrada ${entryId} não encontrada após a busca`);
         }
-        return toSearchResult(entry);
+        return toSearchResult(entry, lang);
       });
   }
 }

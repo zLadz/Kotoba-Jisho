@@ -2,9 +2,10 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { DictionaryEntry } from '@kotoba/types';
 import { entryParamsSchema, entryResponseSchema, type EntryResponse } from '@kotoba/validation';
 import { dictionaryService } from './dictionary.service.js';
+import { resolveSenseTranslations } from './translations.js';
 import { errorBody } from '../../shared/errors.js';
 
-export function toEntryResponse(entry: DictionaryEntry): EntryResponse {
+export function toEntryResponse(entry: DictionaryEntry, lang: string): EntryResponse {
   return {
     id: entry.id,
     jmdictSeq: entry.jmdictSeq,
@@ -28,18 +29,18 @@ export function toEntryResponse(entry: DictionaryEntry): EntryResponse {
       dialects: [...sense.dialects],
       kanjiRestrictions: [...sense.kanjiRestrictions],
       readingRestrictions: [...sense.readingRestrictions],
-      glosses: sense.glosses.map((gloss) => ({ language: gloss.language, text: gloss.text })),
+      translations: resolveSenseTranslations(sense, lang),
     })),
   };
 }
 
 export async function getEntry(
-  request: FastifyRequest<{ Params: Record<string, string> }>,
+  request: FastifyRequest<{ Params: Record<string, string>; Querystring: Record<string, string> }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const parsed = entryParamsSchema.safeParse(request.params);
+  const parsed = entryParamsSchema.safeParse({ ...request.params, ...request.query });
   if (!parsed.success) {
-    reply.status(400).send(errorBody('VALIDATION_ERROR', 'Invalid entry id'));
+    reply.status(400).send(errorBody('VALIDATION_ERROR', 'Invalid entry id or parameters'));
     return;
   }
 
@@ -49,5 +50,5 @@ export async function getEntry(
     return;
   }
 
-  reply.send(entryResponseSchema.parse(toEntryResponse(entry)));
+  reply.send(entryResponseSchema.parse(toEntryResponse(entry, parsed.data.lang)));
 }

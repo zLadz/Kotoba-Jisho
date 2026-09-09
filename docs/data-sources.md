@@ -48,6 +48,9 @@ sempre regenerados do `text` original):
   de katakana→hiragana e remoção de acentos via `@kotoba/normalize`, usada nos tiers de
   busca token/normalizado.
 
+A tabela `translations` (camada Kotoba) é **separada** dos glosses JMdict e não altera esses
+dados originais.
+
 ### Dados ainda não importados (evolução futura)
 
 Os seguintes elementos do JMdict não são armazenados nesta versão do importer, sem perda para
@@ -62,3 +65,29 @@ o escopo atual:
 Nenhuma outra fonte externa é utilizada nesta versão. O dataset de desenvolvimento
 (`packages/database/src/seed/data.ts`) é um subconjunto curado do próprio JMdict e não
 substitui a fonte original.
+
+## Camada Kotoba (traduções curadas)
+
+| Campo         | Valor                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nome da fonte | Camada lexical Kotoba — traduções curadas (hoje `pt-BR`)                                                                                              |
+| Finalidade    | Traduções próprias do Kotoba, independentes dos glosses do JMdict, escolhidas como camada principal para o idioma padrão (`pt-BR`)                    |
+| Licença       | Dados próprios da equipe Kotoba (não derivados do JMdict)                                                                                             |
+| Identificação | `source = kotoba-translations` em `source_imports` (version por lote, ex.: `dev-1`)                                                                   |
+| Armazenamento | Tabela `translations` — cada linha referencia uma acepção (`sense_id`), com `language`, `text`, `source`, `source_version`, `confidence` e `position` |
+| Importação    | `npm run import:translations` (JSON `{ source, version, translations[] }`, cheksum SHA-256, lotes transacionais idempotentes)                         |
+| Cobertura     | Exemplo em `services/translations-importer/fixtures/pt-br-sample.json` (食べる, 学生, 日本, 珈琲, 車)                                                 |
+
+### Regra de resolução por idioma
+
+- **`pt-BR`** (padrão): a API e a busca usam **apenas** a camada Kotoba (`translations`);
+  sem fallback para o JMdict — acepção sem tradução curada permanece vazia, marcando o que
+  ainda precisa de curadoria.
+- **Demais idiomas**: camada Kotoba se existir para o idioma; senão, os glosses do JMdict
+  filtrados pelo idioma, expostos com `source: "jmdict"`.
+
+### Responsabilidade dos dados
+
+As traduções da camada Kotoba são **próprias**: não são copiadas dos glosses do JMdict. A
+proveniência de cada linha (fonte, versão, confidence) fica registrada em `translations` e
+`source_imports`, permitindo auditoria e atribuição correta de cada lote importado.

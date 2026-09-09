@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { sql } from 'drizzle-orm';
+import { normalizeGloss } from '@kotoba/normalize';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -32,6 +33,7 @@ function extractEntries(xml: string): string[] {
 describe('integração', () => {
   let app: FastifyInstance | undefined;
   let db: typeof import('@kotoba/database').db;
+  let seedSourceImportId: string;
 
   beforeAll(async () => {
     const { default: postgres } = await import('postgres');
@@ -57,6 +59,7 @@ describe('integração', () => {
       version: '2026-09-08',
       checksum: 'fixture-de-teste',
     });
+    seedSourceImportId = sourceImportId;
     await markRunning(sourceImportId);
     await flushEntryBatch(entries, sourceImportId);
     await completeSourceImport(
@@ -70,6 +73,29 @@ describe('integração', () => {
       },
       Date.now(),
     );
+
+    const senseBySeq = new Map<number, string>();
+    for (const seq of [1410460, 1581480, 1294040, 1742690]) {
+      const rows = await db.execute(
+        sql`select s.id from senses s join entries e on e.id = s.entry_id where e.jmdict_seq = ${seq} order by s.position limit 1`,
+      );
+      senseBySeq.set(seq, rows[0]!.id as string);
+    }
+    const kotobaTranslations: Array<{ senseId: string; text: string }> = [
+      { senseId: senseBySeq.get(1410460)!, text: 'comer' },
+      { senseId: senseBySeq.get(1410460)!, text: 'comestível' },
+      { senseId: senseBySeq.get(1581480)!, text: 'Japão' },
+      { senseId: senseBySeq.get(1294040)!, text: 'estudante' },
+      { senseId: senseBySeq.get(1294040)!, text: 'aluno' },
+      { senseId: senseBySeq.get(1742690)!, text: 'café' },
+    ];
+    for (let position = 0; position < kotobaTranslations.length; position += 1) {
+      const item = kotobaTranslations[position]!;
+      await db.execute(
+        sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+            values (${item.senseId}, ${position}, 'pt-BR', ${item.text}, ${normalizeGloss(item.text)}, 'manual', 'dev-1')`,
+      );
+    }
 
     const { buildApp } = await import('../app.js');
     app = buildApp({ loggerLevel: 'silent' });
@@ -120,16 +146,21 @@ describe('integração', () => {
       results: Array<{
         kanji: string[];
         romaji: string[];
-        glosses: Array<{ language: string; text: string }>;
+        translations: Array<{ text: string; source: string }>;
       }>;
     }>();
     expect(body?.query).toBe('taberu');
     expect(body?.results[0]?.kanji).toContain('食べる');
     expect(body?.results[0]?.romaji).toContain('taberu');
-    expect(body?.results[0]?.glosses).toContainEqual({ language: 'pt', text: 'comer' });
+    expect(body?.results[0]?.translations).toContainEqual({
+      language: 'pt-BR',
+      text: 'comer',
+      source: 'manual',
+      sourceVersion: 'dev-1',
+    });
   });
 
-  it('busca por romaji e por português', async () => {
+  it('busca por romaji e por português (padrão pt-BR usa a camada Kotoba)', async () => {
     const byRomaji = await app?.inject({ method: 'GET', url: '/api/v1/search?q=nippon' });
     const romajiBody = byRomaji?.json<{ results: Array<{ kanji: string[] }> }>();
     expect(romajiBody?.results[0]?.kanji).toContain('日本');
@@ -139,12 +170,29 @@ describe('integração', () => {
     expect(portugueseBody?.results[0]?.kanji).toContain('学生');
   });
 
+  it('busca em pt-BR não cai para glosses JMdict fora da camada Kotoba (§14)', async () => {
+    const response = await app?.inject({ method: 'GET', url: '/api/v1/search?q=proprio' });
+    expect(response?.statusCode).toBe(200);
+    const body = response?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(body?.results).toEqual([]);
+  });
+
+  it('busca em idioma não-Kotoba usa apenas glosses JMdict daquele idioma', async () => {
+    const en = await app?.inject({ method: 'GET', url: '/api/v1/search?q=estudante&lang=en' });
+    const enBody = en?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(enBody?.results).toEqual([]);
+
+    const ptJmdict = await app?.inject({ method: 'GET', url: '/api/v1/search?q=proprio&lang=pt' });
+    const ptBody = ptJmdict?.json<{ results: Array<{ kanji: string[] }> }>();
+    expect(ptBody?.results[0]?.kanji).toContain('食べる');
+  });
+
   it('busca fuzzy tolera erros de digitação (§12)', async () => {
     const byRomaji = await app?.inject({ method: 'GET', url: '/api/v1/search?q=taberru' });
     const byRomajiBody = byRomaji?.json<{ results: Array<{ kanji: string[] }> }>();
     expect(byRomajiBody?.results[0]?.kanji).toContain('食べる');
 
-    const byGloss = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comrr' });
+    const byGloss = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comrr&lang=pt' });
     const byGlossBody = byGloss?.json<{ results: Array<{ kanji: string[] }> }>();
     expect(byGlossBody?.results[0]?.kanji).toContain('食べる');
   });
@@ -161,7 +209,7 @@ describe('integração', () => {
     }
   });
 
-  it('busca gloss sem acento pelo tier token', async () => {
+  it('busca tradução sem acento pelo tier token', async () => {
     const response = await app?.inject({ method: 'GET', url: '/api/v1/search?q=comestivel' });
     expect(response?.statusCode).toBe(200);
     const body = response?.json<{ results: Array<{ kanji: string[] }> }>();
@@ -200,7 +248,9 @@ describe('integração', () => {
       jmdictSeq: number;
       kanji: Array<{ text: string }>;
       readings: Array<{ text: string; romaji: string }>;
-      senses: Array<{ glosses: Array<{ language: string; text: string }> }>;
+      senses: Array<{
+        translations: Array<{ text: string; source: string; sourceVersion: string }>;
+      }>;
       createdAt?: unknown;
     }>();
     expect(body?.id).toBe(id);
@@ -208,9 +258,35 @@ describe('integração', () => {
     expect(body?.kanji[0]?.text).toBe('食べる');
     expect(body?.readings[0]?.romaji).toBe('taberu');
     expect(
-      body?.senses.some((sense) => sense.glosses.some((gloss) => gloss.language === 'pt')),
+      body?.senses.some((sense) =>
+        sense.translations.some((t) => t.text === 'comer' && t.source === 'manual'),
+      ),
     ).toBe(true);
     expect(body).not.toHaveProperty('createdAt');
+  });
+
+  it('retorna traduções por idioma, sem misturar glosses (§24)', async () => {
+    const search = await app?.inject({ method: 'GET', url: '/api/v1/search?q=taberu' });
+    const id = search?.json<{ results: Array<{ id: string }> }>().results[0]?.id;
+
+    const ptBr = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=pt-BR` });
+    const ptBrBody = ptBr?.json<{ senses: Array<{ translations: Array<{ source: string }> }> }>();
+    expect(ptBrBody?.senses[0]?.translations.every((t) => t.source === 'manual')).toBe(true);
+
+    const ptJmdict = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=pt` });
+    const ptBody = ptJmdict?.json<{
+      senses: Array<{ translations: Array<{ text: string; source: string }> }>;
+    }>();
+    expect(ptBody?.senses[0]?.translations).toContainEqual({
+      language: 'pt',
+      text: 'comestível',
+      source: 'jmdict',
+      sourceVersion: '',
+    });
+
+    const fr = await app?.inject({ method: 'GET', url: `/api/v1/entries/${id}?lang=fr` });
+    const frBody = fr?.json<{ senses: Array<{ translations: unknown[] }> }>();
+    expect(frBody?.senses[0]?.translations).toEqual([]);
   });
 
   it('executa o fluxo end-to-end: seed → banco → API → busca → resultado', async () => {
@@ -229,5 +305,104 @@ describe('integração', () => {
     expect(detail?.statusCode).toBe(200);
     const detailBody = detail?.json<{ readings: Array<{ text: string; romaji: string }> }>();
     expect(detailBody?.readings[0]?.romaji).toBe('gakusei');
+  });
+
+  describe('aceitação: entrada com múltiplas acepções e camada pt-BR (§26)', () => {
+    let vehicleId: string;
+
+    beforeAll(async () => {
+      const { parseEntry } = await import('@kotoba/importer/parser');
+      const { flushEntryBatch } = await import('@kotoba/importer/storage');
+
+      const kurumaXml = `<entry>
+        <ent_seq>1323080</ent_seq>
+        <k_ele><keb>車</keb><ke_pri>ichi1</ke_pri></k_ele>
+        <r_ele><reb>くるま</reb><re_pri>ichi1</re_pri></r_ele>
+        <sense>
+          <pos>&n;</pos>
+          <gloss xml:lang="pt">carro</gloss>
+          <gloss xml:lang="pt">veículo</gloss>
+          <gloss>car</gloss>
+          <gloss>vehicle</gloss>
+        </sense>
+        <sense>
+          <pos>&n;</pos>
+          <gloss xml:lang="pt">roda</gloss>
+          <gloss>wheel</gloss>
+        </sense>
+      </entry>`;
+
+      const [kuruma] = extractEntries(kurumaXml).map((raw) => parseEntry(raw));
+      await flushEntryBatch([kuruma], seedSourceImportId);
+
+      const senseRows = await db.execute(sql`
+        select s.id, s.position from senses s
+        join entries e on e.id = s.entry_id
+        where e.jmdict_seq = 1323080 order by s.position
+      `);
+      const byPosition = new Map<string, string>();
+      for (const row of senseRows) {
+        byPosition.set(String(row.position), row.id as string);
+      }
+      const vehicleSense = byPosition.get('0')!;
+      const wheelSense = byPosition.get('1')!;
+
+      const insert = async (senseId: string, text: string, position: number): Promise<void> => {
+        await db.execute(sql`
+          insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+          values (${senseId}, ${position}, 'pt-BR', ${text}, ${normalizeGloss(text)}, 'manual', 'manual-curated-1')
+        `);
+      };
+      await insert(vehicleSense, 'carro', 0);
+      await insert(vehicleSense, 'veículo', 1);
+      await insert(wheelSense, 'roda', 0);
+
+      const rows = await db.execute(sql`
+        select e.id from entries e where e.jmdict_seq = 1323080
+      `);
+      vehicleId = rows[0]!.id as string;
+    }, 30_000);
+
+    it('busca por "carro" em pt-BR retorna a entrada 車 no topo', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=carro&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string; kanji: string[] }> }>();
+      expect(body?.results[0]?.id).toBe(vehicleId);
+      expect(body?.results[0]?.kanji).toContain('車');
+    });
+
+    it('entrada expõe traduções por acepção sem misturar e com POS (§26)', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/entries/${vehicleId}?lang=pt-BR`,
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{
+        senses: Array<{
+          partOfSpeech: string[];
+          translations: Array<{ text: string; source: string; sourceVersion: string }>;
+        }>;
+      }>();
+      expect(body?.senses[0]?.partOfSpeech).toContain('n');
+      expect(body?.senses[0]?.translations.map((t) => t.text)).toEqual(['carro', 'veículo']);
+      expect(body?.senses[0]?.translations.every((t) => t.source === 'manual')).toBe(true);
+      expect(body?.senses[1]?.translations.map((t) => t.text)).toEqual(['roda']);
+    });
+
+    it('lang=en resolve para glosses JMdict com source jmdict', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: `/api/v1/entries/${vehicleId}?lang=en`,
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{
+        senses: Array<{ translations: Array<{ text: string; source: string }> }>;
+      }>();
+      expect(body?.senses[0]?.translations.map((t) => t.text)).toEqual(['car', 'vehicle']);
+      expect(body?.senses[0]?.translations.every((t) => t.source === 'jmdict')).toBe(true);
+    });
   });
 });

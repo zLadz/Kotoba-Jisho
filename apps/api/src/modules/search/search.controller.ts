@@ -13,6 +13,11 @@ export async function searchEntries(
     return;
   }
 
-  const results = await searchService.search(parsed.data.q, parsed.data.limit, parsed.data.offset);
+  const results = await searchService.search(
+    parsed.data.q,
+    parsed.data.limit,
+    parsed.data.offset,
+    parsed.data.lang,
+  );
   reply.send(searchResponseSchema.parse({ query: parsed.data.q, results }));
 }

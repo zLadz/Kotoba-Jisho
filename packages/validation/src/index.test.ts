@@ -13,7 +13,12 @@ describe('searchQuerySchema', () => {
     const parsed = searchQuerySchema.safeParse({ q: 'taberu' });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data).toEqual({ q: 'taberu', limit: 20, offset: 0 });
+      expect(parsed.data).toEqual({
+        q: 'taberu',
+        limit: 20,
+        offset: 0,
+        lang: 'pt-BR',
+      });
     }
   });
 
@@ -21,7 +26,7 @@ describe('searchQuerySchema', () => {
     const parsed = searchQuerySchema.safeParse({ q: '  comer  ', limit: '5' });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data).toEqual({ q: 'comer', limit: 5, offset: 0 });
+      expect(parsed.data).toEqual({ q: 'comer', limit: 5, offset: 0, lang: 'pt-BR' });
     }
   });
 
@@ -29,8 +34,22 @@ describe('searchQuerySchema', () => {
     const parsed = searchQuerySchema.safeParse({ q: 'taberu', offset: '10' });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data).toEqual({ q: 'taberu', limit: 20, offset: 10 });
+      expect(parsed.data).toEqual({
+        q: 'taberu',
+        limit: 20,
+        offset: 10,
+        lang: 'pt-BR',
+      });
     }
+  });
+
+  it('aceita lang explícito', () => {
+    const parsed = searchQuerySchema.safeParse({ q: 'taberu', lang: 'en' });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.lang).toBe('en');
+    }
+    expect(searchQuerySchema.safeParse({ q: 'taberu', lang: 'x' }).success).toBe(false);
   });
 
   it('rejeita query vazia ou só espaços', () => {
@@ -77,7 +96,14 @@ describe('response schemas', () => {
           kanji: ['食べる'],
           readings: ['たべる'],
           romaji: ['taberu'],
-          glosses: [{ language: 'pt-BR', text: 'comer' }],
+          translations: [
+            {
+              language: 'pt-BR',
+              text: 'comer',
+              source: 'manual',
+              sourceVersion: 'dev-1',
+            },
+          ],
         },
       ],
     };
@@ -107,7 +133,14 @@ describe('response schemas', () => {
           dialects: [],
           kanjiRestrictions: [],
           readingRestrictions: [],
-          glosses: [{ language: 'pt-BR', text: 'comer' }],
+          translations: [
+            {
+              language: 'pt-BR',
+              text: 'comer',
+              source: 'manual',
+              sourceVersion: 'dev-1',
+            },
+          ],
         },
       ],
     };

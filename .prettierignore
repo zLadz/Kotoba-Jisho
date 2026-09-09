@@ -7,3 +7,12 @@ out/
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Gerado pelo Next.js em cada build/dev
+next-env.d.ts
+
+# Gerado pelo drizzle-kit (formato próprio)
+packages/database/migrations/meta/
+
+# Especificações/prompts do repositório (não fazem parte do formato do código)
+Prompt/

@@ -32,7 +32,18 @@ export function toDomainEntry(repositoryEntry: RepositoryEntry): DictionaryEntry
       dialects: [...sense.dialects],
       kanjiRestrictions: [...sense.kanjiRestrictions],
       readingRestrictions: [...sense.readingRestrictions],
-      glosses: sense.glosses.map((gloss) => ({ language: gloss.language, text: gloss.text })),
+      glosses: sense.glosses.map((gloss) => ({
+        language: gloss.language,
+        text: gloss.text,
+        source: gloss.source,
+      })),
+      translations: sense.translations.map((t) => ({
+        language: t.language,
+        text: t.text,
+        source: t.source,
+        sourceVersion: t.sourceVersion,
+        confidence: t.confidence,
+      })),
     })),
   };
 }

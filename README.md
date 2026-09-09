@@ -5,8 +5,12 @@
 
 Kotoba é um dicionário Japonês → Português Brasileiro. Pesquise por **kanji** (食べる),
 **kana** (たべる), **katakana** (コーヒー, 食べる digitado em kana largo ou half-width),
-**romaji** (taberu) ou **tradução** (comer, com ou sem acento) e abra a página detalhada de
-cada palavra, com leituras, romaji, classe gramatical e acepções.
+**romaji** (taberu) ou **tradução** (comer, carro, com ou sem acento) e abra a página
+detalhada de cada palavra, com leituras, romaji, classe gramatical e acepções.
+
+As traduções em pt-BR são uma **camada lexical própria** (tabela `translations`), curada e
+independente das traduções genéricas do JMdict; o frontend e a API leem a camada Kotoba para
+pt-BR com fallback para as traduções oficiais do JMdict nos demais idiomas.
 
 ## Stack
 
@@ -36,15 +40,17 @@ packages/
   validation/ Schemas Zod dos contratos da API
   config/     Configurações compartilhadas
 services/
-  importer/   CLI de importação do JMdict (batch transacional e idempotente)
+  importer/             CLI de importação do JMdict (batch transacional e idempotente)
+  translations-importer/ CLI de importação das traduções pt-BR da camada Kotoba
 docs/
 ```
 
 Decisões-chave: romaji é um **campo derivado** (nunca fonte de verdade), busca e ranking
 vivem no `SearchService` sobre SQL PostgreSQL (exata → token/normalizado → prefixo → fuzzy
 com `pg_trgm`, com `normalized_text` para tolerar katakana/hiragana, half-width e acentos),
-dados multilíngue sem colunas fixas por idioma e o modelo preparado para adicionar IA/
-recursos no futuro.
+traduções pt-BR são uma **camada própria** (`translations`) com proveniência própria e regra
+de resolução por idioma, dados multilíngue sem colunas fixas por idioma e o modelo preparado
+para adicionar IA/recursos no futuro.
 Detalhes em [`docs/architecture.md`](docs/architecture.md).
 
 ## Como executar localmente
@@ -84,46 +90,56 @@ troubleshooting): [`docs/development.md`](docs/development.md).
 
 ## Comandos
 
-| Comando                    | Descrição                                 |
-| -------------------------- | ----------------------------------------- |
-| `npm run dev`              | API (`:3000`) + frontend (`:3001`) juntos |
-| `npm run build`            | Build de produção (Next.js)               |
-| `npm run typecheck`        | TypeScript em todos os workspaces         |
-| `npm run lint`             | ESLint                                    |
-| `npm test`                 | Vitest (unitários + integração)           |
-| `npm run format:check`     | Prettier (check)                          |
-| `npm run db:generate`      | Gera migrations a partir do schema        |
-| `npm run db:migrate`       | Aplica as migrations                      |
-| `npm run db:seed`          | Insere o dataset de desenvolvimento       |
-| `npm run import:jmdict`    | Importa o JMdict (ver abaixo)             |
-| `npm run benchmark:search` | Benchmark de latência da busca            |
+| Comando                       | Descrição                                   |
+| ----------------------------- | ------------------------------------------- |
+| `npm run dev`                 | API (`:3000`) + frontend (`:3001`) juntos   |
+| `npm run build`               | Build de produção (Next.js)                 |
+| `npm run typecheck`           | TypeScript em todos os workspaces           |
+| `npm run lint`                | ESLint                                      |
+| `npm test`                    | Vitest (unitários + integração)             |
+| `npm run format:check`        | Prettier (check)                            |
+| `npm run db:generate`         | Gera migrations a partir do schema          |
+| `npm run db:migrate`          | Aplica as migrations                        |
+| `npm run db:seed`             | Insere o dataset de desenvolvimento         |
+| `npm run import:jmdict`       | Importa o JMdict (ver abaixo)               |
+| `npm run import:translations` | Importa as traduções pt-BR da camada Kotoba |
+| `npm run benchmark:search`    | Benchmark de latência da busca              |
 
 ## API REST
 
-API Fastify versionada em `/api/v1`.
+API Fastify versionada em `/api/v1`. O parâmetro `lang` (padrão `pt-BR`) define a camada de
+tradução: para `pt-BR`, as traduções vêm da **camada Kotoba** (`translations`); para os
+demais idiomas, há fallback para as traduções do JMdict (`source: "jmdict"`).
 
-| Método | Rota                               | Descrição                                                                                                                     |
-| ------ | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `GET`  | `/api/v1/health`                   | Health check (verifica a conexão com o banco)                                                                                 |
-| `GET`  | `/api/v1/search?q=&limit=&offset=` | Busca por japonês, kana, romaji ou tradução (`q` obrigatório; `limit` opcional, 1–50, padrão 20; `offset` opcional, padrão 0) |
-| `GET`  | `/api/v1/entries/:id`              | Detalhe de uma entrada por `id` (UUID interno)                                                                                |
+| Método | Rota                                     | Descrição                                                                                                                                                      |
+| ------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/v1/health`                         | Health check (verifica a conexão com o banco)                                                                                                                  |
+| `GET`  | `/api/v1/search?q=&limit=&offset=&lang=` | Busca por japonês, kana, romaji ou tradução (`q` obrigatório; `limit` opcional, 1–50, padrão 20; `offset` opcional, padrão 0; `lang` opcional, padrão `pt-BR`) |
+| `GET`  | `/api/v1/entries/:id?lang=`              | Detalhe de uma entrada por `id` (UUID interno) com acepções e traduções por idioma                                                                             |
 
 ### Exemplo
 
 ```http
-GET /api/v1/search?q=taberu
+GET /api/v1/search?q=carro&lang=pt-BR
 ```
 
 ```json
 {
-  "query": "taberu",
+  "query": "carro",
   "results": [
     {
       "id": "433eee2c-7140-42d3-98c7-d8d98c00da7e",
-      "kanji": ["食べる"],
-      "readings": ["たべる"],
-      "romaji": ["taberu"],
-      "glosses": [{ "language": "pt", "text": "comer" }]
+      "kanji": ["車"],
+      "readings": ["くるま"],
+      "romaji": ["kuruma"],
+      "translations": [
+        {
+          "language": "pt-BR",
+          "text": "carro",
+          "source": "manual",
+          "sourceVersion": "manual-curated-1"
+        }
+      ]
     }
   ]
 }
@@ -168,11 +184,27 @@ O importer faz streaming do JMdict, valida cada entrada, importa em **lotes tran
 `source_imports`. O dataset completo tem ~219 mil entradas (ver
 [`docs/data-sources.md`](docs/data-sources.md)).
 
+## Importar as traduções pt-BR (camada Kotoba)
+
+```bash
+npm run import:translations -- --file services/translations-importer/fixtures/pt-br-sample.json
+```
+
+O comando lê um JSON com as traduções da camada Kotoba (`{ source, version, translations[] }`,
+com `jmdictSeq` + `sensePosition` apontando para acepções já importadas do JMdict), valida o
+checksum e aplica em **lotes transacionais idempotentes** — reexecutar o mesmo arquivo não
+duplica nenhuma linha. Cada idioma mantém sua própria `source+version` registrada em
+`source_imports` (ex.: `kotoba-translations@dev-1`); confira
+[`docs/data-sources.md`](docs/data-sources.md).
+
 ## Fontes de dados e licenças
 
 - **JMdict** (EDRDG / Electronic Dictionary Research and Development Group, originalmente
   coordenado por Jim Breen): licenciado sob **Creative Commons Attribution-ShareAlike 4.0
   (CC BY-SA 4.0)**. Projeto: <https://www.edrdg.org/jmdict/j_jmdict.html>.
+- **Camada Kotoba** (`source: kotoba-translations`): traduções curadas pela equipe Kotoba,
+  dados próprios, sem relação com o JMdict; a proveniência e o ciclo de vida ficam em
+  `source_imports`.
 - A versão exata utilizada e as responsabilidades de atribuição estão em
   [`docs/data-sources.md`](docs/data-sources.md).
 

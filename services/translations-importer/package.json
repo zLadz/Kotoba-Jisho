@@ -1,0 +1,22 @@
+{
+  "name": "@kotoba/translations-importer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Importação da camada lexical própria do Kotoba (traduções por idioma)",
+  "type": "module",
+  "exports": {
+    "./storage": "./src/storage.ts"
+  },
+  "scripts": {
+    "import": "tsx src/index.ts",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@kotoba/database": "0.1.0",
+    "@kotoba/normalize": "0.1.0",
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
+  }
+}

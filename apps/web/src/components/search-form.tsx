@@ -3,10 +3,12 @@
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import type { SearchResult } from '@kotoba/types';
+import { DEFAULT_LANGUAGE, isKotobaOwned } from '../lib/language';
 import { searchWords } from '../lib/api';
 
 export function SearchForm(): React.JSX.Element {
   const [query, setQuery] = useState('');
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -22,7 +24,7 @@ export function SearchForm(): React.JSX.Element {
     setSearched(true);
     setError(null);
     try {
-      setResults(await searchWords(trimmed));
+      setResults(await searchWords(trimmed, 20, language));
     } catch (cause) {
       setResults([]);
       setError(cause instanceof Error ? cause.message : 'Erro ao buscar');
@@ -42,6 +44,15 @@ export function SearchForm(): React.JSX.Element {
           aria-label="Pesquisar uma palavra"
           className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-base shadow-sm focus:border-slate-500 focus:outline-none"
         />
+        <select
+          value={language}
+          onChange={(event) => setLanguage(event.target.value)}
+          aria-label="Idioma"
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none"
+        >
+          <option value="pt-BR">Português (BR)</option>
+          <option value="en">English</option>
+        </select>
         <button
           type="submit"
           disabled={loading}
@@ -62,10 +73,13 @@ export function SearchForm(): React.JSX.Element {
           {results.map((result) => {
             const primary = result.readings[0] ?? '';
             const title = result.kanji[0] ?? primary;
+            const translations = result.translations
+              .filter((t) => (isKotobaOwned(language) ? true : t.source === 'jmdict'))
+              .map((t) => t.text);
             return (
               <li key={result.id}>
                 <Link
-                  href={`/entry/${result.id}`}
+                  href={`/entry/${result.id}?lang=${encodeURIComponent(language)}`}
                   className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-slate-400"
                 >
                   <div className="flex items-baseline gap-3">
@@ -73,12 +87,7 @@ export function SearchForm(): React.JSX.Element {
                     <span className="text-slate-600">{primary}</span>
                     <span className="text-sm text-slate-400">{result.romaji[0] ?? ''}</span>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-slate-700">
-                    {result.glosses
-                      .filter((gloss) => gloss.language === 'pt' || gloss.language === 'pt-BR')
-                      .map((gloss) => gloss.text)
-                      .join(' · ')}
-                  </p>
+                  <p className="mt-1 line-clamp-2 text-slate-700">{translations.join(' · ')}</p>
                 </Link>
               </li>
             );

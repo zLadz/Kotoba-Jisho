@@ -1,6 +1,6 @@
 import { eq, inArray } from 'drizzle-orm';
 import { db, schema } from '@kotoba/database';
-import type { Gloss, KanjiForm, Reading, Sense } from '@kotoba/types';
+import type { Gloss, KanjiForm, KotobaTranslation, Reading, Sense } from '@kotoba/types';
 
 export interface RepositoryEntry {
   id: string;
@@ -64,6 +64,7 @@ function toSenses(
     readingRestrictions: string[] | null;
   }>,
   glossesBySense: Map<string, Gloss[]>,
+  translationsBySense: Map<string, KotobaTranslation[]>,
 ): Sense[] {
   return rows.map((row) => ({
     partOfSpeech: row.partOfSpeech ?? [],
@@ -73,6 +74,7 @@ function toSenses(
     kanjiRestrictions: row.kanjiRestrictions ?? [],
     readingRestrictions: row.readingRestrictions ?? [],
     glosses: glossesBySense.get(row.id) ?? [],
+    translations: translationsBySense.get(row.id) ?? [],
   }));
 }
 
@@ -96,20 +98,40 @@ async function hydrate(entry: EntryRow): Promise<RepositoryEntry> {
   ]);
 
   const senseIds = senseRows.map((sense) => sense.id);
-  const glossRows =
+  const [glossRows, translationRows] =
     senseIds.length > 0
-      ? await db
-          .select()
-          .from(schema.glosses)
-          .where(inArray(schema.glosses.senseId, senseIds))
-          .orderBy(schema.glosses.position)
-      : [];
+      ? await Promise.all([
+          db
+            .select()
+            .from(schema.glosses)
+            .where(inArray(schema.glosses.senseId, senseIds))
+            .orderBy(schema.glosses.position),
+          db
+            .select()
+            .from(schema.translations)
+            .where(inArray(schema.translations.senseId, senseIds))
+            .orderBy(schema.translations.position),
+        ])
+      : [[], []];
 
   const glossesBySense = new Map<string, Gloss[]>();
   for (const gloss of glossRows) {
     const list = glossesBySense.get(gloss.senseId) ?? [];
-    list.push({ language: gloss.language, text: gloss.text });
+    list.push({ language: gloss.language, text: gloss.text, source: gloss.source });
     glossesBySense.set(gloss.senseId, list);
+  }
+
+  const translationsBySense = new Map<string, KotobaTranslation[]>();
+  for (const translation of translationRows) {
+    const list = translationsBySense.get(translation.senseId) ?? [];
+    list.push({
+      language: translation.language,
+      text: translation.text,
+      source: translation.source,
+      sourceVersion: translation.sourceVersion,
+      confidence: translation.confidence ?? undefined,
+    });
+    translationsBySense.set(translation.senseId, list);
   }
 
   return {
@@ -119,7 +141,7 @@ async function hydrate(entry: EntryRow): Promise<RepositoryEntry> {
     updatedAt: entry.updatedAt,
     kanji: toKanjiForms(kanjiRows),
     readings: toReadings(readingRows),
-    senses: toSenses(senseRows, glossesBySense),
+    senses: toSenses(senseRows, glossesBySense, translationsBySense),
   };
 }
 

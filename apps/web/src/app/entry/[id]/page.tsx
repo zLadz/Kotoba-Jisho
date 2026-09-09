@@ -1,14 +1,16 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { DEFAULT_LANGUAGE } from '../../../lib/language';
 import { getEntry } from '../../../lib/api';
-import { GlossList, KanjiChars } from '../../../components/entry';
+import { localizePos } from '../../../lib/pos';
+import { KanjiChars, TranslationList } from '../../../components/entry';
 
 export const dynamic = 'force-dynamic';
 
-async function loadEntry(id: string) {
+async function loadEntry(id: string, lang?: string) {
   try {
-    return await getEntry(id);
+    return await getEntry(id, lang);
   } catch {
     return null;
   }
@@ -27,11 +29,15 @@ export async function generateMetadata({
 
 export default async function EntryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<React.JSX.Element> {
   const { id } = await params;
-  const entry = await loadEntry(id);
+  const { lang } = await searchParams;
+  const language = lang ?? DEFAULT_LANGUAGE;
+  const entry = await loadEntry(id, language);
   if (entry === null) {
     notFound();
   }
@@ -75,7 +81,7 @@ export default async function EntryPage({
 
       <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-          Significados
+          Traduções ({language})
         </h2>
         <ul className="flex flex-col gap-4">
           {entry.senses.map((sense, index) => (
@@ -84,12 +90,12 @@ export default async function EntryPage({
                 <div className="flex flex-wrap gap-1">
                   {sense.partOfSpeech.map((pos) => (
                     <span key={pos} className="rounded bg-sky-50 px-2 py-0.5 text-xs text-sky-700">
-                      {pos}
+                      {localizePos(pos)}
                     </span>
                   ))}
                 </div>
               ) : null}
-              <GlossList glosses={sense.glosses} />
+              <TranslationList translations={sense.translations} />
             </li>
           ))}
         </ul>

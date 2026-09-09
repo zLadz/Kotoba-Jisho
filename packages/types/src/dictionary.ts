@@ -15,6 +15,15 @@ export interface Reading {
 export interface Gloss {
   language: string;
   text: string;
+  source: string;
+}
+
+export interface KotobaTranslation {
+  language: string;
+  text: string;
+  source: string;
+  sourceVersion: string;
+  confidence?: number;
 }
 
 export interface Sense {
@@ -25,6 +34,7 @@ export interface Sense {
   kanjiRestrictions: string[];
   readingRestrictions: string[];
   glosses: Gloss[];
+  translations: KotobaTranslation[];
 }
 
 export interface ReadingWithRomaji extends Reading {
@@ -46,5 +56,5 @@ export interface SearchResult {
   kanji: string[];
   readings: string[];
   romaji: string[];
-  glosses: Gloss[];
+  translations: KotobaTranslation[];
 }

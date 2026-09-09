@@ -18,12 +18,19 @@ JMdict (XML) --> | services/importer   |       | apps/web (Next.js)  |
                  | PostgreSQL (Drizzle)|       | apps/api (Fastify)  |
                  | schema + migrations | <---- | REST /api/v1        |
                  +---------------------+       +---------------------+
+                           ^
+                  +--------+---------+
+                  | translations-    |
+                  | importer (JSON)  |
+                  | camada Kotoba    |
+                  +------------------+
 ```
 
 Fluxo de dados principal:
 
 ```text
 JMdict → importer → PostgreSQL → API REST → frontend (busca → resultado → detalhe)
+traduções pt-BR (JSON) → translations-importer → PostgreSQL → (mesmo caminho da API)
 ```
 
 ## Estrutura do monorepo
@@ -40,7 +47,8 @@ packages/
   types/      Contratos de domínio (DictionaryEntry, SearchResult, ...)
   validation/ Schemas Zod dos contratos da API (request/response)
 services/
-  importer/   CLI de importação do JMdict (batch transacional, idempotente)
+  importer/             CLI de importação do JMdict (batch transacional, idempotente)
+  translations-importer/ CLI de importação das traduções pt-BR (camada Kotoba)
 docs/         Documentação
 ```
 
@@ -48,17 +56,20 @@ docs/         Documentação
 
 Monolith **modular**: cada domínio é um módulo independente em `src/modules/`.
 
-| Módulo       | Responsabilidade                                                  |
-| ------------ | ----------------------------------------------------------------- |
-| `health`     | `GET /api/v1/health` (Health check com acesso ao banco)           |
-| `search`     | `GET /api/v1/search` — busca e ranking (SearchService/repository) |
-| `dictionary` | `GET /api/v1/entries/:id` — detalhe de uma entrada                |
+| Módulo       | Responsabilidade                                                                 |
+| ------------ | -------------------------------------------------------------------------------- |
+| `health`     | `GET /api/v1/health` (Health check com acesso ao banco)                          |
+| `search`     | `GET /api/v1/search` — busca e ranking (SearchService/repository), escopo `lang` |
+| `dictionary` | `GET /api/v1/entries/:id` — detalhe de uma entrada, com traduções por `lang`     |
 
 - `src/app.ts` monta a aplicação (CORS, `setNotFoundHandler`, `setErrorHandler`) e registra
   as rotas; `src/server.ts` sube o servidor HTTP (env `HOST`/`PORT`) com graceful shutdown.
 - Todos os parâmetros e respostas são validados por schemas Zod de `@kotoba/validation`
   (§15), garantindo contratos estáveis entre a API e o frontend.
 - Erros seguem um corpo padronizado `{ error: { code, message } }` (§25).
+- A resolução das traduções por `lang` é centralizada em
+  `apps/api/src/modules/dictionary/translations.ts`, usada tanto pelo módulo `dictionary`
+  quanto pelo `search`.
 
 ## apps/web (Next.js)
 
@@ -86,14 +97,18 @@ O JMdict não carrega romaji. O Kotoba **não** trata romaji como lexical:
   remoção de acentos com NFC final) usada tanto pelo importer (**persistida** em
   `readings.normalized_text`/`glosses.normalized_text`) quanto pela busca (**normalizada em
   tempo de query**).
-- `search.repository` executa 18 consultas em 4 camadas — exata, **token** (comparação sobre
+- `search.repository` executa consultas em 4 camadas — exata, **token** (comparação sobre
   `normalized_text`), prefixo e **fuzzy** (`pg_trgm`, operador `%`) — sobre leitura, kanji,
-  romaji e tradução, nos textos brutos e normalizados. Isso dá tolerância a katakana, kana
-  half-width e acentos em português sem tocar nos dados originais. Aceleradas por índices
-  GIN (`gin_trgm_ops`, migration `0002`) + índices btree/GIN em `normalized_text`.
-- `SearchService.search(query, limit, offset)` agrega a melhor pontuação por entrada, desempatando
-  por prioridade (`ichi1`/`news1`) e `jmdict_seq`, aplica **offset antes do limite**
-  (paginação) e devolve resultados hidratados.
+  romaji, tradução da camada Kotoba (`translations`) e gloss do JMdict, nos textos brutos e
+  normalizados. Para `pt-BR` a busca lê `translations` (6 tiers: exata/token/prefixo/token-
+  prefixo/fuzzy/token-fuzzy, pontuados **acima** dos gloss do JMdict); para os demais
+  idiomas lê os glosses do JMdict filtrados pelo idioma (`source: "jmdict"`). Isso dá
+  tolerância a katakana, kana half-width e acentos em português sem tocar nos dados
+  originais. Aceleradas por índices GIN (`gin_trgm_ops`, migration `0002`) + índices
+  btree/GIN em `normalized_text`.
+- `SearchService.search(query, limit, offset, lang)` agrega a melhor pontuação por entrada,
+  desempatando por prioridade (`ichi1`/`news1`) e `jmdict_seq`, aplica **offset antes do
+  limite** (paginação) e devolve resultados hidratados.
 - A camada de busca é isolada: um mecanismo dedicado (ex.: OpenSearch) pode substituir o
   SQL no futuro sem alterar a API.
 - `npm run benchmark:search` mede a latência (p50/p95) por tier contra o banco real.
@@ -119,14 +134,38 @@ testes de banco em `storage.test.ts` verificam constraints (unicidade de `source
 
 ### Dados multilingue (§32)
 
-O modelo guarda uma linha de tradução por idioma (`glosses.language`), sem colunas fixas
-`pt`/`en`. Novos idiomas são adicionados sem mudança de schema.
+O modelo guarda uma linha de tradução por idioma, sem colunas fixas `pt`/`en`. Novos idiomas
+são adicionados sem mudança de schema.
+
+### Camada lexical própria (traduções Kotoba)
+
+As traduções **curadas** do Kotoba (hoje `pt-BR`) vivem na tabela `translations` (migration
+`0004`), apontando para a acepção via `sense_id`, com `position`, `language`, `text`,
+`normalized_text`, `source`, `source_version`, `confidence` e unicidade por
+(`sense_id, language, text, source, source_version`). Diferente dos glosses do JMdict, essa
+camada é **dados próprios**, com o ciclo de vida registrado em `source_imports`
+(`source = kotoba-translations`).
+
+Regra de resolução (`resolveSenseTranslations`):
+
+- **`pt-BR`** (`DEFAULT_LANGUAGE`): apenas a camada Kotoba; sem fallback para o JMdict
+  (acepção sem tradução curada fica vazia, protegendo a etapa de curadoria);
+- **demais idiomas**: camada Kotoba se existir para o idioma; senão, glosses do JMdict
+  filtrados pelo idioma (`source: "jmdict"`), sempre com proveniência explícita no payload
+  (`source`/`sourceVersion`).
+
+A busca é **escopada por `lang`**: `isKotobaOwned(lang) || hasKotobaTranslations(lang)`
+determina se o termo pesquisa as traduções da camada Kotoba ou os glosses JMdict do idioma.
 
 ### Testes de integração (§23)
 
 Os testes de integração (`apps/api/src/integration/integration.test.ts`) criam um banco
 isolado (`kotoba_test`, derivado de `DATABASE_URL`), aplicam as migrations, importam o
-fixture real do JMdict e exercitam API → busca → detalhe (fluxo E2E).
+fixture real do JMdict e exercitam API → busca → detalhe (fluxo E2E), incluindo o cenário de
+aceitação de uma entrada com **múltiplas acepções** (車/くるま: veículo e roda) com
+traduções por acepção, POS e busca topo em `pt-BR` (§26). O teste de storage do
+`translations-importer` cobre mapeamento `jmdict_seq + sense_position`, proveniência e
+idempotência (reescrever o mesmo lote não duplica).
 
 ### Preparada para IA (§31)
 
