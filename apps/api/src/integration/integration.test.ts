@@ -84,6 +84,7 @@ describe('integração', () => {
     const kotobaTranslations: Array<{ senseId: string; text: string }> = [
       { senseId: senseBySeq.get(1358280)!, text: 'comer' },
       { senseId: senseBySeq.get(1358280)!, text: 'comestível' },
+      { senseId: senseBySeq.get(1358280)!, text: 'sobreviver' },
       { senseId: senseBySeq.get(1582710)!, text: 'Japão' },
       { senseId: senseBySeq.get(1206900)!, text: 'estudante' },
       { senseId: senseBySeq.get(1206900)!, text: 'aluno' },
@@ -220,12 +221,12 @@ describe('integração', () => {
   });
 
   it('pagina resultados com offset e valida offset inválido', async () => {
-    const all = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=50&offset=0' });
+    const all = await app?.inject({ method: 'GET', url: '/api/v1/search?q=c&limit=50&offset=0' });
     const allBody = all?.json<{ results: Array<{ id: string }> }>();
     expect(allBody?.results.length ?? 0).toBeGreaterThanOrEqual(2);
 
-    const page1 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=1&offset=0' });
-    const page2 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=a&limit=1&offset=1' });
+    const page1 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=c&limit=1&offset=0' });
+    const page2 = await app?.inject({ method: 'GET', url: '/api/v1/search?q=c&limit=1&offset=1' });
     expect(page1?.statusCode).toBe(200);
     expect(page2?.statusCode).toBe(200);
     const first = page1?.json<{ results: Array<{ id: string }> }>();
@@ -396,6 +397,65 @@ describe('integração', () => {
         taberuEnBody?.senses.flatMap((s) => s.sourceGlosses.map((g) => g.text)) ?? [];
       const intersection = taberuGlosses.filter((gloss) => taidoGlosses.includes(gloss));
       expect(intersection).toEqual([]);
+    });
+  });
+
+  describe('regressão: "ver" não vaza para 食べる via substring (§7e)', () => {
+    let miruId: string;
+    let taberuId: string;
+
+    beforeAll(async () => {
+      const { parseEntry } = await import('@kotoba/importer/parser');
+      const { flushEntryBatch } = await import('@kotoba/importer/storage');
+
+      const miruXml = `<entry>
+        <ent_seq>1259290</ent_seq>
+        <k_ele><keb>見る</keb></k_ele>
+        <r_ele><reb>みる</reb></r_ele>
+        <sense>
+          <gloss>to see</gloss>
+        </sense>
+      </entry>`;
+      const miru = extractEntries(miruXml).map((raw) => parseEntry(raw))[0];
+      if (miru === undefined) {
+        throw new Error('Fixture 見る sem entrada');
+      }
+      await flushEntryBatch([miru], seedSourceImportId);
+
+      const senseRows = await db.execute(sql`
+        select s.id from senses s
+        join entries e on e.id = s.entry_id
+        where e.jmdict_seq = 1259290 order by s.position limit 1
+      `);
+      const senseId = String(senseRows[0]?.id);
+      await db.execute(sql`
+        insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+        values (${senseId}, 0, 'pt-BR', 'ver', 'ver', 'manual', 'manual-curated-1')
+      `);
+
+      const rows = await db.execute(sql`
+        select e.id, e.jmdict_seq from entries e
+        where e.jmdict_seq in (1259290, 1358280)
+      `);
+      const bySeq = new Map<number, string>();
+      for (const row of rows) {
+        bySeq.set(row.jmdict_seq as number, row.id as string);
+      }
+      miruId = bySeq.get(1259290)!;
+      taberuId = bySeq.get(1358280)!;
+    }, 30_000);
+
+    it('busca "ver" em pt-BR retorna 見る no topo e nunca 食べる', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=ver&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string; kanji: string[] }> }>();
+      const ids = body?.results.map((result) => result.id) ?? [];
+      expect(ids[0]).toBe(miruId);
+      expect(body?.results[0]?.kanji).toContain('見る');
+      expect(ids).not.toContain(taberuId);
     });
   });
 

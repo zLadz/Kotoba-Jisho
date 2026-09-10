@@ -155,7 +155,7 @@ function japaneseMatchers(
 function translationMatchers(
   lang: string,
   query: string,
-  contains: string,
+  prefix: string,
   tokenGloss: string,
   tokenGlossPrefix: string,
 ): Matcher[] {
@@ -170,7 +170,7 @@ function translationMatchers(
     },
     {
       match: 'prefixTranslation',
-      sql: sql`SELECT s.entry_id, ${'prefixTranslation'} AS match, ${SCORES.prefixTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.text ILIKE ${contains}`,
+      sql: sql`SELECT s.entry_id, ${'prefixTranslation'} AS match, ${SCORES.prefixTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.text ILIKE ${prefix}`,
     },
     {
       match: 'tokenPrefixTranslation',
@@ -190,7 +190,7 @@ function translationMatchers(
 function glossMatchers(
   langs: string[],
   query: string,
-  contains: string,
+  prefix: string,
   tokenGloss: string,
   tokenGlossPrefix: string,
 ): Matcher[] {
@@ -206,7 +206,7 @@ function glossMatchers(
     },
     {
       match: 'prefixGloss',
-      sql: sql`SELECT s.entry_id, ${'prefixGloss'} AS match, ${SCORES.prefixGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.text ILIKE ${contains}`,
+      sql: sql`SELECT s.entry_id, ${'prefixGloss'} AS match, ${SCORES.prefixGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.text ILIKE ${prefix}`,
     },
     {
       match: 'tokenPrefixGloss',
@@ -231,7 +231,6 @@ export async function searchEntries(
   const limit = options.limit ?? DEFAULT_LIMIT;
   const offset = options.offset ?? 0;
   const prefix = `${query}%`;
-  const contains = `%${query}%`;
   const tokenReading = normalizeReading(query);
   const tokenGloss = normalizeGloss(query);
   const tokenReadingPrefix = `${tokenReading}%`;
@@ -239,8 +238,8 @@ export async function searchEntries(
 
   const matchers =
     isKotobaOwned(lang) || (await hasKotobaTranslations(lang))
-      ? translationMatchers(lang, query, contains, tokenGloss, tokenGlossPrefix)
-      : glossMatchers(jmdictLanguageCodes(lang), query, contains, tokenGloss, tokenGlossPrefix);
+      ? translationMatchers(lang, query, prefix, tokenGloss, tokenGlossPrefix)
+      : glossMatchers(jmdictLanguageCodes(lang), query, prefix, tokenGloss, tokenGlossPrefix);
   matchers.push(...japaneseMatchers(query, prefix, tokenReading, tokenReadingPrefix));
 
   const candidates = sql.join(

@@ -36,6 +36,9 @@ describe('repository de busca (ranking/LIMIT no banco)', () => {
   let studentId: string;
   let coffeeId: string;
   let japanId: string;
+  let miruId: string;
+  let nomuId: string;
+  let ikuId: string;
 
   beforeAll(async () => {
     const { default: postgres } = await import('postgres');
@@ -97,6 +100,28 @@ describe('repository de busca (ranking/LIMIT no banco)', () => {
     await insert(1206900, 1, 'aluno');
     await insert(1049180, 0, 'café');
     await insert(1582710, 0, 'Japão');
+    await insert(1358280, 2, 'sobreviver');
+
+    const insertEntry = async (seq: number, texts: string[]): Promise<string> => {
+      const entryRows = await db.execute(
+        sql`insert into entries (jmdict_seq) values (${seq}) returning id`,
+      );
+      const entryId = String(entryRows[0]?.id);
+      const senseRows = await db.execute(
+        sql`insert into senses (entry_id, position) values (${entryId}, 0) returning id`,
+      );
+      const senseId = String(senseRows[0]?.id);
+      for (const [position, text] of texts.entries()) {
+        await db.execute(
+          sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+              values (${senseId}, ${position}, 'pt-BR', ${text}, ${normalizeGloss(text)}, 'manual', 'dev-1')`,
+        );
+      }
+      return entryId;
+    };
+    miruId = await insertEntry(1259290, ['ver']);
+    nomuId = await insertEntry(1350021, ['beber', 'consumir']);
+    ikuId = await insertEntry(1109731, ['ir']);
 
     ({ searchEntries } = await import('./search.repository.js'));
   }, 60_000);
@@ -178,19 +203,19 @@ describe('repository de busca (ranking/LIMIT no banco)', () => {
   });
 
   it('retorna uma entrada por vez (melhor tier), sem duplicar IDs', async () => {
-    const matches = await searchEntries('a', 'pt-BR');
+    const matches = await searchEntries('c', 'pt-BR');
     const ids = matches.map((match) => match.entryId);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual([coffeeId, studentId, japanId]);
+    expect(ids.sort()).toEqual([coffeeId, eatId, nomuId].sort());
   });
 
   it('aplica LIMIT e OFFSET no banco, com paginação estável', async () => {
-    const all = await searchEntries('a', 'pt-BR');
+    const all = await searchEntries('c', 'pt-BR');
     const allIds = all.map((match) => match.entryId);
     expect(allIds).toHaveLength(3);
 
-    const page1 = await searchEntries('a', 'pt-BR', { limit: 2, offset: 0 });
-    const page2 = await searchEntries('a', 'pt-BR', { limit: 2, offset: 2 });
+    const page1 = await searchEntries('c', 'pt-BR', { limit: 2, offset: 0 });
+    const page2 = await searchEntries('c', 'pt-BR', { limit: 2, offset: 2 });
     expect(page1).toHaveLength(2);
     expect(page2).toHaveLength(1);
     const page1Ids = page1.map((match) => match.entryId);
@@ -201,7 +226,7 @@ describe('repository de busca (ranking/LIMIT no banco)', () => {
   });
 
   it('desempate por prioridade (news1/ichi1) e depois jmdict_seq', async () => {
-    const all = await searchEntries('a', 'pt-BR');
+    const all = await searchEntries('c', 'pt-BR');
     const ids = all.map((match) => match.entryId);
 
     const rows = await db.execute(sql`
@@ -223,12 +248,33 @@ describe('repository de busca (ranking/LIMIT no banco)', () => {
       .map((row) => row.id);
 
     expect(ids).toEqual(expectedIds);
-    const again = await searchEntries('a', 'pt-BR');
+    const again = await searchEntries('c', 'pt-BR');
     expect(again.map((match) => match.entryId)).toEqual(ids);
   });
 
   it('busca por "comer" em pt-BR retorna 食べる e nunca 帯同 (§7b)', async () => {
     const matches = await searchEntries('comer', 'pt-BR');
     expect(matches.map((match) => match.entryId)).toEqual([eatId]);
+  });
+
+  it('"ver" (PT-BR) retorna 見る e nunca 食べる via substring "sobreviver" (regressão)', async () => {
+    const matches = await searchEntries('ver', 'pt-BR');
+    expect(matches.map((match) => match.entryId)).toEqual([miruId]);
+  });
+
+  it('direção PT-BR → japonês: ver/beber/ir/comer retornam a entrada certa', async () => {
+    const pairs: Array<[string, string]> = [
+      ['comer', eatId],
+      ['ver', miruId],
+      ['beber', nomuId],
+      ['ir', ikuId],
+    ];
+    for (const [query, entryId] of pairs) {
+      const result = await top(query, 'pt-BR');
+      expect(result, `${query} deve retornar ${entryId} no topo`).toEqual({
+        entryId,
+        match: 'exactTranslation',
+      });
+    }
   });
 });
