@@ -168,6 +168,9 @@ export const translations = pgTable(
   },
   (table) => [
     index('translations_sense_id_idx').on(table.senseId),
+    index('translations_text_trgm_idx').using('gin', sql`${table.text} gin_trgm_ops`),
+    index('translations_language_idx').on(table.language),
+    index('translations_source_source_version_idx').on(table.source, table.sourceVersion),
     index('translations_normalized_text_idx').on(table.normalizedText),
     index('translations_normalized_text_trgm_idx').using(
       'gin',

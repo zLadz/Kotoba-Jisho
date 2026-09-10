@@ -112,99 +112,32 @@ describe('SearchService.search', () => {
     expect(await service.search('   ')).toEqual([]);
   });
 
-  it('ordena por escore do ranking (§13)', async () => {
+  it('preserva a ordem e a página retornadas pelo repositório', async () => {
     const service = withMatches([
-      ['a', 'prefixGloss'],
       ['b', 'exactReading'],
       ['c', 'prefixKanji'],
     ]);
-    const results = await service.search('busca');
-    expect(results.map((result) => result.id)).toEqual(['b', 'c', 'a']);
+    const results = await service.search('busca', 1, 1);
+    expect(results.map((result) => result.id)).toEqual(['b', 'c']);
   });
 
-  it('prefixo romaji fica abaixo de kanji exato', async () => {
-    const service = withMatches([
-      ['a', 'prefixRomaji'],
-      ['c', 'exactKanji'],
-    ]);
-    const results = await service.search('busca');
-    expect(results.map((result) => result.id)).toEqual(['c', 'a']);
-  });
-
-  it('fuzzy fica abaixo de prefixo no ranking (§12/§13)', async () => {
-    const service = withMatches([
-      ['a', 'fuzzyReading'],
-      ['b', 'prefixGloss'],
-      ['c', 'fuzzyRomaji'],
-    ]);
-    const results = await service.search('busca');
-    expect(results.map((result) => result.id)).toEqual(['b', 'a', 'c']);
-  });
-
-  it('aplica o limite de resultados', async () => {
-    const service = withMatches([
-      ['a', 'exactReading'],
-      ['b', 'prefixReading'],
-      ['c', 'prefixReading'],
-    ]);
-    const results = await service.search('busca', 2);
-    expect(results.map((result) => result.id)).toEqual(['a', 'c']);
-  });
-
-  it('tradução Kotoba fica acima de gloss JMdict no ranking (§15)', async () => {
-    const service = withMatches([
-      ['a', 'exactGloss'],
-      ['b', 'fuzzyGloss'],
-      ['c', 'exactTranslation'],
-    ]);
-    const results = await service.search('busca');
-    expect(results.map((result) => result.id)).toEqual(['c', 'a', 'b']);
-  });
-
-  it('prefixo de tradução fica acima de prefixo de gloss', async () => {
-    const service = withMatches([
-      ['a', 'prefixGloss'],
-      ['b', 'prefixTranslation'],
-    ]);
-    const results = await service.search('busca');
-    expect(results.map((result) => result.id)).toEqual(['b', 'a']);
-  });
-
-  it('aplica offset de paginação depois do ranking (§13)', async () => {
-    const service = withMatches([
-      ['a', 'exactReading'],
-      ['b', 'prefixReading'],
-      ['c', 'prefixReading'],
-    ]);
-    const page2 = await service.search('busca', 1, 1);
-    expect(page2.map((result) => result.id)).toEqual(['c']);
-
-    const both = await service.search('busca', 10, 0);
-    expect(both.map((result) => result.id)).toEqual(['a', 'c', 'b']);
-    expect(await service.search('busca', 10, 3)).toEqual([]);
-  });
-
-  it('desempate por prioridade e depois jmdict_seq', async () => {
-    const priority = new SearchService({
+  it('repassa limit e offset ao repositório', async () => {
+    const seen: Array<{
+      query: string;
+      lang: string;
+      options: { limit?: number; offset?: number };
+    }> = [];
+    const service = new SearchService({
       searchRepository: {
-        async search() {
-          return [
-            { entryId: 'b', match: 'prefixReading' as const },
-            { entryId: 'a', match: 'prefixReading' as const },
-          ];
+        async search(query: string, lang: string, options) {
+          seen.push({ query, lang, options: options ?? {} });
+          return [{ entryId: 'a', match: 'exactReading' as const }];
         },
       },
       getEntriesByIds: async (ids) => fixtureEntriesList.filter((entry) => ids.includes(entry.id)),
     });
-    const priorityResults = await priority.search('busca');
-    expect(priorityResults.map((result) => result.id)).toEqual(['a', 'b']);
-
-    const bySeq = withMatches([
-      ['b', 'prefixReading'],
-      ['c', 'prefixReading'],
-    ]);
-    const seqResults = await bySeq.search('busca');
-    expect(seqResults.map((result) => result.id)).toEqual(['c', 'b']);
+    await service.search('taberu', 5, 10, 'en');
+    expect(seen).toEqual([{ query: 'taberu', lang: 'en', options: { limit: 5, offset: 10 } }]);
   });
 
   it('normaliza a query em minúsculas e com trim', async () => {

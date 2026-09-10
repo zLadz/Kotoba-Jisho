@@ -14,6 +14,7 @@
   "dependencies": {
     "@kotoba/database": "0.1.0",
     "@kotoba/normalize": "0.1.0",
+    "@kotoba/validation": "0.1.0",
     "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {

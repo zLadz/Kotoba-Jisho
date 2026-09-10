@@ -1,0 +1,182 @@
+{
+  "source": "kotoba-translations",
+  "version": "dev-1",
+  "translations": [
+    {
+      "jmdictSeq": 1358280,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "comer",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる"],
+      "reading": ["たべる"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1358280,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "fazer uma refeição",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる"],
+      "reading": ["たべる"],
+      "position": 1
+    },
+    {
+      "jmdictSeq": 1358280,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "comer",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["食べる"],
+      "reading": ["たべる"],
+      "position": 2
+    },
+    {
+      "jmdictSeq": 1358280,
+      "sensePosition": 1,
+      "language": "pt-BR",
+      "text": "sobreviver",
+      "source": "manual",
+      "sourceVersion": "manual-contextual-1",
+      "kanji": ["食べる"],
+      "reading": ["たべる"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1169870,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "beber",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["飲む"],
+      "reading": ["のむ"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1169870,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "tomar",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["飲む"],
+      "reading": ["のむ"],
+      "position": 1
+    },
+    {
+      "jmdictSeq": 1259290,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "ver",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["見る"],
+      "reading": ["みる"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1259290,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "olhar",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["見る"],
+      "reading": ["みる"],
+      "position": 1
+    },
+    {
+      "jmdictSeq": 1578850,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "ir",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["行く"],
+      "reading": ["いく"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1582710,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "Japão",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["日本"],
+      "reading": ["にほん"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1206900,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "estudante",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["学生"],
+      "reading": ["がくせい"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1206900,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "aluno",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["学生"],
+      "reading": ["がくせい"],
+      "position": 1
+    },
+    {
+      "jmdictSeq": 1049180,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "café",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["珈琲"],
+      "reading": ["コーヒー"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1323080,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "carro",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま"],
+      "position": 0
+    },
+    {
+      "jmdictSeq": 1323080,
+      "sensePosition": 0,
+      "language": "pt-BR",
+      "text": "veículo",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま"],
+      "position": 1
+    },
+    {
+      "jmdictSeq": 1323080,
+      "sensePosition": 1,
+      "language": "pt-BR",
+      "text": "roda",
+      "source": "manual",
+      "sourceVersion": "manual-curated-1",
+      "kanji": ["車"],
+      "reading": ["くるま"],
+      "position": 0
+    }
+  ]
+}

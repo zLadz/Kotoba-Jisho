@@ -1,31 +1,18 @@
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { translationDatasetSchema, type TranslationDatasetRow } from '@kotoba/validation';
 import { logger } from './logger.js';
 import {
   completeTranslationImport,
   failTranslationImport,
-  flushTranslationBatch,
+  importTranslationsAtomically,
   markRunning,
-  replaceTranslationRows,
   startTranslationImport,
-  updateTranslationProgress,
   type TranslationImportProgress,
-  type TranslationRow,
   type TranslationSourceKey,
 } from './storage.js';
 
-const DEFAULT_BATCH_SIZE = 2500;
-
-interface TranslationArguments {
-  filePath: string;
-  source?: string;
-  version?: string;
-  batchSize: number;
-}
-
-function readArgs(argv: string[]): TranslationArguments {
-  let batchSize = DEFAULT_BATCH_SIZE;
-
+function readArgs(argv: string[]): { filePath: string; source?: string; version?: string } {
   const fileIndex = argv.indexOf('--file');
   const filePath = argv[fileIndex + 1];
   if (fileIndex < 0 || !filePath || filePath.startsWith('--')) {
@@ -38,49 +25,87 @@ function readArgs(argv: string[]): TranslationArguments {
   const versionIndex = argv.indexOf('--version');
   const version = versionIndex >= 0 ? argv[versionIndex + 1] : undefined;
 
-  const batchIndex = argv.indexOf('--batch-size');
-  if (batchIndex >= 0) {
-    const raw = argv[batchIndex + 1];
-    if (!raw || raw.startsWith('--')) {
-      throw new Error('--batch-size requer um número inteiro positivo');
-    }
-    const parsed = Number(raw);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-      throw new Error('--batch-size deve ser um número inteiro positivo');
-    }
-    batchSize = parsed;
-  }
-
-  return { filePath, source, version, batchSize };
+  return { filePath, source, version };
 }
 
 function checksumOf(content: string): string {
   return createHash('sha256').update(content).digest('hex');
 }
 
+function deduplicateRows(rows: TranslationDatasetRow[]): {
+  unique: TranslationDatasetRow[];
+  duplicates: number;
+} {
+  const seen = new Set<string>();
+  const unique: TranslationDatasetRow[] = [];
+  let duplicates = 0;
+  for (const row of rows) {
+    const key = [
+      row.jmdictSeq,
+      row.sensePosition,
+      row.language,
+      row.text,
+      row.source,
+      row.sourceVersion,
+    ].join('|');
+    if (seen.has(key)) {
+      duplicates += 1;
+      continue;
+    }
+    seen.add(key);
+    unique.push(row);
+  }
+  return { unique, duplicates };
+}
+
+function distinctPairs(rows: TranslationDatasetRow[]): TranslationSourceKey[] {
+  return [
+    ...new Map(
+      rows.map((row) => [
+        `${row.source}|${row.sourceVersion}`,
+        { source: row.source, sourceVersion: row.sourceVersion },
+      ]),
+    ).values(),
+  ];
+}
+
+function formatIssues(issues: Array<{ path: PropertyKey[]; message: string }>): string {
+  return issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ');
+}
+
 async function main(): Promise<void> {
-  const {
-    filePath,
-    source: rawSource,
-    version: rawVersion,
-    batchSize,
-  } = readArgs(process.argv.slice(2));
+  const { filePath, source: rawSource, version: rawVersion } = readArgs(process.argv.slice(2));
 
   const content = await readFile(filePath, 'utf8');
-  const parsed = JSON.parse(content) as {
-    source?: string;
-    version?: string;
-    translations: TranslationRow[];
-  };
+  const parsed = JSON.parse(content) as unknown;
 
-  const source = parsed.source ?? rawSource;
-  const version = parsed.version ?? rawVersion;
+  const dataset = translationDatasetSchema.safeParse(parsed);
+  if (!dataset.success) {
+    throw new Error(
+      `dataset inválido (${dataset.error.issues.length} problema(s)): ${formatIssues(dataset.error.issues)}`,
+    );
+  }
+
+  const source = dataset.data.source ?? rawSource;
+  const version = dataset.data.version ?? rawVersion;
   if (!source || !version) {
     throw new Error('source e version são obrigatórios (no JSON ou via --source/--version)');
   }
 
+  const { unique: rows, duplicates } = deduplicateRows(dataset.data.translations);
+  if (duplicates > 0) {
+    logger.warn('linhas duplicadas dentro do dataset (primeira vence)', {
+      duplicates,
+    });
+  }
+
   const startedAtMs = Date.now();
-  const progress: TranslationImportProgress = { processed: 0, inserted: 0, skipped: 0, errors: 0 };
+  const progress: TranslationImportProgress = {
+    processed: dataset.data.translations.length,
+    inserted: 0,
+    skipped: 0,
+    errors: 0,
+  };
   let sourceImportId: string | undefined;
 
   try {
@@ -88,67 +113,29 @@ async function main(): Promise<void> {
     const handle = await startTranslationImport({ source, version, checksum });
     sourceImportId = handle.id;
 
-    const rerunWithReplace = handle.status === 'completed' && handle.checksum !== checksum;
-    if (handle.status === 'completed') {
-      if (!rerunWithReplace) {
-        logger.info('importação já concluída com o mesmo checksum; nada a fazer', {
-          source,
-          version,
-        });
-        process.exit(0);
-      }
-      logger.info('checksum alterado desde a importação anterior; substituindo dados', {
+    if (handle.status === 'completed' && handle.checksum === checksum) {
+      logger.info('importação já concluída com o mesmo checksum; nada a fazer', {
         source,
         version,
       });
-      const pairs: TranslationSourceKey[] = [
-        ...new Map(
-          parsed.translations.map((row) => [
-            `${row.source}|${row.sourceVersion}`,
-            { source: row.source, sourceVersion: row.sourceVersion },
-          ]),
-        ).values(),
-      ];
-      await replaceTranslationRows(pairs);
+      process.exit(0);
     }
+    logger.info(
+      handle.status === 'completed'
+        ? 'checksum alterado desde a importação anterior; substituindo dados de forma atômica'
+        : 'importação em lote único e atômico',
+      { source, version },
+    );
 
     await markRunning(sourceImportId);
 
-    let buffer: TranslationRow[] = [];
-    const flush = async (): Promise<void> => {
-      if (buffer.length === 0) {
-        return;
-      }
-      const result = await flushTranslationBatch(buffer);
-      progress.inserted += result.inserted;
-      progress.skipped += result.skipped;
-      progress.errors += result.errors;
-      buffer = [];
-      await updateTranslationProgress(sourceImportId!, {
-        processed: progress.processed,
-        inserted: progress.inserted,
-        skipped: progress.skipped,
-        errors: progress.errors,
-      });
-      logger.info('lote aplicado', {
-        batch: progress.processed,
-        inserted: result.inserted,
-        skipped: result.skipped,
-        errors: result.errors,
-        elapsedSeconds: Math.round((Date.now() - startedAtMs) / 1000),
-      });
-    };
+    const pairs = distinctPairs(rows);
+    const result = await importTranslationsAtomically(rows, pairs);
+    progress.inserted = result.inserted;
+    progress.skipped = result.skipped + duplicates;
+    progress.errors = result.errors;
 
-    for (const row of parsed.translations) {
-      progress.processed += 1;
-      buffer.push(row);
-      if (buffer.length >= batchSize) {
-        await flush();
-      }
-    }
-    await flush();
-
-    await completeTranslationImport(sourceImportId, progress, startedAtMs);
+    await completeTranslationImport(sourceImportId, progress, startedAtMs, checksum);
 
     const elapsedMs = Date.now() - startedAtMs;
     logger.info('importação de traduções concluída', {
@@ -159,6 +146,7 @@ async function main(): Promise<void> {
       inserted: progress.inserted,
       skipped: progress.skipped,
       errors: progress.errors,
+      duplicates,
       elapsedSeconds: Math.round(elapsedMs / 1000),
     });
   } catch (error) {

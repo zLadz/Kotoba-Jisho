@@ -1,7 +1,7 @@
-import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
+import { sql, type SQL } from 'drizzle-orm';
 import { normalizeGloss, normalizeReading } from '@kotoba/normalize';
 import { isKotobaOwned, jmdictLanguageCodes } from '@kotoba/types';
-import { db, schema } from '@kotoba/database';
+import { db } from '@kotoba/database';
 
 export type SearchMatch =
   | 'exactReading'
@@ -34,20 +34,202 @@ export interface EntryMatch {
   match: SearchMatch;
 }
 
+export interface SearchOptions {
+  limit?: number;
+  offset?: number;
+}
+
 export interface SearchRepository {
-  search(query: string, lang: string): Promise<EntryMatch[]>;
+  search(query: string, lang: string, options?: SearchOptions): Promise<EntryMatch[]>;
+}
+
+const SCORES: Record<SearchMatch, SQL> = {
+  exactReading: sql.raw('4000'),
+  exactKanji: sql.raw('3200'),
+  exactRomaji: sql.raw('3000'),
+  exactGloss: sql.raw('2000'),
+  exactTranslation: sql.raw('5000'),
+  tokenReading: sql.raw('3800'),
+  tokenGloss: sql.raw('1900'),
+  tokenTranslation: sql.raw('4800'),
+  prefixReading: sql.raw('1800'),
+  prefixKanji: sql.raw('1600'),
+  prefixRomaji: sql.raw('1400'),
+  prefixGloss: sql.raw('1000'),
+  prefixTranslation: sql.raw('2500'),
+  tokenPrefixReading: sql.raw('1700'),
+  tokenPrefixGloss: sql.raw('950'),
+  tokenPrefixTranslation: sql.raw('2400'),
+  fuzzyReading: sql.raw('900'),
+  fuzzyKanji: sql.raw('800'),
+  fuzzyRomaji: sql.raw('700'),
+  fuzzyGloss: sql.raw('500'),
+  fuzzyTranslation: sql.raw('1100'),
+  tokenFuzzyReading: sql.raw('850'),
+  tokenFuzzyGloss: sql.raw('480'),
+  tokenFuzzyTranslation: sql.raw('1050'),
+};
+
+const PRIORITY_TAGS = ['news1', 'ichi1'];
+
+const DEFAULT_LIMIT = 10000;
+
+function arrayLiteral(values: string[]): string {
+  return `ARRAY[${values.map((value) => `'${value.replaceAll("'", "''")}'`).join(',')}]`;
+}
+
+export interface RankedCandidateRow {
+  entry_id: string;
+  match: string;
+  [key: string]: unknown;
 }
 
 async function hasKotobaTranslations(lang: string): Promise<boolean> {
-  const rows = await db
-    .select({ id: schema.translations.id })
-    .from(schema.translations)
-    .where(eq(schema.translations.language, lang))
-    .limit(1);
+  const rows = await db.execute(sql`SELECT 1 FROM translations WHERE language = ${lang} LIMIT 1`);
   return rows.length > 0;
 }
 
-export async function searchEntries(query: string, lang: string): Promise<EntryMatch[]> {
+interface Matcher {
+  match: SearchMatch;
+  sql: SQL;
+}
+
+function japaneseMatchers(
+  query: string,
+  prefix: string,
+  tokenReading: string,
+  tokenReadingPrefix: string,
+): Matcher[] {
+  return [
+    {
+      match: 'exactReading',
+      sql: sql`SELECT r.entry_id, ${'exactReading'} AS match, ${SCORES.exactReading} AS score FROM readings r WHERE r.text = ${query}`,
+    },
+    {
+      match: 'exactKanji',
+      sql: sql`SELECT k.entry_id, ${'exactKanji'} AS match, ${SCORES.exactKanji} AS score FROM kanji_forms k WHERE k.text = ${query}`,
+    },
+    {
+      match: 'exactRomaji',
+      sql: sql`SELECT r.entry_id, ${'exactRomaji'} AS match, ${SCORES.exactRomaji} AS score FROM readings r WHERE r.romaji = ${query}`,
+    },
+    {
+      match: 'tokenReading',
+      sql: sql`SELECT r.entry_id, ${'tokenReading'} AS match, ${SCORES.tokenReading} AS score FROM readings r WHERE r.normalized_text = ${tokenReading}`,
+    },
+    {
+      match: 'prefixReading',
+      sql: sql`SELECT r.entry_id, ${'prefixReading'} AS match, ${SCORES.prefixReading} AS score FROM readings r WHERE r.text ILIKE ${prefix}`,
+    },
+    {
+      match: 'prefixKanji',
+      sql: sql`SELECT k.entry_id, ${'prefixKanji'} AS match, ${SCORES.prefixKanji} AS score FROM kanji_forms k WHERE k.text ILIKE ${prefix}`,
+    },
+    {
+      match: 'prefixRomaji',
+      sql: sql`SELECT r.entry_id, ${'prefixRomaji'} AS match, ${SCORES.prefixRomaji} AS score FROM readings r WHERE r.romaji ILIKE ${prefix}`,
+    },
+    {
+      match: 'tokenPrefixReading',
+      sql: sql`SELECT r.entry_id, ${'tokenPrefixReading'} AS match, ${SCORES.tokenPrefixReading} AS score FROM readings r WHERE r.normalized_text ILIKE ${tokenReadingPrefix}`,
+    },
+    {
+      match: 'fuzzyReading',
+      sql: sql`SELECT r.entry_id, ${'fuzzyReading'} AS match, ${SCORES.fuzzyReading} AS score FROM readings r WHERE r.text % ${query}`,
+    },
+    {
+      match: 'fuzzyKanji',
+      sql: sql`SELECT k.entry_id, ${'fuzzyKanji'} AS match, ${SCORES.fuzzyKanji} AS score FROM kanji_forms k WHERE k.text % ${query}`,
+    },
+    {
+      match: 'fuzzyRomaji',
+      sql: sql`SELECT r.entry_id, ${'fuzzyRomaji'} AS match, ${SCORES.fuzzyRomaji} AS score FROM readings r WHERE r.romaji % ${query}`,
+    },
+    {
+      match: 'tokenFuzzyReading',
+      sql: sql`SELECT r.entry_id, ${'tokenFuzzyReading'} AS match, ${SCORES.tokenFuzzyReading} AS score FROM readings r WHERE r.normalized_text % ${tokenReading}`,
+    },
+  ];
+}
+
+function translationMatchers(
+  lang: string,
+  query: string,
+  contains: string,
+  tokenGloss: string,
+  tokenGlossPrefix: string,
+): Matcher[] {
+  return [
+    {
+      match: 'exactTranslation',
+      sql: sql`SELECT s.entry_id, ${'exactTranslation'} AS match, ${SCORES.exactTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.text ILIKE ${query}`,
+    },
+    {
+      match: 'tokenTranslation',
+      sql: sql`SELECT s.entry_id, ${'tokenTranslation'} AS match, ${SCORES.tokenTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.normalized_text = ${tokenGloss}`,
+    },
+    {
+      match: 'prefixTranslation',
+      sql: sql`SELECT s.entry_id, ${'prefixTranslation'} AS match, ${SCORES.prefixTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.text ILIKE ${contains}`,
+    },
+    {
+      match: 'tokenPrefixTranslation',
+      sql: sql`SELECT s.entry_id, ${'tokenPrefixTranslation'} AS match, ${SCORES.tokenPrefixTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.normalized_text ILIKE ${tokenGlossPrefix}`,
+    },
+    {
+      match: 'fuzzyTranslation',
+      sql: sql`SELECT s.entry_id, ${'fuzzyTranslation'} AS match, ${SCORES.fuzzyTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.text % ${query}`,
+    },
+    {
+      match: 'tokenFuzzyTranslation',
+      sql: sql`SELECT s.entry_id, ${'tokenFuzzyTranslation'} AS match, ${SCORES.tokenFuzzyTranslation} AS score FROM translations tr JOIN senses s ON s.id = tr.sense_id WHERE tr.language = ${lang} AND tr.normalized_text % ${tokenGloss}`,
+    },
+  ];
+}
+
+function glossMatchers(
+  langs: string[],
+  query: string,
+  contains: string,
+  tokenGloss: string,
+  tokenGlossPrefix: string,
+): Matcher[] {
+  const languageClause = sql.raw(arrayLiteral(langs));
+  return [
+    {
+      match: 'exactGloss',
+      sql: sql`SELECT s.entry_id, ${'exactGloss'} AS match, ${SCORES.exactGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.text ILIKE ${query}`,
+    },
+    {
+      match: 'tokenGloss',
+      sql: sql`SELECT s.entry_id, ${'tokenGloss'} AS match, ${SCORES.tokenGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.normalized_text = ${tokenGloss}`,
+    },
+    {
+      match: 'prefixGloss',
+      sql: sql`SELECT s.entry_id, ${'prefixGloss'} AS match, ${SCORES.prefixGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.text ILIKE ${contains}`,
+    },
+    {
+      match: 'tokenPrefixGloss',
+      sql: sql`SELECT s.entry_id, ${'tokenPrefixGloss'} AS match, ${SCORES.tokenPrefixGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.normalized_text ILIKE ${tokenGlossPrefix}`,
+    },
+    {
+      match: 'fuzzyGloss',
+      sql: sql`SELECT s.entry_id, ${'fuzzyGloss'} AS match, ${SCORES.fuzzyGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.text % ${query}`,
+    },
+    {
+      match: 'tokenFuzzyGloss',
+      sql: sql`SELECT s.entry_id, ${'tokenFuzzyGloss'} AS match, ${SCORES.tokenFuzzyGloss} AS score FROM glosses g JOIN senses s ON s.id = g.sense_id WHERE g.language = ANY(${languageClause}) AND g.normalized_text % ${tokenGloss}`,
+    },
+  ];
+}
+
+export async function searchEntries(
+  query: string,
+  lang: string,
+  options: SearchOptions = {},
+): Promise<EntryMatch[]> {
+  const limit = options.limit ?? DEFAULT_LIMIT;
+  const offset = options.offset ?? 0;
   const prefix = `${query}%`;
   const contains = `%${query}%`;
   const tokenReading = normalizeReading(query);
@@ -55,263 +237,46 @@ export async function searchEntries(query: string, lang: string): Promise<EntryM
   const tokenReadingPrefix = `${tokenReading}%`;
   const tokenGlossPrefix = `${tokenGloss}%`;
 
-  const usesKotobaLayer = isKotobaOwned(lang) || (await hasKotobaTranslations(lang));
+  const matchers =
+    isKotobaOwned(lang) || (await hasKotobaTranslations(lang))
+      ? translationMatchers(lang, query, contains, tokenGloss, tokenGlossPrefix)
+      : glossMatchers(jmdictLanguageCodes(lang), query, contains, tokenGloss, tokenGlossPrefix);
+  matchers.push(...japaneseMatchers(query, prefix, tokenReading, tokenReadingPrefix));
 
-  let semanticMatches: EntryMatch[] = [];
-  if (usesKotobaLayer) {
-    const [
-      exactTranslationRows,
-      tokenTranslationRows,
-      prefixTranslationRows,
-      tokenPrefixTranslationRows,
-      fuzzyTranslationRows,
-      tokenFuzzyTranslationRows,
-    ] = await Promise.all([
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(and(eq(schema.translations.language, lang), ilike(schema.translations.text, query))),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(
-          and(
-            eq(schema.translations.language, lang),
-            eq(schema.translations.normalizedText, tokenGloss),
-          ),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(
-          and(eq(schema.translations.language, lang), ilike(schema.translations.text, contains)),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(
-          and(
-            eq(schema.translations.language, lang),
-            ilike(schema.translations.normalizedText, tokenGlossPrefix),
-          ),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(
-          and(eq(schema.translations.language, lang), sql`${schema.translations.text} % ${query}`),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.translations)
-        .innerJoin(schema.senses, eq(schema.translations.senseId, schema.senses.id))
-        .where(
-          and(
-            eq(schema.translations.language, lang),
-            sql`${schema.translations.normalizedText} % ${tokenGloss}`,
-          ),
-        ),
-    ]);
+  const candidates = sql.join(
+    matchers.map((matcher) => matcher.sql),
+    sql.raw(' UNION ALL '),
+  );
 
-    semanticMatches = [
-      ...exactTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'exactTranslation' as const,
-      })),
-      ...tokenTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'tokenTranslation' as const,
-      })),
-      ...prefixTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'prefixTranslation' as const,
-      })),
-      ...tokenPrefixTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'tokenPrefixTranslation' as const,
-      })),
-      ...fuzzyTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'fuzzyTranslation' as const,
-      })),
-      ...tokenFuzzyTranslationRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'tokenFuzzyTranslation' as const,
-      })),
-    ];
-  } else {
-    const jmdictLangs = jmdictLanguageCodes(lang);
-    const [
-      exactGlossRows,
-      tokenGlossRows,
-      prefixGlossRows,
-      tokenPrefixGlossRows,
-      fuzzyGlossRows,
-      tokenFuzzyGlossRows,
-    ] = await Promise.all([
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(inArray(schema.glosses.language, jmdictLangs), ilike(schema.glosses.text, query)),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(
-            inArray(schema.glosses.language, jmdictLangs),
-            eq(schema.glosses.normalizedText, tokenGloss),
-          ),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(inArray(schema.glosses.language, jmdictLangs), ilike(schema.glosses.text, contains)),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(
-            inArray(schema.glosses.language, jmdictLangs),
-            ilike(schema.glosses.normalizedText, tokenGlossPrefix),
-          ),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(
-            inArray(schema.glosses.language, jmdictLangs),
-            sql`${schema.glosses.text} % ${query}`,
-          ),
-        ),
-      db
-        .select({ entryId: schema.senses.entryId })
-        .from(schema.glosses)
-        .innerJoin(schema.senses, eq(schema.glosses.senseId, schema.senses.id))
-        .where(
-          and(
-            inArray(schema.glosses.language, jmdictLangs),
-            sql`${schema.glosses.normalizedText} % ${tokenGloss}`,
-          ),
-        ),
-    ]);
+  const ranked = sql<RankedCandidateRow>`
+    WITH candidates AS (${candidates})
+    SELECT scored.entry_id AS entry_id, scored.match AS match
+    FROM (
+      SELECT DISTINCT ON (c.entry_id)
+        c.entry_id,
+        c.match,
+        c.score,
+        e.jmdict_seq,
+        (
+          EXISTS (
+            SELECT 1 FROM kanji_forms kf
+            WHERE kf.entry_id = c.entry_id AND kf.priorities && ${sql.raw(arrayLiteral(PRIORITY_TAGS))}
+          )
+          OR EXISTS (
+            SELECT 1 FROM readings rd
+            WHERE rd.entry_id = c.entry_id AND rd.priorities && ${sql.raw(arrayLiteral(PRIORITY_TAGS))}
+          )
+        ) AS has_priority
+      FROM candidates c
+      JOIN entries e ON e.id = c.entry_id
+      ORDER BY c.entry_id, c.score DESC
+    ) scored
+    ORDER BY scored.score DESC, scored.has_priority DESC, scored.jmdict_seq ASC
+    LIMIT ${limit} OFFSET ${offset}
+  `;
 
-    semanticMatches = [
-      ...exactGlossRows.map((row) => ({ entryId: row.entryId, match: 'exactGloss' as const })),
-      ...tokenGlossRows.map((row) => ({ entryId: row.entryId, match: 'tokenGloss' as const })),
-      ...prefixGlossRows.map((row) => ({ entryId: row.entryId, match: 'prefixGloss' as const })),
-      ...tokenPrefixGlossRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'tokenPrefixGloss' as const,
-      })),
-      ...fuzzyGlossRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyGloss' as const })),
-      ...tokenFuzzyGlossRows.map((row) => ({
-        entryId: row.entryId,
-        match: 'tokenFuzzyGloss' as const,
-      })),
-    ];
-  }
-
-  const [
-    exactReadingRows,
-    exactKanjiRows,
-    exactRomajiRows,
-    tokenReadingRows,
-    prefixReadingRows,
-    prefixKanjiRows,
-    prefixRomajiRows,
-    tokenPrefixReadingRows,
-    fuzzyReadingRows,
-    fuzzyKanjiRows,
-    fuzzyRomajiRows,
-    tokenFuzzyReadingRows,
-  ] = await Promise.all([
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(eq(schema.readings.text, query)),
-    db
-      .select({ entryId: schema.kanjiForms.entryId })
-      .from(schema.kanjiForms)
-      .where(eq(schema.kanjiForms.text, query)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(eq(schema.readings.romaji, query)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(eq(schema.readings.normalizedText, tokenReading)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(ilike(schema.readings.text, prefix)),
-    db
-      .select({ entryId: schema.kanjiForms.entryId })
-      .from(schema.kanjiForms)
-      .where(ilike(schema.kanjiForms.text, prefix)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(ilike(schema.readings.romaji, prefix)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(ilike(schema.readings.normalizedText, tokenReadingPrefix)),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(sql`${schema.readings.text} % ${query}`),
-    db
-      .select({ entryId: schema.kanjiForms.entryId })
-      .from(schema.kanjiForms)
-      .where(sql`${schema.kanjiForms.text} % ${query}`),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(sql`${schema.readings.romaji} % ${query}`),
-    db
-      .select({ entryId: schema.readings.entryId })
-      .from(schema.readings)
-      .where(sql`${schema.readings.normalizedText} % ${tokenReading}`),
-  ]);
-
-  const matches: EntryMatch[] = [
-    ...semanticMatches,
-    ...exactReadingRows.map((row) => ({ entryId: row.entryId, match: 'exactReading' as const })),
-    ...exactKanjiRows.map((row) => ({ entryId: row.entryId, match: 'exactKanji' as const })),
-    ...exactRomajiRows.map((row) => ({ entryId: row.entryId, match: 'exactRomaji' as const })),
-    ...tokenReadingRows.map((row) => ({ entryId: row.entryId, match: 'tokenReading' as const })),
-    ...prefixReadingRows.map((row) => ({ entryId: row.entryId, match: 'prefixReading' as const })),
-    ...prefixKanjiRows.map((row) => ({ entryId: row.entryId, match: 'prefixKanji' as const })),
-    ...prefixRomajiRows.map((row) => ({ entryId: row.entryId, match: 'prefixRomaji' as const })),
-    ...tokenPrefixReadingRows.map((row) => ({
-      entryId: row.entryId,
-      match: 'tokenPrefixReading' as const,
-    })),
-    ...fuzzyReadingRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyReading' as const })),
-    ...fuzzyKanjiRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyKanji' as const })),
-    ...fuzzyRomajiRows.map((row) => ({ entryId: row.entryId, match: 'fuzzyRomaji' as const })),
-    ...tokenFuzzyReadingRows.map((row) => ({
-      entryId: row.entryId,
-      match: 'tokenFuzzyReading' as const,
-    })),
-  ];
-  return matches;
+  const rows = await db.execute<RankedCandidateRow>(ranked);
+  return rows.map((row) => ({ entryId: row.entry_id, match: row.match as SearchMatch }));
 }
 
 export const searchRepository: SearchRepository = {

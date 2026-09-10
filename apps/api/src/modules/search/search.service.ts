@@ -1,36 +1,7 @@
 import type { DictionaryEntry, SearchResult } from '@kotoba/types';
 import { dictionaryService } from '../dictionary/dictionary.service.js';
 import { resolveSenseTranslations } from '../dictionary/translations.js';
-import { searchRepository, type SearchMatch, type SearchRepository } from './search.repository.js';
-
-const SCORES: Record<SearchMatch, number> = {
-  exactReading: 4000,
-  exactKanji: 3200,
-  exactRomaji: 3000,
-  exactGloss: 2000,
-  exactTranslation: 5000,
-  tokenReading: 3800,
-  tokenGloss: 1900,
-  tokenTranslation: 4800,
-  prefixReading: 1800,
-  prefixKanji: 1600,
-  prefixRomaji: 1400,
-  prefixGloss: 1000,
-  prefixTranslation: 2500,
-  tokenPrefixReading: 1700,
-  tokenPrefixGloss: 950,
-  tokenPrefixTranslation: 2400,
-  fuzzyReading: 900,
-  fuzzyKanji: 800,
-  fuzzyRomaji: 700,
-  fuzzyGloss: 500,
-  fuzzyTranslation: 1100,
-  tokenFuzzyReading: 850,
-  tokenFuzzyGloss: 480,
-  tokenFuzzyTranslation: 1050,
-};
-
-const PRIORITY_TAGS = ['news1', 'ichi1'];
+import { searchRepository, type SearchRepository } from './search.repository.js';
 
 export function toSearchResult(entry: DictionaryEntry, lang: string): SearchResult {
   return {
@@ -40,14 +11,6 @@ export function toSearchResult(entry: DictionaryEntry, lang: string): SearchResu
     romaji: entry.readings.map((reading) => reading.romaji),
     translations: entry.senses.flatMap((sense) => resolveSenseTranslations(sense, lang)),
   };
-}
-
-export function hasPriority(entry: DictionaryEntry): boolean {
-  const tags = [
-    ...entry.kanji.flatMap((form) => form.priorities),
-    ...entry.readings.flatMap((reading) => reading.priorities),
-  ];
-  return tags.some((tag) => PRIORITY_TAGS.includes(tag));
 }
 
 interface SearchDependencies {
@@ -64,45 +27,22 @@ export class SearchService {
       return [];
     }
 
-    const matches = await this.dependencies.searchRepository.search(normalized, lang);
-    const bestScore = new Map<string, number>();
-    for (const match of matches) {
-      const score = SCORES[match.match];
-      const current = bestScore.get(match.entryId) ?? 0;
-      if (score > current) {
-        bestScore.set(match.entryId, score);
-      }
-    }
-
-    const entries = await this.dependencies.getEntriesByIds(Array.from(bestScore.keys()));
+    const matches = await this.dependencies.searchRepository.search(normalized, lang, {
+      limit,
+      offset,
+    });
+    const entries = await this.dependencies.getEntriesByIds(matches.map((match) => match.entryId));
     const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
 
-    return Array.from(bestScore.entries())
-      .filter(([entryId]) => entriesById.has(entryId))
-      .sort(([leftId, leftScore], [rightId, rightScore]) => {
-        if (leftScore !== rightScore) {
-          return rightScore - leftScore;
-        }
-        const left = entriesById.get(leftId);
-        const right = entriesById.get(rightId);
-        if (right === undefined || left === undefined) {
-          return 0;
-        }
-        const leftPriority = hasPriority(left) ? 1 : 0;
-        const rightPriority = hasPriority(right) ? 1 : 0;
-        if (leftPriority !== rightPriority) {
-          return rightPriority - leftPriority;
-        }
-        return left.jmdictSeq - right.jmdictSeq;
-      })
-      .slice(offset, offset + limit)
-      .map(([entryId]) => {
-        const entry = entriesById.get(entryId);
-        if (entry === undefined) {
-          throw new Error(`Entrada ${entryId} não encontrada após a busca`);
-        }
-        return toSearchResult(entry, lang);
-      });
+    const results: SearchResult[] = [];
+    for (const match of matches) {
+      const entry = entriesById.get(match.entryId);
+      if (entry === undefined) {
+        continue;
+      }
+      results.push(toSearchResult(entry, lang));
+    }
+    return results;
   }
 }
 

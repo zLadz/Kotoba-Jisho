@@ -29,40 +29,13 @@ function extractEntries(xml: string): string[] {
   return blocks;
 }
 
-const GENERAL_TIERS = [
-  'exactGloss',
-  'exactKanji',
-  'exactReading',
-  'exactRomaji',
-  'fuzzyGloss',
-  'fuzzyKanji',
-  'fuzzyReading',
-  'fuzzyRomaji',
-  'prefixGloss',
-  'prefixKanji',
-  'prefixReading',
-  'prefixRomaji',
-  'tokenFuzzyGloss',
-  'tokenFuzzyReading',
-  'tokenGloss',
-  'tokenPrefixGloss',
-  'tokenPrefixReading',
-  'tokenReading',
-].sort();
-
-const TRANSLATION_TIERS = [
-  'exactTranslation',
-  'fuzzyTranslation',
-  'prefixTranslation',
-  'tokenFuzzyTranslation',
-  'tokenPrefixTranslation',
-  'tokenTranslation',
-].sort();
-
-describe('repository de busca (tiers)', () => {
+describe('repository de busca (ranking/LIMIT no banco)', () => {
   let db: typeof import('@kotoba/database').db;
   let searchEntries: typeof import('./search.repository.js').searchEntries;
   let eatId: string;
+  let studentId: string;
+  let coffeeId: string;
+  let japanId: string;
 
   beforeAll(async () => {
     const { default: postgres } = await import('postgres');
@@ -85,8 +58,8 @@ describe('repository de busca (tiers)', () => {
     const entries = extractEntries(xml).map((raw) => parseEntry(raw));
     const sourceImportId = await startSourceImport({
       source: 'jmdict',
-      version: 'search-modes',
-      checksum: 'fixture-modes',
+      version: 'search-repository',
+      checksum: 'fixture-repository',
     });
     await markRunning(sourceImportId);
     await flushEntryBatch(entries, sourceImportId);
@@ -97,19 +70,33 @@ describe('repository de busca (tiers)', () => {
     );
 
     const ids = await db.execute(
-      sql`select jmdict_seq, id from entries where jmdict_seq in (1358280, 1049180)`,
+      sql`select jmdict_seq, id from entries where jmdict_seq in (1358280, 1206900, 1049180, 1582710)`,
     );
-    eatId = ids.find((row) => row.jmdict_seq === 1358280)!.id as string;
+    const bySeq = new Map<number, string>();
+    for (const row of ids) {
+      bySeq.set(Number(row.jmdict_seq), String(row.id));
+    }
+    eatId = bySeq.get(1358280)!;
+    studentId = bySeq.get(1206900)!;
+    coffeeId = bySeq.get(1049180)!;
+    japanId = bySeq.get(1582710)!;
 
-    const senseIds = await db.execute(
-      sql`select id from senses where entry_id = ${eatId} order by position limit 1`,
-    );
-    const senseId = senseIds[0]!.id as string;
-    await db.execute(
-      sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version) values
-            (${senseId}, 0, 'pt-BR', 'comer', ${normalizeGloss('comer')}, 'manual', 'dev-1'),
-            (${senseId}, 1, 'pt-BR', 'comestível', ${normalizeGloss('comestível')}, 'manual', 'dev-1')`,
-    );
+    const insert = async (seq: number, position: number, text: string): Promise<void> => {
+      const senseRows = await db.execute(
+        sql`select s.id from senses s join entries e on e.id = s.entry_id where e.jmdict_seq = ${seq} order by s.position limit 1`,
+      );
+      const senseId = String(senseRows[0]?.id);
+      await db.execute(
+        sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+            values (${senseId}, ${position}, 'pt-BR', ${text}, ${normalizeGloss(text)}, 'manual', 'dev-1')`,
+      );
+    };
+    await insert(1358280, 0, 'comer');
+    await insert(1358280, 1, 'comestível');
+    await insert(1206900, 0, 'estudante');
+    await insert(1206900, 1, 'aluno');
+    await insert(1049180, 0, 'café');
+    await insert(1582710, 0, 'Japão');
 
     ({ searchEntries } = await import('./search.repository.js'));
   }, 60_000);
@@ -122,89 +109,126 @@ describe('repository de busca (tiers)', () => {
     }
   });
 
-  it('cobre todos os tiers gerais (leitura/kanji/romaji/gloss JMdict)', async () => {
-    const queries = ['たべる', '食べる', 'taberu', 'comer', 'comestivel'];
-    const seen = new Set<string>();
-    for (const query of queries) {
-      const matches = await searchEntries(query, 'pt');
-      for (const match of matches) {
-        seen.add(match.match);
-      }
+  const top = async (
+    query: string,
+    lang = 'pt-BR',
+    options?: { limit?: number; offset?: number },
+  ): Promise<{ entryId: string; match: string } | undefined> => {
+    const matches = await searchEntries(query, lang, options);
+    return matches[0];
+  };
+
+  it('rankeia e retorna a entrada esperada no topo por tier', async () => {
+    const pairs: Array<[string, string, string, string]> = [
+      ['たべる', 'pt-BR', eatId, 'exactReading'],
+      ['食べる', 'pt-BR', eatId, 'exactKanji'],
+      ['taberu', 'pt-BR', eatId, 'exactRomaji'],
+      ['comer', 'pt-BR', eatId, 'exactTranslation'],
+      ['comestivel', 'pt-BR', eatId, 'tokenTranslation'],
+      ['gakusei', 'pt-BR', studentId, 'exactRomaji'],
+      ['café', 'pt-BR', coffeeId, 'exactTranslation'],
+      ['Japão', 'pt-BR', japanId, 'exactTranslation'],
+    ];
+    for (const [query, lang, entryId, match] of pairs) {
+      const result = await top(query, lang);
+      expect(result, `${query} deve retornar ${entryId} no topo`).toEqual({ entryId, match });
     }
-    expect([...seen].sort()).toEqual(GENERAL_TIERS);
   });
 
-  it('cobre os tiers de tradução da camada Kotoba', async () => {
-    const seen = new Set<string>();
-    for (const query of ['comer', 'comestivel', 'com']) {
-      const matches = await searchEntries(query, 'pt-BR');
-      for (const match of matches) {
-        seen.add(match.match);
-      }
-    }
-    expect([...seen].sort()).toEqual(TRANSLATION_TIERS);
+  it('dentro das traduções: exata > token > prefixo > fuzzy', async () => {
+    expect(await top('comer', 'pt-BR')).toEqual({
+      entryId: eatId,
+      match: 'exactTranslation',
+    });
+    expect(await top('comestivel', 'pt-BR')).toEqual({
+      entryId: eatId,
+      match: 'tokenTranslation',
+    });
+    expect(await top('com', 'pt-BR')).toEqual({
+      entryId: eatId,
+      match: 'prefixTranslation',
+    });
+  });
+
+  it('dentro dos glosses JMdict: token normalizado casa sem acento', async () => {
+    expect(await top('comestivel', 'pt')).toEqual({ entryId: eatId, match: 'tokenGloss' });
+    expect(await top('com', 'pt')).toEqual({ entryId: eatId, match: 'prefixGloss' });
+  });
+
+  it('busca fuzzy tolera erros de digitação', async () => {
+    expect(await top('taberru', 'pt-BR')).toEqual({ entryId: eatId, match: 'fuzzyRomaji' });
+    expect(await top('comrr', 'pt')).toEqual({ entryId: eatId, match: 'fuzzyGloss' });
   });
 
   it('katakana e half-width casam pelo tier token normalizado', async () => {
     for (const query of ['タベル', 'ﾀﾍﾞﾙ']) {
-      const matches = await searchEntries(query, 'pt-BR');
-      expect(
-        matches.some((match) => match.entryId === eatId && match.match === 'tokenReading'),
-      ).toBe(true);
-      expect(
-        matches.some((match) => match.entryId === eatId && match.match === 'exactReading'),
-      ).toBe(false);
+      expect(await top(query, 'pt-BR')).toEqual({ entryId: eatId, match: 'tokenReading' });
     }
   });
 
-  it('busca de tradução sem acento usa normalized_text (camada Kotoba)', async () => {
-    const matches = await searchEntries('comestivel', 'pt-BR');
-    expect(
-      matches.some((match) => match.entryId === eatId && match.match === 'tokenTranslation'),
-    ).toBe(true);
-    expect(
-      matches.some((match) => match.entryId === eatId && match.match === 'exactTranslation'),
-    ).toBe(false);
+  it('pt-BR usa apenas a camada Kotoba e não cai para glosses (§14)', async () => {
+    const matches = await searchEntries('proprio', 'pt-BR');
+    expect(matches).toEqual([]);
   });
 
-  it('gloss JMdict sem acento usa normalized_text (idioma não-Kotoba)', async () => {
-    const matches = await searchEntries('comestivel', 'pt');
-    expect(matches.some((match) => match.entryId === eatId && match.match === 'tokenGloss')).toBe(
-      true,
-    );
-    expect(matches.some((match) => match.entryId === eatId && match.match === 'exactGloss')).toBe(
-      false,
-    );
+  it('idioma sem camada Kotoba nem gloss JMdict retorna só via superfície japonesa', async () => {
+    expect(await top('たべる', 'fr')).toEqual({ entryId: eatId, match: 'exactReading' });
+    const matches = await searchEntries('comer', 'fr');
+    expect(matches).toEqual([]);
   });
 
-  it('cada tier retorna a entrada esperada', async () => {
-    const pairs: Array<[string, string]> = [
-      ['たべる', 'exactReading'],
-      ['食べる', 'exactKanji'],
-      ['taberu', 'exactRomaji'],
-      ['comer', 'exactGloss'],
-      ['たべる', 'prefixReading'],
-      ['食', 'prefixKanji'],
-      ['tabe', 'prefixRomaji'],
-      ['com', 'prefixGloss'],
-      ['たべるん', 'fuzzyReading'],
-      ['食べれ', 'fuzzyKanji'],
-      ['comestivel', 'tokenGloss'],
-      ['タベル', 'tokenReading'],
-    ];
-    for (const [query, match] of pairs) {
-      const matches = await searchEntries(query, 'pt');
-      expect(
-        matches.some((entry) => entry.match === match && entry.entryId === eatId),
-        `${query} deve retornar ${match} para a entrada esperada`,
-      ).toBe(true);
-    }
+  it('retorna uma entrada por vez (melhor tier), sem duplicar IDs', async () => {
+    const matches = await searchEntries('a', 'pt-BR');
+    const ids = matches.map((match) => match.entryId);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual([coffeeId, studentId, japanId]);
   });
 
-  it('tradução Kotoba casa para a entrada esperada', async () => {
+  it('aplica LIMIT e OFFSET no banco, com paginação estável', async () => {
+    const all = await searchEntries('a', 'pt-BR');
+    const allIds = all.map((match) => match.entryId);
+    expect(allIds).toHaveLength(3);
+
+    const page1 = await searchEntries('a', 'pt-BR', { limit: 2, offset: 0 });
+    const page2 = await searchEntries('a', 'pt-BR', { limit: 2, offset: 2 });
+    expect(page1).toHaveLength(2);
+    expect(page2).toHaveLength(1);
+    const page1Ids = page1.map((match) => match.entryId);
+    const page2Ids = page2.map((match) => match.entryId);
+    expect(new Set([...page1Ids, ...page2Ids]).size).toBe(3);
+    expect(page1Ids).toEqual(allIds.slice(0, 2));
+    expect(page2Ids).toEqual(allIds.slice(2, 3));
+  });
+
+  it('desempate por prioridade (news1/ichi1) e depois jmdict_seq', async () => {
+    const all = await searchEntries('a', 'pt-BR');
+    const ids = all.map((match) => match.entryId);
+
+    const rows = await db.execute(sql`
+      select e.id, e.jmdict_seq,
+        (
+          exists (select 1 from kanji_forms kf where kf.entry_id = e.id and kf.priorities && ARRAY['news1','ichi1'])
+          or exists (select 1 from readings rd where rd.entry_id = e.id and rd.priorities && ARRAY['news1','ichi1'])
+        ) as has_priority
+      from entries e
+      where e.id in (${sql.raw(ids.map((id) => `'${id}'`).join(','))})
+    `);
+    const expectedIds = [...rows]
+      .sort(
+        (left, right) =>
+          Number(right.has_priority) - Number(left.has_priority) ||
+          Number((left as { jmdict_seq: number }).jmdict_seq) -
+            Number((right as { jmdict_seq: number }).jmdict_seq),
+      )
+      .map((row) => row.id);
+
+    expect(ids).toEqual(expectedIds);
+    const again = await searchEntries('a', 'pt-BR');
+    expect(again.map((match) => match.entryId)).toEqual(ids);
+  });
+
+  it('busca por "comer" em pt-BR retorna 食べる e nunca 帯同 (§7b)', async () => {
     const matches = await searchEntries('comer', 'pt-BR');
-    expect(
-      matches.some((entry) => entry.match === 'exactTranslation' && entry.entryId === eatId),
-    ).toBe(true);
+    expect(matches.map((match) => match.entryId)).toEqual([eatId]);
   });
 });

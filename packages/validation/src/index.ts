@@ -41,6 +41,38 @@ export const kotobaTranslationSchema = z.object({
 
 export type KotobaTranslationContract = z.infer<typeof kotobaTranslationSchema>;
 
+const LANGUAGE_PATTERN = /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})?$/;
+
+export const translationDatasetRowSchema = z.object({
+  jmdictSeq: z.number().int().positive('jmdictSeq deve ser um número inteiro positivo'),
+  sensePosition: z
+    .number()
+    .int()
+    .nonnegative('sensePosition deve ser um número inteiro não negativo'),
+  language: z
+    .string()
+    .trim()
+    .min(2, 'language deve ter pelo menos 2 caracteres')
+    .regex(LANGUAGE_PATTERN, 'language em formato de código de idioma inválido'),
+  text: z.string().trim().min(1, 'text não pode ser vazio'),
+  source: z.string().trim().min(1, 'source não pode ser vazio'),
+  sourceVersion: z.string().trim().min(1, 'sourceVersion não pode ser vazio'),
+  kanji: z.array(z.string().trim().min(1)).optional(),
+  reading: z.array(z.string().trim().min(1)).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+  position: z.number().int().nonnegative().optional(),
+});
+
+export type TranslationDatasetRow = z.infer<typeof translationDatasetRowSchema>;
+
+export const translationDatasetSchema = z.object({
+  source: z.string().trim().min(1).optional(),
+  version: z.string().trim().min(1).optional(),
+  translations: z.array(translationDatasetRowSchema).default([]),
+});
+
+export type TranslationDataset = z.infer<typeof translationDatasetSchema>;
+
 export const searchResultSchema = z.object({
   id: z.string().uuid(),
   kanji: z.array(z.string()),
