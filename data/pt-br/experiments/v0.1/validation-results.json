@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "experiment": "v0.1",
+    "role": "validador",
+    "input": "generated-candidates.json",
+    "validatedAt": "2026-09-15",
+    "count": 109,
+    "summary": {
+      "approved": 97,
+      "revise": 6,
+      "rejected": 6,
+      "confidentButRejected": [
+        { "jmdictSeq": 1259290, "sense": 3, "gerConfidence": 0.92, "reason": "candidato 'ver' para sentido 'to look after'" },
+        { "jmdictSeq": 1283190, "sense": 2, "gerConfidence": 0.9, "reason": "candidato 'alto' para sentido 'expensive'" },
+        { "jmdictSeq": 1310460, "sense": 2, "gerConfidence": 0.91, "reason": "candidato 'habilidoso' para sentido 'delicious'" }
+      ]
+    }
+  },
+  "results": [
+    { "jmdictSeq": 1008630, "sense": 1, "candidate": "muito, extremamente", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "advérbio de grau; cobre 'very / awfully / exceedingly' sem ambiguidade" },
+    { "jmdictSeq": 1008630, "sense": 2, "candidate": "de jeito nenhum", "status": "machine_translated", "decision": "revise", "confidence": 0.88, "reason": "sentido exige negação explícita ('not at all / by no means / simply (cannot)'); candidato sozinho é ambíguo sem contexto negativo", "suggestedTranslation": "não ... de jeito nenhum / de forma alguma" },
+
+    { "jmdictSeq": 1156530, "sense": 1, "candidate": "opinião", "status": "approved", "decision": "approved", "confidence": 0.97, "reason": "substantivo abstrato; 'opinion / view / comment' cobertos de forma natural" },
+    { "jmdictSeq": 1156530, "sense": 2, "candidate": "repreensão, admoestação", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'scolding / reprimand / rebuke'; sem colisão com sentido 1" },
+
+    { "jmdictSeq": 1157170, "sense": 1, "candidate": "fazer", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "núcleo 'to do / to perform'; verbo transitivo comum e natural" },
+    { "jmdictSeq": 1157170, "sense": 2, "candidate": "fazer virar, transformar (em)", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to cause to become / to turn (into)'; forma natural em pt-BR" },
+    { "jmdictSeq": 1157170, "sense": 3, "candidate": "servir como, atuar como", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to serve as / to act as'; colocações idiomáticas" },
+    { "jmdictSeq": 1157170, "sense": 4, "candidate": "vestir, usar (roupa; expressão facial)", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to wear (clothes, facial expression)'; transitividade preservada" },
+    { "jmdictSeq": 1157170, "sense": 5, "candidate": "considerar (como), tratar como", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to view / think of as'; sem contaminação com outros sentidos" },
+    { "jmdictSeq": 1157170, "sense": 6, "candidate": "decidir, escolher", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'to decide on / to choose'; verbo natural e inequívoco" },
+    { "jmdictSeq": 1157170, "sense": 7, "candidate": "perceber-se (cheiro, som); fazer-se notar", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "captura o sentido intransitivo de percepção; nuance preservada" },
+    { "jmdictSeq": 1157170, "sense": 8, "candidate": "estar (em um estado ou condição)", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to be (in a state/condition)'; uso predicativo natural" },
+    { "jmdictSeq": 1157170, "sense": 9, "candidate": "valer, custar", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'to be worth / to cost'; construções impessoais naturais" },
+    { "jmdictSeq": 1157170, "sense": 10, "candidate": "passar (o tempo), transcorrer", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to pass (of time) / to elapse'; verbo intransitivo correto" },
+    { "jmdictSeq": 1157170, "sense": 11, "candidate": "elevar (alguém) a um cargo, promover", "status": "approved", "decision": "approved", "confidence": 0.87, "reason": "cobre 'to raise to a post'; esquema A/B preservado" },
+    { "jmdictSeq": 1157170, "sense": 12, "candidate": "transformar A em B", "status": "approved", "decision": "approved", "confidence": 0.89, "reason": "cobre 'to transform A to B'; esquema A/B mantido" },
+    { "jmdictSeq": 1157170, "sense": 13, "candidate": "usar A para B; tratar A como B", "status": "approved", "decision": "approved", "confidence": 0.87, "reason": "cobre 'to use A for B / to view A as B'; esquema A/B preservado" },
+    { "jmdictSeq": 1157170, "sense": 14, "candidate": "sentir A sobre B", "status": "machine_translated", "decision": "revise", "confidence": 0.82, "reason": "tradução literal do esquema 'A/B'; fraseologia pt-BR: 'ter A como opinião sobre B'", "suggestedTranslation": "ter A como opinião sobre B / sentir A acerca de B" },
+    { "jmdictSeq": 1157170, "sense": 15, "candidate": "sufixo verbalizador (para substantivos 'vs')", "status": "approved", "decision": "approved", "confidence": 0.86, "reason": "glossa funcional precisa; adequada para uso gramatical" },
+    { "jmdictSeq": 1157170, "sense": 16, "candidate": "cria verbo humilde (após 'o'/'go')", "status": "machine_translated", "decision": "revise", "confidence": 0.85, "reason": "glossa funcional/descritiva; deveria trazer o efeito funcional em forma de tradução + exemplo", "suggestedTranslation": "torna-se verbo humilde (ex.: お電話する)" },
+    { "jmdictSeq": 1157170, "sense": 17, "candidate": "estar prestes a, tentar", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to be just about to / to try to'; nuance aspectual correta" },
+
+    { "jmdictSeq": 1188890, "sense": 1, "candidate": "sempre", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "advérbio de frequência; 'always / all the time' cobertos" },
+    { "jmdictSeq": 1188890, "sense": 2, "candidate": "nunca (com verbo na negativa)", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "sentido negativo; glossa marca exigência de negação" },
+    { "jmdictSeq": 1188890, "sense": 3, "candidate": "usual, habitual, de sempre", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'usual / habitual'; uso adjetival (adj-no) adequado" },
+
+    { "jmdictSeq": 1206900, "sense": 1, "candidate": "estudante (esp. universitário)", "status": "approved", "decision": "approved", "confidence": 0.97, "reason": "marca 'esp. university student' preservada; forma natural" },
+
+    { "jmdictSeq": 1213400, "sense": 1, "candidate": "doce", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "'sweet-tasting'; adjetivo nuclear, sem colisão com outros sentidos" },
+    { "jmdictSeq": 1213400, "sense": 2, "candidate": "adocicado, perfumado (som suave)", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'fragrant / sweet (music)'; conotação sensorial preservada" },
+    { "jmdictSeq": 1213400, "sense": 3, "candidate": "levemente salgado, pouco salgado", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'lightly salted'; evita confusão com sentido 1" },
+    { "jmdictSeq": 1213400, "sense": 4, "candidate": "doce", "status": "machine_translated", "decision": "rejected", "confidence": 0.91, "reason": "confiança alta do gerador (0.88), mas 'indulgent / lenient / soft (on)' não significa 'doce'; colide com sentido 1 (sweet-tasting)", "suggestedTranslation": "indulgente, condescendente (com alguém)" },
+    { "jmdictSeq": 1213400, "sense": 5, "candidate": "ingênuo, otimista demais", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'naive / overly optimistic'; campo figurado bem delimitado" },
+    { "jmdictSeq": 1213400, "sense": 6, "candidate": "pela metade, sem empenho", "status": "approved", "decision": "approved", "confidence": 0.87, "reason": "cobre 'half-hearted'; expressão metafórica natural" },
+    { "jmdictSeq": 1213400, "sense": 7, "candidate": "insuficiente, insatisfatório, frouxo", "status": "approved", "decision": "approved", "confidence": 0.87, "reason": "cobre 'insufficient / inadequate / loose'; múltiplas glossas cobertas" },
+    { "jmdictSeq": 1213400, "sense": 8, "candidate": "suave, brando", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'mild'; adjetivo de gradação natural" },
+    { "jmdictSeq": 1213400, "sense": 9, "candidate": "tentador, sedutor", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'tempting / enticing'; carga conotativa correta" },
+
+    { "jmdictSeq": 1259290, "sense": 1, "candidate": "ver", "status": "approved", "decision": "approved", "confidence": 0.97, "reason": "glossas 'to see / to look / to watch' apontam para 'ver'; transitividade vt preservada" },
+    { "jmdictSeq": 1259290, "sense": 2, "candidate": "examinar, avaliar, verificar", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'to examine / to assess / to check'; transitividade vt preservada" },
+    { "jmdictSeq": 1259290, "sense": 3, "candidate": "ver", "status": "machine_translated", "decision": "rejected", "confidence": 0.94, "reason": "confiança do gerador 0.92 mas colide frontalmente com sentido 1 (to see); sentido 3 é 'look after / take care of', que exige 'cuidar de / vigiar'", "suggestedTranslation": "cuidar de, vigiar, olhar por" },
+    { "jmdictSeq": 1259290, "sense": 4, "candidate": "experimentar, passar por (experiência)", "status": "approved", "decision": "approved", "confidence": 0.89, "reason": "cobre 'to experience / to meet with'; sentido experiencial distinto" },
+    { "jmdictSeq": 1259290, "sense": 5, "candidate": "tentar (fazer)", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre o auxiliar -te miru; nuance 'try and see' correta" },
+    { "jmdictSeq": 1259290, "sense": 6, "candidate": "perceber que", "status": "machine_translated", "decision": "revise", "confidence": 0.86, "reason": "ausente 'descobrir / notar', que são fortes em 'to find (that) / to see (that)' no contexto; 'perceber que' é parcial", "suggestedTranslation": "notar que / descobrir que" },
+
+    { "jmdictSeq": 1283190, "sense": 1, "candidate": "alto", "status": "approved", "decision": "approved", "confidence": 0.98, "reason": "'high / tall'; sentido espacial núcleo, sem colisão" },
+    { "jmdictSeq": 1283190, "sense": 2, "candidate": "alto", "status": "machine_translated", "decision": "rejected", "confidence": 0.92, "reason": "confiança do gerador 0.9; 'expensive / high-priced' ≠ 'alto'; colide com sentido 1 (high/tall)", "suggestedTranslation": "caro" },
+    { "jmdictSeq": 1283190, "sense": 3, "candidate": "alto (nível), acima da média", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'high (level) / above average'; escopo bem delimitado" },
+    { "jmdictSeq": 1283190, "sense": 4, "candidate": "alto (som), barulhento", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'loud'; coloquial e natural" },
+    { "jmdictSeq": 1283190, "sense": 5, "candidate": "agudo, estridente", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'high-pitched / shrill'; restrito a qualidade sonora" },
+
+    { "jmdictSeq": 1310460, "sense": 1, "candidate": "habilidoso, hábil, bom (em algo)", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "cobre 'skillful / skilled / good'; colocações com 'em' naturais" },
+    { "jmdictSeq": 1310460, "sense": 2, "candidate": "habilidoso", "status": "machine_translated", "decision": "rejected", "confidence": 0.93, "reason": "confiança do gerador 0.91; 'delicious / tasty' ≠ 'habilidoso'; colide com sentido 1 (skillful)", "suggestedTranslation": "gostoso, delicioso" },
+    { "jmdictSeq": 1310460, "sense": 3, "candidate": "bom (negócio, ideia), vantajoso, promissor", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'good (deal) / profitable'; sentido avaliativo correto" },
+
+    { "jmdictSeq": 1323080, "sense": 1, "candidate": "carro", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "substantivo concreto; 'car / automobile / vehicle'" },
+    { "jmdictSeq": 1323080, "sense": 2, "candidate": "roda", "status": "approved", "decision": "approved", "confidence": 0.97, "reason": "cobre 'wheel / caster'; substantivo concreto e inequívoco" },
+
+    { "jmdictSeq": 1326980, "sense": 1, "candidate": "pegar, apanhar, segurar", "status": "approved", "decision": "approved", "confidence": 0.96, "reason": "'to take / to pick up'; transitividade vt preservada" },
+    { "jmdictSeq": 1326980, "sense": 2, "candidate": "passar", "status": "machine_translated", "decision": "revise", "confidence": 0.84, "reason": "verbo ambíguo: 'passar' pode indicar tempo/ir; sentido é 'hand / give'. Necessário desambiguar", "suggestedTranslation": "passar, entregar (algo a alguém)" },
+    { "jmdictSeq": 1326980, "sense": 3, "candidate": "obter, conseguir, ganhar", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'to get / to obtain / to acquire'; registros compatíveis" },
+    { "jmdictSeq": 1326980, "sense": 4, "candidate": "adotar (método), tomar (medida)", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'to adopt (a method) / to take (a measure)'; colocações administrativas" },
+    { "jmdictSeq": 1326980, "sense": 5, "candidate": "remover, tirar, eliminar", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to remove / to take off'; transitividade correta" },
+    { "jmdictSeq": 1326980, "sense": 6, "candidate": "roubar, furtar, tirar (à força)", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to steal / to rob'; sem colisão com sentido 1" },
+    { "jmdictSeq": 1326980, "sense": 7, "candidate": "comer, tomar (remédio, vitaminas)", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to eat / to take (vitamins)'; colocações idiomáticas" },
+    { "jmdictSeq": 1326980, "sense": 8, "candidate": "colher, apanhar (flores), extrair", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to pick (flowers) / to extract'; escopo semântico correto" },
+    { "jmdictSeq": 1326980, "sense": 9, "candidate": "pegar", "status": "machine_translated", "decision": "rejected", "confidence": 0.88, "reason": "colide com sentido 1 (to take); 'to take up time/space / to occupy' exige 'ocupar'", "suggestedTranslation": "ocupar, levar (tempo, espaço)" },
+    { "jmdictSeq": 1326980, "sense": 10, "candidate": "reservar, guardar, poupar", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to reserve / to save / to put aside'; nuances cobertas" },
+    { "jmdictSeq": 1326980, "sense": 11, "candidate": "entender, interpretar, captar (sentido)", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'to take (a joke) / to interpret'; sentido idiomático correto" },
+    { "jmdictSeq": 1326980, "sense": 12, "candidate": "anotar, registrar", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to record / to take down'; uso com 'nota' natural" },
+    { "jmdictSeq": 1326980, "sense": 13, "candidate": "assinar (jornal), comprar", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to subscribe to / to buy'; contexto comercial claro" },
+    { "jmdictSeq": 1326980, "sense": 14, "candidate": "pedir, encomendar, mandar entregar", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to order / to have delivered'; transitividade preservada" },
+    { "jmdictSeq": 1326980, "sense": 15, "candidate": "cobrar, multar, taxar", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'to charge / to fine / to take (tax)'; registro burocrático adequado" },
+    { "jmdictSeq": 1326980, "sense": 16, "candidate": "tomar (esposa), aceitar (aprendiz), adotar", "status": "approved", "decision": "approved", "confidence": 0.87, "reason": "cobre 'to take (a wife) / to take on (an apprentice)'; colocações raras preservadas" },
+    { "jmdictSeq": 1326980, "sense": 17, "candidate": "assumir o controle de", "status": "approved", "decision": "approved", "confidence": 0.89, "reason": "cobre 'to take control of'; construção natural" },
+    { "jmdictSeq": 1326980, "sense": 18, "candidate": "competir, disputar, jogar", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to compete (in sumo, cards) / to play'; escopo esportivo correto" },
+
+    { "jmdictSeq": 1358280, "sense": 1, "candidate": "comer", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "'to eat'; verbo transitivo idiomático; sem contaminação com outros sentidos" },
+    { "jmdictSeq": 1358280, "sense": 2, "candidate": "viver de, subsistir de (um salário)", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to live on / to live off / to subsist on'; não contamina sentido 1" },
+
+    { "jmdictSeq": 1527110, "sense": 1, "candidate": "ainda", "status": "approved", "decision": "approved", "confidence": 0.98, "reason": "advérbio temporal; 'still / as yet' cobertos" },
+    { "jmdictSeq": 1527110, "sense": 2, "candidate": "ainda (não)", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "sentido negativo 'not yet'; marcado como exige negação" },
+    { "jmdictSeq": 1527110, "sense": 3, "candidate": "ainda mais, mais ainda", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre '(more) still'; grau comparativo correto" },
+    { "jmdictSeq": 1527110, "sense": 4, "candidate": "pelo menos, relativamente", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'at least / relatively'; acepção concessiva correta" },
+    { "jmdictSeq": 1527110, "sense": 5, "candidate": "inacabado, incompleto", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'unfinished / incomplete'; uso adjetival (adj-na) adequado" },
+
+    { "jmdictSeq": 1536010, "sense": 1, "candidate": "questão (de prova), problema", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "cobre 'question (on a test) / problem'; contexto educacional claro" },
+    { "jmdictSeq": 1536010, "sense": 2, "candidate": "problema (social, político), questão", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "cobre 'problem (societal) / issue'; registros compatíveis" },
+    { "jmdictSeq": 1536010, "sense": 3, "candidate": "dúvida, questionamento", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'question (i.e. doubt)'; acepção distinta de 1" },
+    { "jmdictSeq": 1536010, "sense": 4, "candidate": "polêmica, discussão pública", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'public discussion / controversy'; nuance pública correta" },
+    { "jmdictSeq": 1536010, "sense": 5, "candidate": "problema, dificuldade, transtorno", "status": "approved", "decision": "approved", "confidence": 0.94, "reason": "cobre 'trouble / difficulty'; sem colisão com sentido 1" },
+
+    { "jmdictSeq": 1547720, "sense": 1, "candidate": "vir", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "núcleo 'to come'; verbo intransitivo natural e inequívoco" },
+    { "jmdictSeq": 1547720, "sense": 2, "candidate": "voltar; ir, ... e voltar", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to come back / do ... and come back'; construção aspectual correta" },
+    { "jmdictSeq": 1547720, "sense": 3, "candidate": "tornar-se, passar a (ser/ficar)", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to come to be / to become'; evolução de estado natural" },
+    { "jmdictSeq": 1547720, "sense": 4, "candidate": "provir de, ser causado por", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to come from / to be caused by'; origem/derivação corretas" },
+    { "jmdictSeq": 1547720, "sense": 5, "candidate": "quando se trata de; chegar (a ponto de)", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'to come to (e.g., when it comes to)'; expressão condicional correta" },
+
+    { "jmdictSeq": 1578850, "sense": 1, "candidate": "ir", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "'to go / to head'; verbo de movimento nuclear, sem ambiguidade" },
+    { "jmdictSeq": 1578850, "sense": 2, "candidate": "percorrer, atravessar, caminhar por", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to move through / to walk along'; trajetória correta" },
+    { "jmdictSeq": 1578850, "sense": 3, "candidate": "ir (bem/mal), decorrer, sair-se", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'to go (well/badly) / to turn out'; uso impessoal correto" },
+    { "jmdictSeq": 1578850, "sense": 4, "candidate": "optar por, escolher, tentar", "status": "approved", "decision": "approved", "confidence": 0.88, "reason": "cobre 'to go (with; a choice) / to try'; escolha deliberada correta" },
+    { "jmdictSeq": 1578850, "sense": 5, "candidate": "passar (o tempo), decorrer", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to pass (of time) / to go by'; lapso temporal correto" },
+    { "jmdictSeq": 1578850, "sense": 6, "candidate": "fluir, correr", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to stream / to flow'; movimento de líquido correto" },
+    { "jmdictSeq": 1578850, "sense": 7, "candidate": "morrer, partir, falecer", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to die / to pass away'; registro eufemístico adequado" },
+    { "jmdictSeq": 1578850, "sense": 8, "candidate": "chegar a (estágio, extensão, idade)", "status": "approved", "decision": "approved", "confidence": 0.91, "reason": "cobre 'to reach (a stage, extent, age)'; meta quantitativa correta" },
+    { "jmdictSeq": 1578850, "sense": 9, "candidate": "chegar, alcançar (notícia, ordem, vento)", "status": "approved", "decision": "approved", "confidence": 0.89, "reason": "cobre 'to reach (of information, wind)'; sujeito inanimado correto" },
+    { "jmdictSeq": 1578850, "sense": 10, "candidate": "continuar (a), ir ... e continuar", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre o auxiliar -te iku; progressão aspectual correta" },
+    { "jmdictSeq": 1578850, "sense": 11, "candidate": "ter orgasmo, gozar", "status": "approved", "decision": "approved", "confidence": 0.9, "reason": "cobre 'to have an orgasm / to cum'; registro coloquial adequado" },
+    { "jmdictSeq": 1578850, "sense": 12, "candidate": "ir", "status": "machine_translated", "decision": "rejected", "confidence": 0.9, "reason": "colide com sentido 1 (to go); sentido 12 é 'to trip / get high / drug-induced hallucination'; 'ir' é incompatível", "suggestedTranslation": "alucinar, viajar (efeito de droga)" },
+
+    { "jmdictSeq": 1582710, "sense": 1, "candidate": "Japão", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "nome próprio" },
+
+    { "jmdictSeq": 1588880, "sense": 1, "candidate": "grande", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "'big / large / great'; adjetivo núcleo, sem colisão" },
+    { "jmdictSeq": 1588880, "sense": 2, "candidate": "alto (som), estrondoso", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "cobre 'loud'; dimensão sonora bem delimitada" },
+    { "jmdictSeq": 1588880, "sense": 3, "candidate": "amplo, espaçoso, extenso", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'extensive / spacious'; dimensão espacial correta" },
+    { "jmdictSeq": 1588880, "sense": 4, "candidate": "importante, decisivo, valioso", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'important / decisive'; sentido figurado correto" },
+    { "jmdictSeq": 1588880, "sense": 5, "candidate": "mais velho, crescido (adulto)", "status": "approved", "decision": "approved", "confidence": 0.92, "reason": "cobre 'older / grown-up'; maturidade/idade corretas" },
+
+    { "jmdictSeq": 1591900, "sense": 1, "candidate": "bonito(a), lindo(a), belo(a)", "status": "approved", "decision": "approved", "confidence": 0.98, "reason": "cobre 'pretty / beautiful'; adjetivo estético nuclear" },
+    { "jmdictSeq": 1591900, "sense": 2, "candidate": "limpo, claro, puro, asseado", "status": "approved", "decision": "approved", "confidence": 0.95, "reason": "cobre 'clean / tidy / neat'; acepção de limpeza correta" },
+    { "jmdictSeq": 1591900, "sense": 3, "candidate": "completamente, inteiramente", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "uso adverbial 'completely / entirely'; intensidade total correta" },
+
+    { "jmdictSeq": 1606560, "sense": 1, "candidate": "entender, compreender", "status": "approved", "decision": "approved", "confidence": 0.99, "reason": "'to understand / to grasp'; verbo intransitivo natural em pt-BR" },
+    { "jmdictSeq": 1606560, "sense": 2, "candidate": "ficar claro, descobrir-se, tornar-se conhecido", "status": "approved", "decision": "approved", "confidence": 0.93, "reason": "cobre 'to become clear / to be found out'; impessoalidade correta" },
+    { "jmdictSeq": 1606560, "sense": 3, "candidate": "Eu sei!", "status": "machine_translated", "decision": "revise", "confidence": 0.85, "reason": "glossa inclui 'I think so too!'; falta expressão de concordância; 'Eu sei!' cobre só metade", "suggestedTranslation": "Pois é! / Também acho!" }
+  ]
+}

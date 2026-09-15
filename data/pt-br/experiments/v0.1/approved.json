@@ -1,0 +1,1594 @@
+{
+  "$schema": "../../../schemas/pt-br.schema.json",
+  "meta": {
+    "experiment": "v0.1",
+    "generatedAt": "2026-09-15",
+    "unit": "ENTRY + SENSE (sense 1-baseado)",
+    "source": "kotoba-ai-experiment",
+    "sourceVersion": "v0.1",
+    "count": 97,
+    "excluded": {
+      "revise": 6,
+      "rejected": 6
+    }
+  },
+  "translations": [
+    {
+      "jmdictSeq": 1008630,
+      "kanji": [
+        "迚も"
+      ],
+      "readings": [
+        "とても",
+        "とっても"
+      ],
+      "sense": 1,
+      "text": "muito, extremamente",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1156530,
+      "kanji": [
+        "意見"
+      ],
+      "readings": [
+        "いけん"
+      ],
+      "sense": 1,
+      "text": "opinião",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.97
+    },
+    {
+      "jmdictSeq": 1156530,
+      "kanji": [
+        "意見"
+      ],
+      "readings": [
+        "いけん"
+      ],
+      "sense": 2,
+      "text": "repreensão, admoestação",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 1,
+      "text": "fazer",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 2,
+      "text": "fazer virar, transformar (em)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 3,
+      "text": "servir como, atuar como",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 4,
+      "text": "vestir, usar (roupa; expressão facial)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 5,
+      "text": "considerar (como), tratar como",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 6,
+      "text": "decidir, escolher",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 7,
+      "text": "perceber-se (cheiro, som); fazer-se notar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 8,
+      "text": "estar (em um estado ou condição)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 9,
+      "text": "valer, custar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 10,
+      "text": "passar (o tempo), transcorrer",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 11,
+      "text": "elevar (alguém) a um cargo, promover",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.87
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 12,
+      "text": "transformar A em B",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.89
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 13,
+      "text": "usar A para B; tratar A como B",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.87
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 15,
+      "text": "sufixo verbalizador (para substantivos 'vs')",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.86
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": [
+        "為る"
+      ],
+      "readings": [
+        "する"
+      ],
+      "sense": 17,
+      "text": "estar prestes a, tentar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1188890,
+      "kanji": [
+        "何時も"
+      ],
+      "readings": [
+        "いつも"
+      ],
+      "sense": 1,
+      "text": "sempre",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1188890,
+      "kanji": [
+        "何時も"
+      ],
+      "readings": [
+        "いつも"
+      ],
+      "sense": 2,
+      "text": "nunca (com verbo na negativa)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1188890,
+      "kanji": [
+        "何時も"
+      ],
+      "readings": [
+        "いつも"
+      ],
+      "sense": 3,
+      "text": "usual, habitual, de sempre",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1206900,
+      "kanji": [
+        "学生",
+        "學生"
+      ],
+      "readings": [
+        "がくせい"
+      ],
+      "sense": 1,
+      "text": "estudante (esp. universitário)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.97
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 1,
+      "text": "doce",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 2,
+      "text": "adocicado, perfumado (som suave)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 3,
+      "text": "levemente salgado, pouco salgado",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 5,
+      "text": "ingênuo, otimista demais",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 6,
+      "text": "pela metade, sem empenho",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.87
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 7,
+      "text": "insuficiente, insatisfatório, frouxo",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.87
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 8,
+      "text": "suave, brando",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": [
+        "甘い"
+      ],
+      "readings": [
+        "あまい"
+      ],
+      "sense": 9,
+      "text": "tentador, sedutor",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1259290,
+      "kanji": [
+        "見る",
+        "観る",
+        "視る",
+        "覧る"
+      ],
+      "readings": [
+        "みる"
+      ],
+      "sense": 1,
+      "text": "ver",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.97
+    },
+    {
+      "jmdictSeq": 1259290,
+      "kanji": [
+        "見る",
+        "観る",
+        "視る",
+        "覧る"
+      ],
+      "readings": [
+        "みる"
+      ],
+      "sense": 2,
+      "text": "examinar, avaliar, verificar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1259290,
+      "kanji": [
+        "見る",
+        "観る",
+        "視る",
+        "覧る"
+      ],
+      "readings": [
+        "みる"
+      ],
+      "sense": 4,
+      "text": "experimentar, passar por (experiência)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.89
+    },
+    {
+      "jmdictSeq": 1259290,
+      "kanji": [
+        "見る",
+        "観る",
+        "視る",
+        "覧る"
+      ],
+      "readings": [
+        "みる"
+      ],
+      "sense": 5,
+      "text": "tentar (fazer)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1283190,
+      "kanji": [
+        "高い",
+        "高価い",
+        "高ーい"
+      ],
+      "readings": [
+        "たかい",
+        "たかーい",
+        "たっけー",
+        "たっかーい"
+      ],
+      "sense": 1,
+      "text": "alto",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.98
+    },
+    {
+      "jmdictSeq": 1283190,
+      "kanji": [
+        "高い",
+        "高価い",
+        "高ーい"
+      ],
+      "readings": [
+        "たかい",
+        "たかーい",
+        "たっけー",
+        "たっかーい"
+      ],
+      "sense": 3,
+      "text": "alto (nível), acima da média",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1283190,
+      "kanji": [
+        "高い",
+        "高価い",
+        "高ーい"
+      ],
+      "readings": [
+        "たかい",
+        "たかーい",
+        "たっけー",
+        "たっかーい"
+      ],
+      "sense": 4,
+      "text": "alto (som), barulhento",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1283190,
+      "kanji": [
+        "高い",
+        "高価い",
+        "高ーい"
+      ],
+      "readings": [
+        "たかい",
+        "たかーい",
+        "たっけー",
+        "たっかーい"
+      ],
+      "sense": 5,
+      "text": "agudo, estridente",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1310460,
+      "kanji": [
+        "上手い",
+        "美味い",
+        "旨い",
+        "巧い",
+        "甘い",
+        "美い"
+      ],
+      "readings": [
+        "うまい"
+      ],
+      "sense": 1,
+      "text": "habilidoso, hábil, bom (em algo)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1310460,
+      "kanji": [
+        "上手い",
+        "美味い",
+        "旨い",
+        "巧い",
+        "甘い",
+        "美い"
+      ],
+      "readings": [
+        "うまい"
+      ],
+      "sense": 3,
+      "text": "bom (negócio, ideia), vantajoso, promissor",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1323080,
+      "kanji": [
+        "車"
+      ],
+      "readings": [
+        "くるま",
+        "クルマ"
+      ],
+      "sense": 1,
+      "text": "carro",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1323080,
+      "kanji": [
+        "車"
+      ],
+      "readings": [
+        "くるま",
+        "クルマ"
+      ],
+      "sense": 2,
+      "text": "roda",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.97
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 1,
+      "text": "pegar, apanhar, segurar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.96
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 3,
+      "text": "obter, conseguir, ganhar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 4,
+      "text": "adotar (método), tomar (medida)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 5,
+      "text": "remover, tirar, eliminar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 6,
+      "text": "roubar, furtar, tirar (à força)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 7,
+      "text": "comer, tomar (remédio, vitaminas)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 8,
+      "text": "colher, apanhar (flores), extrair",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 10,
+      "text": "reservar, guardar, poupar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 11,
+      "text": "entender, interpretar, captar (sentido)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 12,
+      "text": "anotar, registrar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 13,
+      "text": "assinar (jornal), comprar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 14,
+      "text": "pedir, encomendar, mandar entregar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 15,
+      "text": "cobrar, multar, taxar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 16,
+      "text": "tomar (esposa), aceitar (aprendiz), adotar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.87
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 17,
+      "text": "assumir o controle de",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.89
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": [
+        "取る"
+      ],
+      "readings": [
+        "とる"
+      ],
+      "sense": 18,
+      "text": "competir, disputar, jogar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1358280,
+      "kanji": [
+        "食べる",
+        "喰べる"
+      ],
+      "readings": [
+        "たべる"
+      ],
+      "sense": 1,
+      "text": "comer",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1358280,
+      "kanji": [
+        "食べる",
+        "喰べる"
+      ],
+      "readings": [
+        "たべる"
+      ],
+      "sense": 2,
+      "text": "viver de, subsistir de (um salário)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": [
+        "未だ"
+      ],
+      "readings": [
+        "まだ",
+        "いまだ"
+      ],
+      "sense": 1,
+      "text": "ainda",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.98
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": [
+        "未だ"
+      ],
+      "readings": [
+        "まだ",
+        "いまだ"
+      ],
+      "sense": 2,
+      "text": "ainda (não)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": [
+        "未だ"
+      ],
+      "readings": [
+        "まだ",
+        "いまだ"
+      ],
+      "sense": 3,
+      "text": "ainda mais, mais ainda",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": [
+        "未だ"
+      ],
+      "readings": [
+        "まだ",
+        "いまだ"
+      ],
+      "sense": 4,
+      "text": "pelo menos, relativamente",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": [
+        "未だ"
+      ],
+      "readings": [
+        "まだ",
+        "いまだ"
+      ],
+      "sense": 5,
+      "text": "inacabado, incompleto",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": [
+        "問題"
+      ],
+      "readings": [
+        "もんだい"
+      ],
+      "sense": 1,
+      "text": "questão (de prova), problema",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": [
+        "問題"
+      ],
+      "readings": [
+        "もんだい"
+      ],
+      "sense": 2,
+      "text": "problema (social, político), questão",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": [
+        "問題"
+      ],
+      "readings": [
+        "もんだい"
+      ],
+      "sense": 3,
+      "text": "dúvida, questionamento",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": [
+        "問題"
+      ],
+      "readings": [
+        "もんだい"
+      ],
+      "sense": 4,
+      "text": "polêmica, discussão pública",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": [
+        "問題"
+      ],
+      "readings": [
+        "もんだい"
+      ],
+      "sense": 5,
+      "text": "problema, dificuldade, transtorno",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.94
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": [
+        "来る",
+        "來る"
+      ],
+      "readings": [
+        "くる",
+        "クる"
+      ],
+      "sense": 1,
+      "text": "vir",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": [
+        "来る",
+        "來る"
+      ],
+      "readings": [
+        "くる",
+        "クる"
+      ],
+      "sense": 2,
+      "text": "voltar; ir, ... e voltar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": [
+        "来る",
+        "來る"
+      ],
+      "readings": [
+        "くる",
+        "クる"
+      ],
+      "sense": 3,
+      "text": "tornar-se, passar a (ser/ficar)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": [
+        "来る",
+        "來る"
+      ],
+      "readings": [
+        "くる",
+        "クる"
+      ],
+      "sense": 4,
+      "text": "provir de, ser causado por",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": [
+        "来る",
+        "來る"
+      ],
+      "readings": [
+        "くる",
+        "クる"
+      ],
+      "sense": 5,
+      "text": "quando se trata de; chegar (a ponto de)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 1,
+      "text": "ir",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 2,
+      "text": "percorrer, atravessar, caminhar por",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 3,
+      "text": "ir (bem/mal), decorrer, sair-se",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 4,
+      "text": "optar por, escolher, tentar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.88
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 5,
+      "text": "passar (o tempo), decorrer",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 6,
+      "text": "fluir, correr",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 7,
+      "text": "morrer, partir, falecer",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 8,
+      "text": "chegar a (estágio, extensão, idade)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.91
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 9,
+      "text": "chegar, alcançar (notícia, ordem, vento)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.89
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 10,
+      "text": "continuar (a), ir ... e continuar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": [
+        "行く",
+        "往く"
+      ],
+      "readings": [
+        "いく",
+        "ゆく",
+        "イク"
+      ],
+      "sense": 11,
+      "text": "ter orgasmo, gozar",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.9
+    },
+    {
+      "jmdictSeq": 1582710,
+      "kanji": [
+        "日本"
+      ],
+      "readings": [
+        "にほん",
+        "にっぽん"
+      ],
+      "sense": 1,
+      "text": "Japão",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": [
+        "大きい",
+        "巨きい"
+      ],
+      "readings": [
+        "おおきい"
+      ],
+      "sense": 1,
+      "text": "grande",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": [
+        "大きい",
+        "巨きい"
+      ],
+      "readings": [
+        "おおきい"
+      ],
+      "sense": 2,
+      "text": "alto (som), estrondoso",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": [
+        "大きい",
+        "巨きい"
+      ],
+      "readings": [
+        "おおきい"
+      ],
+      "sense": 3,
+      "text": "amplo, espaçoso, extenso",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": [
+        "大きい",
+        "巨きい"
+      ],
+      "readings": [
+        "おおきい"
+      ],
+      "sense": 4,
+      "text": "importante, decisivo, valioso",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": [
+        "大きい",
+        "巨きい"
+      ],
+      "readings": [
+        "おおきい"
+      ],
+      "sense": 5,
+      "text": "mais velho, crescido (adulto)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.92
+    },
+    {
+      "jmdictSeq": 1591900,
+      "kanji": [
+        "綺麗",
+        "奇麗",
+        "暉麗"
+      ],
+      "readings": [
+        "きれい",
+        "キレイ",
+        "きれーい"
+      ],
+      "sense": 1,
+      "text": "bonito(a), lindo(a), belo(a)",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.98
+    },
+    {
+      "jmdictSeq": 1591900,
+      "kanji": [
+        "綺麗",
+        "奇麗",
+        "暉麗"
+      ],
+      "readings": [
+        "きれい",
+        "キレイ",
+        "きれーい"
+      ],
+      "sense": 2,
+      "text": "limpo, claro, puro, asseado",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.95
+    },
+    {
+      "jmdictSeq": 1591900,
+      "kanji": [
+        "綺麗",
+        "奇麗",
+        "暉麗"
+      ],
+      "readings": [
+        "きれい",
+        "キレイ",
+        "きれーい"
+      ],
+      "sense": 3,
+      "text": "completamente, inteiramente",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    },
+    {
+      "jmdictSeq": 1606560,
+      "kanji": [
+        "分かる",
+        "解る",
+        "判る",
+        "分る",
+        "理解る"
+      ],
+      "readings": [
+        "わかる"
+      ],
+      "sense": 1,
+      "text": "entender, compreender",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.99
+    },
+    {
+      "jmdictSeq": 1606560,
+      "kanji": [
+        "分かる",
+        "解る",
+        "判る",
+        "分る",
+        "理解る"
+      ],
+      "readings": [
+        "わかる"
+      ],
+      "sense": 2,
+      "text": "ficar claro, descobrir-se, tornar-se conhecido",
+      "status": "approved",
+      "source": "kotoba-ai-experiment",
+      "sourceVersion": "v0.1",
+      "confidence": 0.93
+    }
+  ]
+}

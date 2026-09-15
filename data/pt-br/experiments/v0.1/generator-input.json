@@ -1,0 +1,311 @@
+{
+  "meta": {
+    "experiment": "v0.1",
+    "purpose": "subconjunto real do JMdict para gerar base pt-BR",
+    "source": "JMdict (dev DB, kotoba-postgres)",
+    "extractedAt": "2026-09-15",
+    "selectionRule": "20 entradas reais; sentidos com glossas primárias em inglês (blocos contíguos 'en' do dev DB); outros idiomas fora do escopo",
+    "entries": 20,
+    "senseBlocks": 109,
+    "unit": "ENTRY + SENSE (sense 1-baseado)"
+  },
+  "entries": [
+    {
+      "jmdictSeq": 1008630,
+      "kanji": ["迚も"],
+      "readings": ["とても", "とっても"],
+      "senses": [
+        {
+          "sense": 1,
+          "partOfSpeech": ["adv"],
+          "glosses": [{ "language": "en", "text": "very / awfully / exceedingly" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        },
+        {
+          "sense": 2,
+          "partOfSpeech": ["adv"],
+          "glosses": [{ "language": "en", "text": "(not) at all / by no means / simply (cannot)" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        }
+      ]
+    },
+    {
+      "jmdictSeq": 1156530,
+      "kanji": ["意見"],
+      "readings": ["いけん"],
+      "senses": [
+        {
+          "sense": 1,
+          "partOfSpeech": ["n"],
+          "glosses": [{ "language": "en", "text": "opinion / view / comment" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        },
+        {
+          "sense": 2,
+          "partOfSpeech": ["n", "vs", "vt", "vi"],
+          "glosses": [{ "language": "en", "text": "scolding / reprimand / rebuke / admonition / cautioning / warning" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        }
+      ]
+    },
+    {
+      "jmdictSeq": 1157170,
+      "kanji": ["為る"],
+      "readings": ["する"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to do / to carry out / to perform" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to cause to become / to make (into) / to turn (into)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to serve as / to act as / to work as" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to wear (clothes, a facial expression, etc.)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to judge as being / to view as being / to think of as / to treat as / to use as" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 6, "partOfSpeech": ["vs-i"], "glosses": [{ "language": "en", "text": "to decide on / to choose" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 7, "partOfSpeech": ["vs-i", "vi"], "glosses": [{ "language": "en", "text": "to be sensed (of a smell, noise, etc.)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 8, "partOfSpeech": ["vs-i", "vi"], "glosses": [{ "language": "en", "text": "to be (in a state, condition, etc.)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 9, "partOfSpeech": ["vs-i", "vi"], "glosses": [{ "language": "en", "text": "to be worth / to cost" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 10, "partOfSpeech": ["vs-i", "vi"], "glosses": [{ "language": "en", "text": "to pass (of time) / to elapse" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 11, "partOfSpeech": ["vs-i", "vt"], "glosses": [{ "language": "en", "text": "to place, or raise, person A to a post or status B" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 12, "partOfSpeech": ["vs-i", "vt"], "glosses": [{ "language": "en", "text": "to transform A to B / to make A into B / to exchange A for B" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 13, "partOfSpeech": ["vs-i", "vt"], "glosses": [{ "language": "en", "text": "to make use of A for B / to view A as B / to handle A as if it were B" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 14, "partOfSpeech": ["vs-i", "vt"], "glosses": [{ "language": "en", "text": "to feel A about B" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 15, "partOfSpeech": ["suf", "vs-i"], "glosses": [{ "language": "en", "text": "verbalizing suffix (applies to nouns noted in this dictionary with the part of speech \"vs\")" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 16, "partOfSpeech": ["aux-v", "vs-i"], "glosses": [{ "language": "en", "text": "creates a humble verb (after a noun prefixed with \"o\" or \"go\")" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 17, "partOfSpeech": ["aux-v", "vs-i"], "glosses": [{ "language": "en", "text": "to be just about to / to be just starting to / to try to / to attempt to" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1188890,
+      "kanji": ["何時も"],
+      "readings": ["いつも"],
+      "senses": [
+        {
+          "sense": 1,
+          "partOfSpeech": ["adv"],
+          "glosses": [{ "language": "en", "text": "always / all the time / at all times" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        },
+        {
+          "sense": 2,
+          "partOfSpeech": ["adv"],
+          "glosses": [{ "language": "en", "text": "never" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        },
+        {
+          "sense": 3,
+          "partOfSpeech": ["adj-no", "n"],
+          "glosses": [{ "language": "en", "text": "usual / regular / habitual / customary" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        }
+      ]
+    },
+    {
+      "jmdictSeq": 1206900,
+      "kanji": ["学生", "學生"],
+      "readings": ["がくせい"],
+      "senses": [
+        {
+          "sense": 1,
+          "partOfSpeech": ["n"],
+          "glosses": [{ "language": "en", "text": "student (esp. a university student)" }],
+          "kanjiRestrictions": [],
+          "readingRestrictions": []
+        }
+      ]
+    },
+    {
+      "jmdictSeq": 1213400,
+      "kanji": ["甘い"],
+      "readings": ["あまい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "sweet-tasting / sweet / sugary / sugared" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "fragrant (smelling) / sweet (music)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "lightly salted / light in salt / not spicy" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "indulgent / lenient / soft (on) / easy-going / generous" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "naive / overly optimistic / simplistic" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 6, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "half-hearted / not finished properly" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 7, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "insufficient / not satisfactory / inadequate / loose" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 8, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "mild" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 9, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "tempting / enticing / luring" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1259290,
+      "kanji": ["見る", "観る", "視る", "覧る"],
+      "readings": ["みる"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to see / to look / to watch / to view / to observe" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to examine / to look over / to assess / to check / to judge" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to look after / to attend to / to take care of / to keep an eye on" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to experience / to meet with (misfortune, success, etc.)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["aux-v", "v1"], "glosses": [{ "language": "en", "text": "to try ... / to have a go at ... / to give ... a try" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 6, "partOfSpeech": ["aux-v", "v1"], "glosses": [{ "language": "en", "text": "to see (that) ... / to find (that) ..." }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1283190,
+      "kanji": ["高い", "高価い", "高ーい"],
+      "readings": ["たかい", "たかーい", "たっけー", "たっかーい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "high / tall" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "expensive / high-priced" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "high (level) / above average (in degree, quality, etc.)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "loud" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "high-pitched / shrill" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1310460,
+      "kanji": ["上手い", "美味い", "旨い", "巧い", "甘い", "美い"],
+      "readings": ["うまい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "skillful / skilful / skilled / good / expert / clever (expression, trick, etc.) / apt / appropriate" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "delicious / tasty / good / nice" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "good (deal, idea, etc.) / profitable / promising / lucky / fortunate / successful / satisfactory / splendid" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1323080,
+      "kanji": ["車"],
+      "readings": ["くるま", "クルマ"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "car / automobile / vehicle" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "wheel / castor / caster" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1326980,
+      "kanji": ["取る"],
+      "readings": ["とる"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take / to pick up / to grab / to catch / to hold" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to pass / to hand / to give" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to get / to obtain / to acquire / to win / to receive / to earn / to take (e.g. a vacation)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to adopt (a method, proposal, etc.) / to take (a measure, attitude, etc.) / to choose" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to remove / to get rid of / to take off" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 6, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take away / to steal / to rob" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 7, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to eat / to have (e.g. lunch) / to take (e.g. vitamins)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 8, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to pick (e.g. flowers) / to gather / to extract (e.g. juice) / to catch (e.g. fish) / to harvest (a crop)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 9, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take up (time, space) / to occupy / to spare / to set aside" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 10, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to secure / to reserve / to save / to put aside / to keep" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 11, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take (e.g. a joke) / to interpret / to understand / to make out / to grasp" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 12, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to record / to take down" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 13, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to subscribe to (e.g. a newspaper) / to take / to buy / to get" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 14, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to order / to have delivered" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 15, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to charge / to fine / to take (tax)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 16, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take (e.g. a wife) / to take on (e.g. an apprentice) / to adopt / to accept" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 17, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to take control of / to take (the rudder)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 18, "partOfSpeech": ["v5r", "vt"], "glosses": [{ "language": "en", "text": "to compete (in sumo, cards, etc.) / to play" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1358280,
+      "kanji": ["食べる", "喰べる"],
+      "readings": ["たべる"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to eat" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["v1", "vt"], "glosses": [{ "language": "en", "text": "to live on (e.g. a salary) / to live off / to subsist on" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1527110,
+      "kanji": ["未だ"],
+      "readings": ["まだ", "いまだ"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adv"], "glosses": [{ "language": "en", "text": "still / as yet / only" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adv"], "glosses": [{ "language": "en", "text": "(not) yet" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adv"], "glosses": [{ "language": "en", "text": "more / (more) still" }], "kanjiRestrictions": ["まだ"], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["adv"], "glosses": [{ "language": "en", "text": "at least / comparatively / relatively" }], "kanjiRestrictions": ["まだ"], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["adj-na"], "glosses": [{ "language": "en", "text": "unfinished / incomplete / not yet done" }], "kanjiRestrictions": ["まだ"], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1536010,
+      "kanji": ["問題"],
+      "readings": ["もんだい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "question (e.g. on a test) / problem" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "problem (e.g. societal, political) / question / issue / subject (e.g. of research) / case / matter" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "question (i.e. doubt)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "public discussion / controversy" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "trouble / problem / inconvenience / difficulty" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1547720,
+      "kanji": ["来る", "來る"],
+      "readings": ["くる", "クる"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["vk", "vi"], "glosses": [{ "language": "en", "text": "to come (spatially or temporally) / to approach / to arrive" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["vk", "vi", "aux-v"], "glosses": [{ "language": "en", "text": "to come back / to do ... and come back" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["vk", "vi"], "glosses": [{ "language": "en", "text": "to come to be / to become / to get / to grow / to continue" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["vk", "vi"], "glosses": [{ "language": "en", "text": "to come from / to be caused by / to derive from" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["vk", "vi"], "glosses": [{ "language": "en", "text": "to come to (e.g. \"when it comes to spinach ...\")" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1578850,
+      "kanji": ["行く", "往く"],
+      "readings": ["いく", "ゆく", "イク"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to go / to move (towards) / to head (towards) / to leave (for)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to move through / to travel across / to walk along (e.g. a road)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to go (well, badly, etc.) / to proceed / to turn out / to get along" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to do (in a particular way) / to go (with; a choice) / to try" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to pass (of time, seasons, etc.) / to go by" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 6, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to stream / to flow" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 7, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to die / to pass away" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 8, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to reach (a stage, extent, age, etc.) / to get to / to go (so far as ...)" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 9, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to reach (of information, instructions, wind, etc.) / to arrive" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 10, "partOfSpeech": ["aux-v", "v5k-s"], "glosses": [{ "language": "en", "text": "to continue ... / to go on ... / to (progress) steadily / to gradually ... / to progressively ..." }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 11, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to have an orgasm / to come / to cum" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 12, "partOfSpeech": ["v5k-s", "vi"], "glosses": [{ "language": "en", "text": "to trip / to get high / to have a drug-induced hallucination" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1582710,
+      "kanji": ["日本"],
+      "readings": ["にほん", "にっぽん"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["n"], "glosses": [{ "language": "en", "text": "Japan" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1588880,
+      "kanji": ["大きい", "巨きい"],
+      "readings": ["おおきい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "big / large / great" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "loud" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "extensive / spacious" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 4, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "important / decisive / valuable" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 5, "partOfSpeech": ["adj-i"], "glosses": [{ "language": "en", "text": "older / grown-up" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1591900,
+      "kanji": ["綺麗", "奇麗", "暉麗"],
+      "readings": ["きれい", "キレイ", "きれーい"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["adj-na"], "glosses": [{ "language": "en", "text": "pretty / lovely / beautiful / fair" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["adj-na"], "glosses": [{ "language": "en", "text": "clean / clear / pure / tidy / neat" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["adj-na"], "glosses": [{ "language": "en", "text": "completely / entirely" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    },
+    {
+      "jmdictSeq": 1606560,
+      "kanji": ["分かる", "解る", "判る", "分る", "理解る"],
+      "readings": ["わかる"],
+      "senses": [
+        { "sense": 1, "partOfSpeech": ["v5r", "vi"], "glosses": [{ "language": "en", "text": "to understand / to comprehend / to grasp / to see / to get / to follow" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 2, "partOfSpeech": ["v5r", "vi"], "glosses": [{ "language": "en", "text": "to become clear / to be known / to be discovered / to be realized (realised) / to be found out / to make sense" }], "kanjiRestrictions": [], "readingRestrictions": [] },
+        { "sense": 3, "partOfSpeech": ["int"], "glosses": [{ "language": "en", "text": "I know! / I think so too!" }], "kanjiRestrictions": [], "readingRestrictions": [] }
+      ]
+    }
+  ]
+}
