@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.2b",
+    "role": "review",
+    "refines": "v0.2",
+    "generatedAt": "2026-09-17",
+    "count": 6
+  },
+  "items": [
+    {
+      "jmdictSeq": 1001390,
+      "sense": 1,
+      "candidate": "oden (ensopado japonês com ingredientes variados)",
+      "type": "explanation",
+      "priority": 2,
+      "suggestedTranslation": "oden",
+      "reason": "12/17: explicação cultural plausível, mas \"oden\" já é lexicalizado; avaliar se a paráfrase é necessária.",
+      "category": "cultural explanation"
+    },
+    {
+      "jmdictSeq": 1326980,
+      "sense": 10,
+      "candidate": "guardar",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "reservar",
+      "reason": "5: \"guardar\" cobre contextos específicos, mas \"reservar\" representa melhor assegurar/guardar para si.",
+      "category": "lexical specificity"
+    },
+    {
+      "jmdictSeq": 1395620,
+      "sense": 3,
+      "candidate": "muito",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "extremamente",
+      "reason": "6: \"muito\" e \"extremamente\" diferem em intensidade; podem coexistir como candidatos.",
+      "category": "register/connotation"
+    },
+    {
+      "jmdictSeq": 1414150,
+      "sense": 1,
+      "candidate": "sem problema",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "tudo bem",
+      "reason": "4/6: nuance diferente; \"sem problema\" é aceitável, porém menos canônico.",
+      "category": "register/connotation"
+    },
+    {
+      "jmdictSeq": 1460850,
+      "sense": 1,
+      "candidate": "complicado",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "difícil",
+      "reason": "4/10: \"complicado\" é aceitável, mas menos direto que \"difícil\".",
+      "category": "naturalness"
+    },
+    {
+      "jmdictSeq": 1605250,
+      "sense": 1,
+      "candidate": "desperdiçado",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "um desperdício",
+      "reason": "4/8: a construção predicativa \"um desperdício\" é mais natural que o particípio isolado.",
+      "category": "naturalness"
+    }
+  ]
+}
