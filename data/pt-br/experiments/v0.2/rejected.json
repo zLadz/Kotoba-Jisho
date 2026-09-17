@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.2",
+    "role": "rejected",
+    "generatedAt": "2026-09-17",
+    "count": 10
+  },
+  "items": [
+    {
+      "jmdictSeq": 1236070,
+      "sense": 2,
+      "candidate": "forte",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "14.7: colide com a tradução canônica do sense 1 (\"forte\")."
+    },
+    {
+      "jmdictSeq": 1251320,
+      "sense": 3,
+      "candidate": "economia",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "14.7: colide com a tradução canônica do sense 1 (\"economia\")."
+    },
+    {
+      "jmdictSeq": 1259290,
+      "sense": 3,
+      "candidate": "ver",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "14.7: \"ver\" colide com o sense 1; aqui o sentido é cuidar/zelar."
+    },
+    {
+      "jmdictSeq": 1420470,
+      "sense": 1,
+      "candidate": "conhecer",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"conhecer\" colide com o sense 4 da mesma entrada."
+    },
+    {
+      "jmdictSeq": 1433030,
+      "sense": 1,
+      "candidate": "atravessar",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"atravessar\" colide com o sense 4 da mesma entrada."
+    },
+    {
+      "jmdictSeq": 1533580,
+      "sense": 3,
+      "candidate": "engraçado",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"engraçado\" colide com o sense 2 da mesma entrada."
+    },
+    {
+      "jmdictSeq": 1556730,
+      "sense": 2,
+      "candidate": "frio",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "14.7: \"frio\" colide com o sense 1 (temperatura); aqui é frieza emocional."
+    },
+    {
+      "jmdictSeq": 1580640,
+      "sense": 1,
+      "candidate": "ser humano",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"ser humano\" colide com o sense 2 da mesma entrada."
+    },
+    {
+      "jmdictSeq": 1591110,
+      "sense": 1,
+      "candidate": "escutar",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"escutar\" colide com o sense 2 da mesma entrada."
+    },
+    {
+      "jmdictSeq": 1604890,
+      "sense": 1,
+      "candidate": "olhar",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "14.7: \"olhar\" colide com o sense 3 da mesma entrada."
+    }
+  ]
+}

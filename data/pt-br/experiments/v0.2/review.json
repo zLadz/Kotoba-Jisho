@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.2",
+    "role": "review",
+    "generatedAt": "2026-09-17",
+    "count": 24
+  },
+  "items": [
+    {
+      "jmdictSeq": 1001390,
+      "sense": 1,
+      "candidate": "ensopado japonês",
+      "type": "explanation",
+      "priority": 2,
+      "suggestedTranslation": "oden (ensopado japonês com ingredientes variados)",
+      "reason": "14.2/14.9: explicitação cultural necessária para leitor leigo."
+    },
+    {
+      "jmdictSeq": 1004060,
+      "sense": 1,
+      "candidate": "sonoramente",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "profundamente (dormindo)",
+      "reason": "14.6: \"sonoramente\" é literal demais em pt-BR."
+    },
+    {
+      "jmdictSeq": 1012810,
+      "sense": 1,
+      "candidate": "como o esperado",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "como esperado",
+      "reason": "14.2: forma mais natural; artigo opcional soa estranho."
+    },
+    {
+      "jmdictSeq": 1275640,
+      "sense": 5,
+      "candidate": "fofoca",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "comentário",
+      "reason": "14.3: \"fofoca\" restringe demais o registro de fala/comentário."
+    },
+    {
+      "jmdictSeq": 1302680,
+      "sense": 4,
+      "candidate": "monte",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "pilha",
+      "reason": "14.2: \"pilha\" é a forma corrente para heap/pile."
+    },
+    {
+      "jmdictSeq": 1326980,
+      "sense": 10,
+      "candidate": "guardar",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "reservar",
+      "reason": "14.2: \"guardar\" não cobre o sentido de reservar/assegurar."
+    },
+    {
+      "jmdictSeq": 1327190,
+      "sense": 7,
+      "candidate": "letra",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "caligrafia",
+      "reason": "14.2: \"letra\" é ambíguo; \"caligrafia\" é mais preciso."
+    },
+    {
+      "jmdictSeq": 1338240,
+      "sense": 15,
+      "candidate": "ganhar",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "receber",
+      "reason": "14.2: \"ganhar\" desloca o sentido passivo de ser dado/concedido."
+    },
+    {
+      "jmdictSeq": 1352320,
+      "sense": 15,
+      "candidate": "louvar",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "elogiar",
+      "reason": "14.2: \"louvar\" tem conotação religiosa inadequada aqui."
+    },
+    {
+      "jmdictSeq": 1384830,
+      "sense": 18,
+      "candidate": "despedir",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "demitir",
+      "reason": "14.2: \"despedir\" é ambíguo (despedir-se); \"demitir\" é preciso."
+    },
+    {
+      "jmdictSeq": 1395620,
+      "sense": 3,
+      "candidate": "muito",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "extremamente",
+      "reason": "14.3/14.2: \"muito\" perde a intensidade do uso coloquial."
+    },
+    {
+      "jmdictSeq": 1407980,
+      "sense": 1,
+      "candidate": "talvez",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "provavelmente",
+      "reason": "14.1: \"talvez\" enfraquece a probabilidade indicada."
+    },
+    {
+      "jmdictSeq": 1414150,
+      "sense": 1,
+      "candidate": "sem problema",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "tudo bem",
+      "reason": "14.2: \"sem problema\" é aceitável, mas \"tudo bem\" é a forma canônica."
+    },
+    {
+      "jmdictSeq": 1423240,
+      "sense": 1,
+      "candidate": "kimono",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "quimono",
+      "reason": "14.2: adotar a grafia aportuguesada \"quimono\"."
+    },
+    {
+      "jmdictSeq": 1451210,
+      "sense": 1,
+      "candidate": "movimentar-se",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "mover-se",
+      "reason": "14.2: \"mover-se\" é a forma pronominal corrente."
+    },
+    {
+      "jmdictSeq": 1460850,
+      "sense": 1,
+      "candidate": "complicado",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "difícil",
+      "reason": "14.2: \"complicado\" é aceitável, mas menos direto."
+    },
+    {
+      "jmdictSeq": 1478190,
+      "sense": 1,
+      "candidate": "arrancar",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "tirar",
+      "reason": "14.2: \"arrancar\" sugere esforço/força não implicado."
+    },
+    {
+      "jmdictSeq": 1495740,
+      "sense": 1,
+      "candidate": "colar",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "grudar",
+      "reason": "14.2: \"colar\" implica ação transitiva; aqui o verbo é intransitivo."
+    },
+    {
+      "jmdictSeq": 1562350,
+      "sense": 3,
+      "candidate": "falar",
+      "type": "equivalent",
+      "priority": 1,
+      "suggestedTranslation": "falar (um idioma)",
+      "reason": "14.7: \"falar\" colide com o sense 1; explicitar o objeto idioma."
+    },
+    {
+      "jmdictSeq": 1577200,
+      "sense": 1,
+      "candidate": "fofinho",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "fofo",
+      "reason": "14.3: \"fofinho\" é diminutivo e restringe o uso."
+    },
+    {
+      "jmdictSeq": 1594400,
+      "sense": 3,
+      "candidate": "corretamente",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "adequadamente",
+      "reason": "14.2: \"corretamente\" desvia para correção, não suficiência."
+    },
+    {
+      "jmdictSeq": 1597890,
+      "sense": 6,
+      "candidate": "compor",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "criar",
+      "reason": "14.2: \"compor\" restringe a obras musicais."
+    },
+    {
+      "jmdictSeq": 1604130,
+      "sense": 3,
+      "candidate": "mania de",
+      "type": "literal",
+      "priority": 2,
+      "suggestedTranslation": "febre de",
+      "reason": "14.2: \"mania de\" tem conotação clínica; \"febre de\" é idiomático."
+    },
+    {
+      "jmdictSeq": 1605250,
+      "sense": 1,
+      "candidate": "desperdiçado",
+      "type": "equivalent",
+      "priority": 2,
+      "suggestedTranslation": "um desperdício",
+      "reason": "14.5: predicativo é mais natural que o particípio isolado."
+    }
+  ]
+}
