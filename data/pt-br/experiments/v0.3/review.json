@@ -1,0 +1,221 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.3",
+    "role": "review",
+    "refines": "v0.2b",
+    "generatedAt": "2026-09-17",
+    "count": 21
+  },
+  "items": [
+    {
+      "jmdictSeq": 1003660,
+      "sense": 1,
+      "candidate": "no limite",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "4/10: \"no limite\" é aceitável, mas \"por um fio\" é mais idiomático para just barely.",
+      "suggestedTranslation": "por um fio",
+      "category": "naturalness"
+    },
+    {
+      "jmdictSeq": 1076980,
+      "sense": 7,
+      "candidate": "tentativa",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "10: termo técnico do futebol americano; \"tentativa\" é genérico demais.",
+      "suggestedTranslation": "down",
+      "category": "lexical specificity"
+    },
+    {
+      "jmdictSeq": 1098760,
+      "sense": 6,
+      "candidate": "devolução",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "5: \"devolução\" é vago; a glossa indica devolução de lucros/excedentes.",
+      "suggestedTranslation": "devolução de lucros",
+      "category": "semantic mismatch"
+    },
+    {
+      "jmdictSeq": 1098760,
+      "sense": 7,
+      "candidate": "defensor",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "10: \"defensor\" é genérico; no futebol o back é o zagueiro/lateral.",
+      "suggestedTranslation": "zagueiro",
+      "category": "lexical specificity"
+    },
+    {
+      "jmdictSeq": 1180130,
+      "sense": 4,
+      "candidate": "forçosamente",
+      "type": "explanation",
+      "priority": 1,
+      "reason": "3: prefixo \"forçosamente\"; \"à força\" é mais natural e cobre a noção de compulsão.",
+      "suggestedTranslation": "à força",
+      "category": "lexical specificity"
+    },
+    {
+      "jmdictSeq": 1180470,
+      "sense": 4,
+      "candidate": "aplicar",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "5: \"aplicar\" perde o objeto (folha de ouro) presente na glossa.",
+      "suggestedTranslation": "aplicar folha de ouro",
+      "category": "undertranslation"
+    },
+    {
+      "jmdictSeq": 1226510,
+      "sense": 8,
+      "candidate": "prender (o dedo)",
+      "type": "explanation",
+      "priority": 1,
+      "reason": "5: sentido duplo (cortar o dedo por desculpa / prender o dedo); uma paráfrase é limitada.",
+      "suggestedTranslation": "prender o dedo",
+      "category": "other"
+    },
+    {
+      "jmdictSeq": 1302070,
+      "sense": 1,
+      "candidate": "ir",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "2/11: candidato repete \"ir\" de senses arcaicos da mesma entrada; o sentido humilde cobre ir e vir.",
+      "suggestedTranslation": "ir/venir",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1302070,
+      "sense": 9,
+      "candidate": "ir",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "\"ir\" repete o sense 1; sense arcaico de ir/venir sem distinção clara em pt-BR.",
+      "suggestedTranslation": "ir/venir",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1302070,
+      "sense": 10,
+      "candidate": "ir",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "\"ir\" repete o sense 1; sense arcaico de ir/venir sem distinção clara em pt-BR.",
+      "suggestedTranslation": "ir/venir",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1302070,
+      "sense": 13,
+      "candidate": "ir",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "Prefixo auxiliar humilde; \"ir\" repete senses anteriores da entrada.",
+      "suggestedTranslation": "ir/venir",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1416050,
+      "sense": 5,
+      "candidate": "esboço",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "4/10: \"esboço\" é aceitável, mas \"minuta\" representa melhor o plano preliminar.",
+      "suggestedTranslation": "minuta",
+      "category": "naturalness"
+    },
+    {
+      "jmdictSeq": 1495750,
+      "sense": 6,
+      "candidate": "pretexto",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "4: \"pretexto\" tem conotação negativa; a glossa é neutra (reason/motive/pretext).",
+      "suggestedTranslation": "motivo",
+      "category": "naturalness"
+    },
+    {
+      "jmdictSeq": 1584930,
+      "sense": 2,
+      "candidate": "muito",
+      "type": "equivalent",
+      "priority": 1,
+      "reason": "6: \"(not) very/much\" só ocorre sob negação; \"muito\" isolado pode inverter o sentido.",
+      "suggestedTranslation": "tão",
+      "category": "register/connotation"
+    },
+    {
+      "jmdictSeq": 1956260,
+      "sense": 3,
+      "candidate": "um décimo da subida da montanha",
+      "type": "explanation",
+      "priority": 1,
+      "reason": "5: \"um décimo da subida\" comprime a noção de fração da distância base-cume.",
+      "suggestedTranslation": "um décimo do caminho até o cume",
+      "category": "undertranslation"
+    },
+    {
+      "jmdictSeq": 1224190,
+      "sense": 1,
+      "candidate": "oni (demônio japonês)",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "\"demônio\" já é canônico; a paráfrase pode ser desnecessária.",
+      "suggestedTranslation": "demônio",
+      "category": "cultural explanation"
+    },
+    {
+      "jmdictSeq": 1238460,
+      "sense": 2,
+      "candidate": "soba (macarrão de trigo-sarraceno)",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "\"soba\" já é lexicalizado em pt-BR; a paráfrase é redundante.",
+      "suggestedTranslation": "soba",
+      "category": "cultural explanation"
+    },
+    {
+      "jmdictSeq": 1612830,
+      "sense": 1,
+      "candidate": "monge budista",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "\"monge\" é suficiente; especificar \"budista\" pode ser excesso de especificidade.",
+      "suggestedTranslation": "monge",
+      "category": "lexical specificity"
+    },
+    {
+      "jmdictSeq": 1657390,
+      "sense": 1,
+      "candidate": "Organização das Nações Unidas (ONU)",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "A sigla é mais natural no uso comum; a forma completa é redundante como candidato.",
+      "suggestedTranslation": "ONU",
+      "category": "naturalness"
+    },
+    {
+      "jmdictSeq": 1302070,
+      "sense": 4,
+      "candidate": "ir a um santuário",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "A paráfrase detalha o objeto de culto; \"visitar\" (primária) sustenta o sentido.",
+      "suggestedTranslation": "visitar",
+      "category": "undertranslation"
+    },
+    {
+      "jmdictSeq": 1522150,
+      "sense": 1,
+      "candidate": "livro (volume/obra)",
+      "type": "explanation",
+      "priority": 2,
+      "reason": "\"livro\" já cobre o sentido; a paráfrase é redundante.",
+      "suggestedTranslation": "livro",
+      "category": "cultural explanation"
+    }
+  ]
+}

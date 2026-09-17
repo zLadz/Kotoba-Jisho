@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.3",
+    "role": "probes",
+    "purpose": "casos controlados para verificar se os refinamentos do v0.2b generalizam; NÃO entram nas estatísticas do dataset",
+    "generatedAt": "2026-09-17",
+    "count": 6
+  },
+  "probes": [
+    {
+      "id": "P1",
+      "jmdictSeq": 1259290,
+      "kanji": ["見る", "観る", "視る", "覧る"],
+      "readings": ["みる"],
+      "sense": 1,
+      "partOfSpeech": ["v1", "vt"],
+      "glosses": ["to see", "to look", "to watch", "to view", "to observe"],
+      "candidate": { "text": "ver", "type": "equivalent", "priority": 1, "confidence": 0.95 },
+      "expected": "approved",
+      "decision": "approved",
+      "category": null,
+      "reason": "1/2/4: \"ver\" isola corretamente o sense 1 e é natural em pt-BR."
+    },
+    {
+      "id": "P2",
+      "jmdictSeq": 1259290,
+      "kanji": ["見る", "観る", "視る", "覧る"],
+      "readings": ["みる"],
+      "sense": 3,
+      "partOfSpeech": ["v1", "vt"],
+      "glosses": ["to look after", "to attend to", "to take care of", "to keep an eye on"],
+      "candidate": { "text": "ver", "type": "equivalent", "priority": 1, "confidence": 0.9 },
+      "expected": "rejected",
+      "decision": "rejected",
+      "category": "sense collision",
+      "reason": "11: \"ver\" é tradução global da entrada e colide com o sense 1; aqui o sentido é cuidar/zelar."
+    },
+    {
+      "id": "P3",
+      "jmdictSeq": 1358280,
+      "kanji": ["食べる", "喰べる"],
+      "readings": ["たべる"],
+      "sense": 1,
+      "partOfSpeech": ["v1", "vt"],
+      "glosses": ["to eat"],
+      "candidate": { "text": "ver", "type": "equivalent", "priority": 1, "confidence": 0.9 },
+      "expected": "rejected",
+      "decision": "rejected",
+      "category": "semantic mismatch",
+      "reason": "1: \"ver\" não corresponde a \"to eat\"; candidate semanticamente incorreto."
+    },
+    {
+      "id": "P4",
+      "jmdictSeq": 1562350,
+      "kanji": ["話す", "咄す"],
+      "readings": ["はなす"],
+      "sense": 3,
+      "partOfSpeech": ["v5s", "vt"],
+      "glosses": ["to speak (a language)"],
+      "candidate": { "text": "falar", "type": "equivalent", "priority": 1, "confidence": 0.85 },
+      "expected": "approved",
+      "decision": "approved",
+      "category": null,
+      "reason": "2: repetição lexical com o sense 1 NÃO é erro automático; \"falar\" representa corretamente falar uma língua, sem perda de distinção relevante."
+    },
+    {
+      "id": "P5",
+      "jmdictSeq": 1202440,
+      "kanji": ["開く"],
+      "readings": ["ひらく"],
+      "sense": 3,
+      "partOfSpeech": ["v5k", "vi", "vt"],
+      "glosses": ["to open (for business, e.g. in the morning)"],
+      "candidate": { "text": "abrir", "type": "equivalent", "priority": 1, "confidence": 0.88 },
+      "expected": "approved",
+      "decision": "approved",
+      "category": null,
+      "reason": "2: a mesma tradução cabe nos senses 1 (abrir) e 3 (abrir para funcionamento) sem perda de distinção semântica relevante; não rejeitar automaticamente por repetição."
+    },
+    {
+      "id": "P6",
+      "jmdictSeq": 1395620,
+      "kanji": ["全然", "全っ然"],
+      "readings": ["ぜんぜん", "ぜんっぜん"],
+      "sense": 3,
+      "partOfSpeech": ["adv"],
+      "glosses": ["extremely", "very"],
+      "candidate": { "text": "muito", "type": "equivalent", "priority": 1, "confidence": 0.85 },
+      "expected": "review",
+      "decision": "review",
+      "category": "register/connotation",
+      "suggestedTranslation": "extremamente",
+      "reason": "6: \"muito\" e \"extremamente\" diferem em intensidade; semanticamente correto, mas a alternativa é mais natural/precisa."
+    }
+  ]
+}

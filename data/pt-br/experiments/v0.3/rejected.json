@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "experiment": "pt-br-ai-generation-v0.3",
+    "role": "rejected",
+    "refines": "v0.2b",
+    "generatedAt": "2026-09-17",
+    "count": 5
+  },
+  "items": [
+    {
+      "jmdictSeq": 1376310,
+      "sense": 4,
+      "candidate": "estrela",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "\"estrela\" é a tradução global da entrada e colide com o sense 1; aqui o sentido é ponto/mancha.",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1202450,
+      "sense": 6,
+      "candidate": "abrir",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "\"abrir\" já representa os senses 1/2; neste sense o sentido é amanhecer (aproximar-se do dia).",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1252560,
+      "sense": 3,
+      "candidate": "leve",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "\"leve\" pertence ao sense 1 (peso); aqui o sentido é trivial/não sério.",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1235950,
+      "sense": 3,
+      "candidate": "fronteira",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "\"fronteira\" corresponde ao sense 1 (limite físico); aqui é área/região/âmbito.",
+      "category": "sense collision"
+    },
+    {
+      "jmdictSeq": 1254480,
+      "sense": 2,
+      "candidate": "buraco",
+      "type": "equivalent",
+      "priority": 2,
+      "reason": "\"buraco\" corresponde ao sense 1 (abertura); aqui é cavidade/depressão no solo.",
+      "category": "sense collision"
+    }
+  ]
+}
