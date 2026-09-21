@@ -1,0 +1,77 @@
+{
+  "dataset": "kotoba-pt-br",
+  "version": "v0.4",
+  "language": "pt-BR",
+  "format": "canonical",
+  "schemaVersion": "1.0.0",
+  "schema": "data/schemas/pt-br-dataset.schema.json",
+  "sourceDataset": "v0.3b",
+  "derivedFrom": "data/pt-br/experiments/v0.3b/dataset.json",
+  "humanReview": {
+    "file": "human-review.json",
+    "status": "pending-explicit-human-validation",
+    "missingFile": false,
+    "correctionsApplied": 0
+  },
+  "generatedAt": "2026-09-21T19:26:08.539Z",
+  "recordCount": 1706,
+  "uniqueSenseCount": 1706,
+  "uniqueEntryCount": 499,
+  "sha256": "163b0ec327ac53ab9a37b2705d39ff189ea7a21697d80c7d1c3abaea8a63a03c",
+  "schemaSha256": "b3cc61ae443008fbee191175c5b636b7cf4b77d951dff2a0cf961bb1deea4897",
+  "jmdictVersion": "2026-09-09",
+  "referentialValidation": {
+    "checked": 1706,
+    "distinctEntries": 499,
+    "invalidReferences": 0,
+    "samples": [],
+    "database": "localhost:5432/kotoba",
+    "skipped": false
+  },
+  "duplicateDetection": {
+    "checked": 1706,
+    "duplicates": 0,
+    "identity": ["jmdictSeq", "sensePosition", "language", "text", "source", "sourceVersion"],
+    "policy": "first-wins — mesma política do importer (deduplicateRows em services/translations-importer/src/index.ts)"
+  },
+  "positionPolicy": {
+    "policy": "índice ordinal dentro de (jmdictSeq, sensePosition) após ordenação estável por (position, text); uma tradução por acepção ⇒ position=0",
+    "changed": 0
+  },
+  "ordering": {
+    "policy": "jmdictSeq ASC, sensePosition ASC, position ASC, text ASC (comparação por code points, independente de locale)",
+    "deterministic": true
+  },
+  "validation": {
+    "schemaErrors": 0,
+    "structuralFieldViolations": 0,
+    "textViolations": 0,
+    "languageErrors": 0
+  },
+  "provenance": {
+    "source": "kotoba-ai-experiment",
+    "sourceVersion": "v0.3",
+    "confidenceRange": {
+      "min": 0.6,
+      "max": 0.95,
+      "presentInAllRows": true
+    },
+    "semanticsChanged": 0
+  },
+  "gates": {
+    "schemaErrors": 0,
+    "invalidReferences": 0,
+    "unexpectedDuplicates": 0,
+    "structuralFieldViolations": 0,
+    "textViolations": 0,
+    "languageErrors": 0,
+    "deterministicBuild": true,
+    "productionWrites": 0
+  },
+  "status": "staging-ready",
+  "files": {
+    "dataset": "dataset.json",
+    "manifest": "manifest.json",
+    "report": "report.md"
+  }
+}

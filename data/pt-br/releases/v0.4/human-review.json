@@ -1,0 +1,10 @@
+{
+  "artifact": "kotoba-pt-br-human-validation-status",
+  "version": "v0.4",
+  "status": "pending-explicit-human-validation",
+  "reviewedBy": null,
+  "reviewedAt": null,
+  "approvals": [],
+  "corrections": [],
+  "note": "Representação explícita do estado da validação humana do dataset v0.3b. Nenhuma aprovação ou correção humana foi inventada: ao concluir o v0.4, nenhuma decisão humana estava registrada formalmente no repositório. O dataset v0.4 é, portanto, derivado integralmente do dataset v0.3b, sem alterações semânticas. Correções ou aprovações futuras devem ser registradas aqui (approvals/corrections) para serem aplicadas de forma rastreável pelo build."
+}

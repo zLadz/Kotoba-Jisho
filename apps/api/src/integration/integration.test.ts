@@ -574,4 +574,114 @@ describe('integração', () => {
       expect(body?.senses[0]?.sourceGlosses.every((g) => g.source === 'jmdict')).toBe(true);
     });
   });
+
+  describe('v0.4 search regression — staging (ver / comer / vermelhor)', () => {
+    let miruId: string;
+    let taberuId: string;
+
+    beforeAll(async () => {
+      const { parseEntry } = await import('@kotoba/importer/parser');
+      const { flushEntryBatch } = await import('@kotoba/importer/storage');
+
+      const entryRows = await db.execute(
+        sql`select e.id, e.jmdict_seq from entries e where e.jmdict_seq in (1259290, 1358280)`,
+      );
+      const bySeq = new Map<number, string>();
+      for (const row of entryRows) {
+        bySeq.set(row.jmdict_seq as number, row.id as string);
+      }
+
+      if (!bySeq.has(1259290)) {
+        const miruXml = `<entry>
+          <ent_seq>1259290</ent_seq>
+          <k_ele><keb>見る</keb></k_ele>
+          <r_ele><reb>みる</reb></r_ele>
+          <sense>
+            <gloss>to see</gloss>
+          </sense>
+        </entry>`;
+        const miru = extractEntries(miruXml).map((raw) => parseEntry(raw))[0];
+        if (miru === undefined) {
+          throw new Error('Fixture 見る sem entrada');
+        }
+        await flushEntryBatch([miru], seedSourceImportId);
+        const rows = await db.execute(sql`select e.id from entries e where e.jmdict_seq = 1259290`);
+        miruId = String(rows[0]?.id);
+      } else {
+        miruId = bySeq.get(1259290)!;
+      }
+      taberuId = bySeq.get(1358280)!;
+
+      const ensureTranslation = async (seq: number, text: string): Promise<void> => {
+        const existing = await db.execute(
+          sql`select t.id from translations t
+              join senses s on s.id = t.sense_id
+              join entries e on e.id = s.entry_id
+              where e.jmdict_seq = ${seq} and s.position = 0 and t.text = ${text}
+              limit 1`,
+        );
+        if (existing.length > 0) {
+          return;
+        }
+        const sense = await db.execute(
+          sql`select s.id from senses s
+              join entries e on e.id = s.entry_id
+              where e.jmdict_seq = ${seq} and s.position = 0
+              limit 1`,
+        );
+        const senseId = String(sense[0]?.id);
+        if (senseId === 'undefined' || senseId === '') {
+          throw new Error(`sense 0 inexistente para jmdictSeq ${seq}`);
+        }
+        await db.execute(
+          sql`insert into translations (sense_id, position, language, text, normalized_text, source, source_version)
+              values (${senseId}, 0, 'pt-BR', ${text}, ${normalizeGloss(text)}, 'manual', 'v0.4-search-regression')`,
+        );
+      };
+      await ensureTranslation(1259290, 'ver');
+      await ensureTranslation(1358280, 'comer');
+    }, 30_000);
+
+    it('I. "ver" em pt-BR retorna 見る no topo e nunca 食べる', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=ver&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string; kanji: string[] }> }>();
+      expect(body?.results[0]?.id).toBe(miruId);
+      expect(body?.results[0]?.kanji).toContain('見る');
+      const ids = body?.results.map((result) => result.id) ?? [];
+      expect(ids).not.toContain(taberuId);
+    });
+
+    it('I. "comer" em pt-BR retorna 食べる no topo e nunca 見る', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=comer&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string; kanji: string[] }> }>();
+      expect(body?.results[0]?.id).toBe(taberuId);
+      expect(body?.results[0]?.kanji).toContain('食べる');
+      const ids = body?.results.map((result) => result.id) ?? [];
+      expect(ids).not.toContain(miruId);
+    });
+
+    it('I. "vermelhor" não produz falsos positivos por prefixo de "ver"', async () => {
+      const response = await app?.inject({
+        method: 'GET',
+        url: '/api/v1/search?q=vermelhor&lang=pt-BR',
+      });
+      expect(response?.statusCode).toBe(200);
+      const body = response?.json<{ results: Array<{ id: string; kanji: string[] }> }>();
+      const ids = body?.results.map((result) => result.id) ?? [];
+      expect(ids).not.toContain(miruId);
+      expect(ids).not.toContain(taberuId);
+      for (const result of body?.results ?? []) {
+        expect(result.kanji).not.toContain('見る');
+        expect(result.kanji).not.toContain('食べる');
+      }
+    });
+  });
 });

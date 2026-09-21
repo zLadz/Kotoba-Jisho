@@ -21,6 +21,9 @@ const FIXTURE_FILE = fileURLToPath(
 const SMOKE_FILE = fileURLToPath(
   new URL('../../../services/translations-importer/fixtures/pt-br-smoke.json', import.meta.url),
 );
+const V04_FILE = fileURLToPath(
+  new URL('../../../data/pt-br/releases/v0.4/dataset.json', import.meta.url),
+);
 
 function extractEntries(xml: string): string[] {
   const blocks: string[] = [];
@@ -601,6 +604,79 @@ describe('traduções Kotoba (storage)', () => {
         sql`select count(*)::int as total from source_imports where source = 'manual'`,
       );
       expect(afterImports[0]?.total).toBe(beforeImports[0]?.total);
+    });
+  });
+
+  describe('release v0.4 — porta de entrada do importer sobre o dataset canônico', () => {
+    let v04Dataset: {
+      translations: Array<{
+        jmdictSeq: number;
+        sensePosition: number;
+        language: string;
+        text: string;
+        source: string;
+        sourceVersion: string;
+        position: number;
+      }>;
+    };
+
+    const identityKey = (row: {
+      jmdictSeq: number;
+      sensePosition: number;
+      language: string;
+      text: string;
+      source: string;
+      sourceVersion: string;
+    }): string =>
+      [
+        row.jmdictSeq,
+        row.sensePosition,
+        row.language,
+        row.text,
+        row.source,
+        row.sourceVersion,
+      ].join('|');
+
+    beforeAll(async () => {
+      v04Dataset = JSON.parse(await readFile(V04_FILE, 'utf8')) as typeof v04Dataset;
+    });
+
+    it('G. o dataset v0.4 atravessa a validação do importer (zod) sem duplicatas nas 1706 linhas', async () => {
+      const { translationDatasetSchema } = await import('@kotoba/validation');
+      expect(translationDatasetSchema.safeParse(v04Dataset).success).toBe(true);
+      expect(v04Dataset.translations).toHaveLength(1706);
+
+      const seen = new Set<string>();
+      let duplicates = 0;
+      for (const row of v04Dataset.translations) {
+        const key = identityKey(row);
+        if (seen.has(key)) {
+          duplicates += 1;
+        }
+        seen.add(key);
+      }
+      expect(duplicates).toBe(0);
+    });
+
+    it('H. dry-run sobre as 1706 linhas do dataset v0.4 não executa writes', async () => {
+      const { analyzeTranslationBatch } = await import('./storage.js');
+
+      const translationsBefore = await db.execute(
+        sql`select count(*)::int as total from translations`,
+      );
+      const importsBefore = await db.execute(
+        sql`select count(*)::int as total from source_imports`,
+      );
+
+      const analysis = await analyzeTranslationBatch(v04Dataset.translations);
+      expect(analysis).toBeDefined();
+
+      const translationsAfter = await db.execute(
+        sql`select count(*)::int as total from translations`,
+      );
+      const importsAfter = await db.execute(sql`select count(*)::int as total from source_imports`);
+      expect(translationsAfter[0]?.total).toBe(translationsBefore[0]?.total);
+      expect(importsAfter[0]?.total).toBe(importsBefore[0]?.total);
     });
   });
 });
