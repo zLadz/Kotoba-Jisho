@@ -1,0 +1,41 @@
+{
+  "experiment": "pt-br-ai-translation-dataset-v0.3b",
+  "description": "Normalização estrutural determinística do approved.json do experimento v0.3 para o contrato canônico de dataset de traduções. JMdict permanece a autoridade estrutural japonesa; nenhuma tradução foi gerada ou alterada semanticamente.",
+  "derivedFrom": "data/pt-br/experiments/v0.3/approved.json",
+  "schema": "data/schemas/pt-br-dataset.schema.json",
+  "generatedAt": "2026-09-21T18:11:35.923Z",
+  "source": "kotoba-ai-experiment",
+  "version": "v0.3",
+  "count": 1706,
+  "transformation": {
+    "removedFields": ["kanji", "readings", "sense", "status"],
+    "addedFields": ["language", "position"],
+    "mappedFields": {
+      "sense": "sensePosition (1-based → 0-based)"
+    },
+    "semanticsChanged": 0,
+    "determinismOrder": "ordem do approved.json preservada; positions iniciando em 0 por acepção"
+  },
+  "preservation": {
+    "count": 1706,
+    "sourceCount": 1,
+    "sourceVersions": ["v0.3"],
+    "languageCount": 1,
+    "missingConfidence": 0,
+    "duplicates": 0,
+    "removedFields": ["kanji", "readings", "sense", "status"]
+  },
+  "referentialValidation": {
+    "checked": 1706,
+    "distinctEntries": 499,
+    "invalidReferences": 0,
+    "samples": [],
+    "database": "localhost:5432/kotoba",
+    "skipped": false
+  },
+  "files": {
+    "dataset": "dataset.json",
+    "manifest": "manifest.json"
+  },
+  "checksum": "aef05e3c47f5b99ac98dcafc37e2590be3e989f44799b81ed65ba8f6dc72d27a"
+}

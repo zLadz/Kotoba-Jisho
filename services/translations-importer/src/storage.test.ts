@@ -189,20 +189,6 @@ describe('traduções Kotoba (storage)', () => {
     expect(after[0]?.total).toBe(before[0]?.total);
   });
 
-  it('rejeita linha sem identidade declarada (kanji/reading)', async () => {
-    const result = await flushTranslationBatch([
-      {
-        jmdictSeq: 1206900,
-        sensePosition: 0,
-        language: 'pt-BR',
-        text: 'estudante',
-        source: 'manual',
-        sourceVersion: 'manual-curated-1',
-      },
-    ]);
-    expect(result).toEqual({ inserted: 0, skipped: 0, errors: 1 });
-  });
-
   it('substitui linhas por (source, sourceVersion) ao reaplicar', async () => {
     const row = {
       jmdictSeq: 1206900,
@@ -480,6 +466,141 @@ describe('traduções Kotoba (storage)', () => {
       const second = await importTranslationsAtomically(unique, distinctPairs(unique));
       expect(second).toEqual({ inserted: 7, skipped: 8, errors: 0 });
       expect(await countTranslations()).toBe(7);
+    });
+
+    it('dado canônico sem identidade é aceito e resolve por jmdict_seq + sense_position', async () => {
+      await clearTranslations();
+
+      const result = await flushTranslationBatch([
+        {
+          jmdictSeq: 1206900,
+          sensePosition: 0,
+          language: 'pt-BR',
+          text: 'acadêmico',
+          source: 'manual',
+          sourceVersion: 'manual-canonical-1',
+        },
+      ]);
+      expect(result).toEqual({ inserted: 1, skipped: 0, errors: 0 });
+
+      const rows = await db.execute(
+        sql`select t.language, t.text, t.source, t.source_version from translations t
+          join senses s on s.id = t.sense_id
+          join entries e on e.id = s.entry_id
+          where e.jmdict_seq = 1206900`,
+      );
+      expect(rows).toEqual([
+        {
+          language: 'pt-BR',
+          text: 'acadêmico',
+          source: 'manual',
+          source_version: 'manual-canonical-1',
+        },
+      ]);
+    });
+
+    it('dataset canônico (sem identidade) e dataset manual (com identidade) usam o mesmo caminho de resolução', async () => {
+      await clearTranslations();
+
+      const result = await flushTranslationBatch([
+        {
+          jmdictSeq: 1358280,
+          sensePosition: 0,
+          language: 'pt-BR',
+          text: 'ingerir',
+          source: 'manual',
+          sourceVersion: 'manual-canonical-1',
+        },
+        {
+          jmdictSeq: 1358280,
+          sensePosition: 1,
+          language: 'pt-BR',
+          text: 'subsistir',
+          source: 'manual',
+          sourceVersion: 'manual-canonical-1',
+          kanji: ['食べる'],
+          reading: ['たべる'],
+        },
+      ]);
+      expect(result).toEqual({ inserted: 2, skipped: 0, errors: 0 });
+      expect(await countTranslations()).toBe(2);
+    });
+
+    it('dry-run não grava nada e classifica corretamente (wouldInsert/wouldSkip/wouldReject/invalidReferences)', async () => {
+      const { analyzeTranslationBatch } = await import('./storage.js');
+      await clearTranslations();
+
+      const seeded = await flushTranslationBatch([
+        {
+          jmdictSeq: 1206900,
+          sensePosition: 0,
+          language: 'pt-BR',
+          text: 'universitário',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+        },
+      ]);
+      expect(seeded.inserted).toBe(1);
+      const beforeImports = await db.execute(
+        sql`select count(*)::int as total from source_imports where source = 'manual'`,
+      );
+
+      const analysis = await analyzeTranslationBatch([
+        {
+          jmdictSeq: 1,
+          sensePosition: 0,
+          language: 'pt-BR',
+          text: 'fantasma',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+        },
+        {
+          jmdictSeq: 1206900,
+          sensePosition: 9,
+          language: 'pt-BR',
+          text: 'fantasma-de-posição',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+        },
+        {
+          jmdictSeq: 1358280,
+          sensePosition: 1,
+          language: 'pt-BR',
+          text: 'comer',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+          kanji: ['帯同'],
+          reading: ['たいどう'],
+        },
+        {
+          jmdictSeq: 1206900,
+          sensePosition: 0,
+          language: 'pt-BR',
+          text: 'universitário',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+        },
+        {
+          jmdictSeq: 1358280,
+          sensePosition: 1,
+          language: 'pt-BR',
+          text: 'subsistir',
+          source: 'manual',
+          sourceVersion: 'dry-run-test-1',
+        },
+      ]);
+      expect(analysis).toEqual({
+        wouldInsert: 1,
+        wouldSkip: 1,
+        wouldReject: 1,
+        invalidReferences: 2,
+      });
+
+      expect(await countTranslations()).toBe(1);
+      const afterImports = await db.execute(
+        sql`select count(*)::int as total from source_imports where source = 'manual'`,
+      );
+      expect(afterImports[0]?.total).toBe(beforeImports[0]?.total);
     });
   });
 });

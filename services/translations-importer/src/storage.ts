@@ -184,14 +184,13 @@ export async function replaceTranslationRows(
   await tx.delete(schema.translations).where(or(...conditions));
 }
 
-export async function flushTranslationBatch(
-  rows: TranslationRow[],
-  tx: Tx = db,
-): Promise<TranslationBatchResult> {
-  if (rows.length === 0) {
-    return { inserted: 0, skipped: 0, errors: 0 };
-  }
+interface TranslationContext {
+  entryIdBySeq: Map<number, string>;
+  senseIdByEntryAndPosition: Map<string, string>;
+  entrySurfaces: Map<string, Set<string>>;
+}
 
+async function loadTranslationContext(rows: TranslationRow[], tx: Tx): Promise<TranslationContext> {
   const jmdictSeqs = [...new Set(rows.map((row) => row.jmdictSeq))];
   const entryRows = await tx
     .select({ id: schema.entries.id, jmdictSeq: schema.entries.jmdictSeq })
@@ -246,30 +245,43 @@ export async function flushTranslationBatch(
     senseIdByEntryAndPosition.set(`${row.entryId}:${row.position}`, row.id);
   }
 
-  const senseId = (jmdictSeq: number, position: number): string | undefined => {
-    const entryId = entryIdBySeq.get(jmdictSeq);
-    if (!entryId) return undefined;
-    return senseIdByEntryAndPosition.get(`${entryId}:${position}`);
-  };
+  return { entryIdBySeq, senseIdByEntryAndPosition, entrySurfaces };
+}
+
+function declaredIdentity(row: TranslationRow): string[] {
+  return [...(row.kanji ?? []), ...(row.reading ?? [])];
+}
+
+export async function flushTranslationBatch(
+  rows: TranslationRow[],
+  tx: Tx = db,
+): Promise<TranslationBatchResult> {
+  if (rows.length === 0) {
+    return { inserted: 0, skipped: 0, errors: 0 };
+  }
+
+  const context = await loadTranslationContext(rows, tx);
 
   let skipped = 0;
   let errors = 0;
   const resolvedRows: Array<{ row: TranslationRow; index: number; senseId: string }> = [];
 
   for (const [index, row] of rows.entries()) {
-    const entryId = entryIdBySeq.get(row.jmdictSeq);
+    const entryId = context.entryIdBySeq.get(row.jmdictSeq);
     if (!entryId) {
       skipped += 1;
       continue;
     }
-    const resolvedSenseId = senseId(row.jmdictSeq, row.sensePosition);
+    const resolvedSenseId = context.senseIdByEntryAndPosition.get(
+      `${entryId}:${row.sensePosition}`,
+    );
     if (!resolvedSenseId) {
       skipped += 1;
       continue;
     }
-    const declared = [...(row.kanji ?? []), ...(row.reading ?? [])];
-    const surfaces = entrySurfaces.get(entryId) ?? new Set<string>();
-    if (declared.length === 0 || !declared.some((surface) => surfaces.has(surface))) {
+    const declared = declaredIdentity(row);
+    const surfaces = context.entrySurfaces.get(entryId) ?? new Set<string>();
+    if (declared.length > 0 && !declared.some((surface) => surfaces.has(surface))) {
       errors += 1;
       continue;
     }
@@ -291,6 +303,26 @@ export async function flushTranslationBatch(
     return { inserted: 0, skipped, errors };
   }
 
+  const pending = await filterOutExisting(translationRows, tx);
+
+  if (pending.length > 0) {
+    await insertChunked(tx, schema.translations, pending);
+  }
+
+  return { inserted: pending.length, skipped, errors };
+}
+
+async function filterOutExisting(
+  translationRows: Array<{
+    senseId: string;
+    position: number;
+    language: string;
+    text: string;
+    source: string;
+    sourceVersion: string;
+  }>,
+  tx: Tx,
+): Promise<typeof translationRows> {
   const senseIds = [...new Set(translationRows.map((row) => row.senseId))];
   const languages = [...new Set(translationRows.map((row) => row.language))];
   const existingRows = await tx
@@ -314,18 +346,71 @@ export async function flushTranslationBatch(
       (row) => `${row.senseId}|${row.language}|${row.text}|${row.source}|${row.sourceVersion}`,
     ),
   );
-  const pending = translationRows.filter(
+  return translationRows.filter(
     (row) =>
       !existingKeys.has(
         `${row.senseId}|${row.language}|${row.text}|${row.source}|${row.sourceVersion}`,
       ),
   );
+}
 
-  if (pending.length > 0) {
-    await insertChunked(tx, schema.translations, pending);
+export interface TranslationDryRunResult {
+  wouldInsert: number;
+  wouldSkip: number;
+  wouldReject: number;
+  invalidReferences: number;
+}
+
+export async function analyzeTranslationBatch(
+  rows: TranslationRow[],
+  tx: Tx = db,
+): Promise<TranslationDryRunResult> {
+  if (rows.length === 0) {
+    return { wouldInsert: 0, wouldSkip: 0, wouldReject: 0, invalidReferences: 0 };
   }
 
-  return { inserted: pending.length, skipped, errors };
+  const context = await loadTranslationContext(rows, tx);
+
+  let invalidReferences = 0;
+  let wouldReject = 0;
+  const resolvedRows: Array<{ row: TranslationRow; index: number; senseId: string }> = [];
+
+  for (const [index, row] of rows.entries()) {
+    const entryId = context.entryIdBySeq.get(row.jmdictSeq);
+    if (!entryId) {
+      invalidReferences += 1;
+      continue;
+    }
+    const resolvedSenseId = context.senseIdByEntryAndPosition.get(
+      `${entryId}:${row.sensePosition}`,
+    );
+    if (!resolvedSenseId) {
+      invalidReferences += 1;
+      continue;
+    }
+    const declared = declaredIdentity(row);
+    const surfaces = context.entrySurfaces.get(entryId) ?? new Set<string>();
+    if (declared.length > 0 && !declared.some((surface) => surfaces.has(surface))) {
+      wouldReject += 1;
+      continue;
+    }
+    resolvedRows.push({ row, index, senseId: resolvedSenseId });
+  }
+
+  const translationRows = resolvedRows.map(({ row, index, senseId: resolvedSenseId }) => ({
+    senseId: resolvedSenseId,
+    position: row.position ?? index,
+    language: row.language,
+    text: row.text,
+    source: row.source,
+    sourceVersion: row.sourceVersion,
+  }));
+
+  const pending = await filterOutExisting(translationRows, tx);
+  const wouldInsert = pending.length;
+  const wouldSkip = translationRows.length - wouldInsert;
+
+  return { wouldInsert, wouldSkip, wouldReject, invalidReferences };
 }
 
 export async function importTranslationsAtomically(

@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { translationDatasetSchema, type TranslationDatasetRow } from '@kotoba/validation';
 import { logger } from './logger.js';
 import {
+  analyzeTranslationBatch,
   completeTranslationImport,
   failTranslationImport,
   importTranslationsAtomically,
@@ -12,7 +13,12 @@ import {
   type TranslationSourceKey,
 } from './storage.js';
 
-function readArgs(argv: string[]): { filePath: string; source?: string; version?: string } {
+function readArgs(argv: string[]): {
+  filePath: string;
+  source?: string;
+  version?: string;
+  dryRun: boolean;
+} {
   const fileIndex = argv.indexOf('--file');
   const filePath = argv[fileIndex + 1];
   if (fileIndex < 0 || !filePath || filePath.startsWith('--')) {
@@ -25,7 +31,9 @@ function readArgs(argv: string[]): { filePath: string; source?: string; version?
   const versionIndex = argv.indexOf('--version');
   const version = versionIndex >= 0 ? argv[versionIndex + 1] : undefined;
 
-  return { filePath, source, version };
+  const dryRun = argv.includes('--dry-run');
+
+  return { filePath, source, version, dryRun };
 }
 
 function checksumOf(content: string): string {
@@ -74,7 +82,12 @@ function formatIssues(issues: Array<{ path: PropertyKey[]; message: string }>): 
 }
 
 async function main(): Promise<void> {
-  const { filePath, source: rawSource, version: rawVersion } = readArgs(process.argv.slice(2));
+  const {
+    filePath,
+    source: rawSource,
+    version: rawVersion,
+    dryRun,
+  } = readArgs(process.argv.slice(2));
 
   const content = await readFile(filePath, 'utf8');
   const parsed = JSON.parse(content) as unknown;
@@ -97,6 +110,25 @@ async function main(): Promise<void> {
     logger.warn('linhas duplicadas dentro do dataset (primeira vence)', {
       duplicates,
     });
+  }
+
+  if (dryRun) {
+    const summary = await analyzeTranslationBatch(rows);
+    logger.info('análise dry-run concluída (nenhuma escrita no banco)', {
+      processed: dataset.data.translations.length,
+      duplicates,
+      wouldInsert: summary.wouldInsert,
+      wouldSkip: summary.wouldSkip,
+      wouldReject: summary.wouldReject,
+      invalidReferences: summary.invalidReferences,
+    });
+    if (summary.invalidReferences > 0 || summary.wouldReject > 0) {
+      logger.warn('dry-run detectou problemas que impediriam a importação', {
+        invalidReferences: summary.invalidReferences,
+        wouldReject: summary.wouldReject,
+      });
+    }
+    process.exit(0);
   }
 
   const startedAtMs = Date.now();

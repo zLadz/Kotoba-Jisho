@@ -1,0 +1,38 @@
+{
+  "description": "Dataset manual PT-BR normalizado para o contrato canônico de dataset (sem kanji/reading; JMdict como autoridade estrutural japonesa). Textos, posições, source e sourceVersion preservados.",
+  "schema": "data/schemas/pt-br-dataset.schema.json",
+  "files": [
+    {
+      "file": "pt-br-smoke.json",
+      "source": "kotoba-translations",
+      "version": "dev-1",
+      "originalCount": 16,
+      "normalizedCount": 15,
+      "duplicatesRemoved": 1,
+      "positionSource": "posição original preservada",
+      "referentialValidation": {
+        "checked": 15,
+        "invalidReferences": 0,
+        "samples": [],
+        "skipped": false
+      },
+      "checksum": "733cc210441fe8e35bdf03a7da1c0a033cdbab870db2b70a930e78f1e3a9b696"
+    },
+    {
+      "file": "pt-br-sample.json",
+      "source": "kotoba-translations",
+      "version": "dev-1",
+      "originalCount": 11,
+      "normalizedCount": 11,
+      "duplicatesRemoved": 0,
+      "positionSource": "índice do array (default do importer)",
+      "referentialValidation": {
+        "checked": 11,
+        "invalidReferences": 0,
+        "samples": [],
+        "skipped": false
+      },
+      "checksum": "927683203da258b0789fd9635f2234135b931e7443430239257b8cef0e06d32a"
+    }
+  ]
+}
