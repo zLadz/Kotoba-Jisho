@@ -70,15 +70,29 @@ Byte-for-byte determinístico.
 | schema checksum (sha256)  | `b3cc61ae443008fbee191175c5b636b7cf4b77d951dff2a0cf961bb1deea4897`                                 |
 | validação humana          | ver `human-review.json`                                                                            |
 
-### Validação humana
+## Human Validation
 
-Conforme a regra do v0.4, nenhuma aprovação humana foi **inventada**. Ao concluir o
-v0.4, nenhuma decisão humana estava registrada formalmente no repositório; por isso a
-validação humana foi representada explicitamente em `data/pt-br/releases/v0.4/human-review.json`
-(`status: pending-explicit-human-validation`, `approvals: []`, `corrections: []`, zero
-correções aplicadas). O dataset v0.4 é derivado integralmente do v0.3b, e problemas
-semânticos descobertos em revisões futuras deverão ser registrados como correções de
-dados (rastreáveis) em `corrections` — nunca corrigidos por heurística.
+A stratified sample of 25 translations was manually reviewed.
+
+Results:
+- Reviewed: 25/25
+- Approved: 25
+- Corrections: 0
+- Rejected: 0
+- Needs second review: 0
+- Approval rate: 100%
+
+No new error class was identified during the review.
+The sample included polysemous entries, specialized terminology,
+expressions, counters, cultural terms, and multiple senses from
+the same JMdict entry.
+
+The result provides positive evidence for the quality of the
+dataset but does not constitute exhaustive human validation of
+all 1,706 records.
+
+Reviewer: Lucas Diniz
+Review date: 2026-09-21
 
 ## Import dry-run
 
@@ -156,6 +170,9 @@ staging environment unavailable
 ```text
 STAGING-READY
 ```
+O status `STAGING-READY` descreve a prontidão técnica do artefato para staging/importação.
+A validação humana por amostragem também foi concluída, com 25/25 itens aprovados, mas
+isso não equivale a uma validação manual exaustiva de todo o dataset.
 
 Todos os gates do release:
 
@@ -194,7 +211,7 @@ Não existem scripts npm dedicados de "schema validation"/"dataset build" no
 
 ```text
 [x] v0.3b utilizado como origem
-[x] validação humana incorporada, se disponível (n/a — nenhuma correção humana registrada; representada em human-review.json; nenhuma aprovação inventada)
+[x] validação humana por amostragem concluída (25/25 aprovados; 0 correções; 0 rejeições)
 [x] schema validado
 [x] referências JMdict validadas
 [x] nenhum campo estrutural duplicado
@@ -223,3 +240,5 @@ v0.5  = release candidate / primeira importação de produção (futuro)
 ```
 
 O v0.4 **não** é produção.
+
+A validação humana da amostra foi concluída em `2026-09-21` pelo revisor `Lucas Diniz`.
